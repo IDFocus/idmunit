@@ -1,0 +1,146 @@
+
+[0     ] - Loading properties file from class path resource [idmunit-defaults.properties]
+[250   ] - loadDataSet(clazz = class org.idmunit.TrivirDTFDriverTests) - Excel file loaded.
+[312   ] - Found test data for method: org.idmunit.TrivirDTFDriverTests#testUserAdd
+[328   ] - Creating data driven test: org.idmunit.TrivirDTFDriverTests#testUserAdd[Excel row 8]
+[328   ] - Creating data driven test: org.idmunit.TrivirDTFDriverTests#testUserAdd[Excel row 9]
+[328   ] - Creating data driven test: org.idmunit.TrivirDTFDriverTests#testUserAdd[Excel row 10]
+[328   ] - Creating data driven test: org.idmunit.TrivirDTFDriverTests#testUserAdd[Excel row 11]
+[328   ] - Creating data driven test: org.idmunit.TrivirDTFDriverTests#testUserAdd[Excel row 12]
+[328   ] - Not mocking method. (Method = public final void org.ddsteps.DDStepsTestCase.setUp() throws java.lang.Exception)
+[328   ] - Loading properties file from class path resource [idmunit-defaults.properties]
+[375   ] - JDK 1.4+ collections available
+[391   ] - Commons Collections 3.x available
+[437   ] - IdMUnit Properties Entry: ConfigLocation = [../myProfiles/idmunit-config.xml]
+[437   ] - ### Loading IdMUnit configuration profiles....
+[437   ] - ### Enable email alerts: = [true]
+[437   ] - ### Enable log alerts: = [true]
+[437   ] - ### Attempting to select live target: [trivirLab]
+[437   ] - ### Selected profile: = [trivirLab]
+[437   ] - ###	---------------------------------
+[437   ] - ### 	Connection Name: META
+[437   ] - ### 	Description: Connector for the identity vault
+[437   ] - ### 	Type: org.idmunit.connector.LDAP
+[437   ] - ### 	Server: 172.19.18.132
+[437   ] - ### 	User: cn=admin,o=services
+[437   ] - ### 	Password: ***************
+[437   ] - ### 	Multipliers:
+[437   ] - ###		Retries multiplied by: 0
+[437   ] - ###		Waits multiplied by: 0
+[437   ] - ### 	Data Substitutions:
+[437   ] - ###		Value to replace: %TEST1%
+[437   ] - ###		New value: ou=test
+[437   ] - ###		Value to replace: %TEST2%
+[437   ] - ###		New value: o=users
+[437   ] - ###		Value to replace: %TTT%
+[437   ] - ###		New value: TestUser
+[437   ] - ### 	Data Injections:
+[437   ] - ###		Class used to inject data: org.idmunit.injector.DateInjection
+[437   ] - ###		Key value to replace: %TODAY%
+[437   ] - ###		Format of injected data: yyyyMMdd
+[437   ] - ###		Dynamicaly generated value: 20061215
+[437   ] - ###		Class used to inject data: org.idmunit.injector.DateInjection
+[437   ] - ###		Key value to replace: %TODAY+30%
+[437   ] - ###		Format of injected data: yyyyMMdd
+[437   ] - ###		Mutator: 30
+[437   ] - ###		Dynamicaly generated value: 20070114
+[437   ] - ###		Class used to inject data: org.idmunit.injector.DateInjection
+[437   ] - ###		Key value to replace: %TODAY-30%
+[437   ] - ###		Format of injected data: yyyyMMdd
+[437   ] - ###		Mutator: -30
+[437   ] - ###		Dynamicaly generated value: 20061115
+[687   ] - ###	---------------------------------
+[687   ] - ### 	Alert Name: : TriVir
+[687   ] - ### 	Description: TriVir personnel will be notified if a test marked as "Critical" fails
+[687   ] - ### 	SMTP Mail Server: smtp.swacorp.com
+[687   ] - ### 	Sender Name: idmunitAlerts@idmunit.org
+[687   ] - ### 	Alert Recipient: bkynaston@gmail.com
+[687   ] - ### 	Subject Prefix: IdMUnit Test Failed: 
+[687   ] - ### 	Log Path: c:/idmunitAlerts.log
+[687   ] - ###	---------------------------------
+[687   ] - ### 	Connection Name: AD1
+[687   ] - ### 	Description: Connector to an Active Directory domain on Windows 2003 server
+[687   ] - ### 	Type: org.idmunit.connector.LDAP
+[687   ] - ### 	Server: 172.19.18.131
+[687   ] - ### 	User: cn=administrator,cn=users,dc=trivir,dc=com
+[687   ] - ### 	Password: ***************
+[687   ] - ### 	Multipliers:
+[687   ] - ###		Retries multiplied by: 0
+[687   ] - ###		Waits multiplied by: 0
+[687   ] - ### 	Data Substitutions:
+[687   ] - ###		Value to replace: ADDOMAIN
+[687   ] - ###		New value: simdev,DC=lcl
+[687   ] - ### 	Data Injections:
+[687   ] - ###		Class used to inject data: org.idmunit.injector.DateInjection
+[687   ] - ###		Key value to replace: %TODAY%
+[687   ] - ###		Format of injected data: yyyyMMdd
+[687   ] - ###		Dynamicaly generated value: 20061215
+[687   ] - ###		Class used to inject data: org.idmunit.injector.DateInjection
+[687   ] - ###		Key value to replace: %TODAY+30%
+[687   ] - ###		Format of injected data: yyyyMMdd
+[687   ] - ###		Mutator: 30
+[687   ] - ###		Dynamicaly generated value: 20070114
+[687   ] - ###		Class used to inject data: org.idmunit.injector.DateInjection
+[687   ] - ###		Key value to replace: %TODAY-30%
+[687   ] - ###		Format of injected data: yyyyMMdd
+[687   ] - ###		Mutator: -30
+[687   ] - ###		Dynamicaly generated value: 20061115
+[687   ] - ###	---------------------------------
+[687   ] - ###	---------------------------------
+[687   ] - ### 	Connection Name: DTF
+[687   ] - ### 	Description: Connector to TriVirDTF data feed - must  map drive/share to IDM server or remote loader running the DTF driver
+[687   ] - ### 	Type: org.idmunit.connector.DTF
+[687   ] - ### 	Server: DriverInputFilePath=x:/input/inputFile.csv|DriverOutputFilePath=x:/output/outputFile.csv|delimiter=$
+[687   ] - ### 	Password: ***************
+[687   ] - ### 	Multipliers:
+[687   ] - ###		Retries multiplied by: 0
+[687   ] - ###		Waits multiplied by: 0
+[687   ] - ### 	Data Substitutions:
+[687   ] - ###		Value to replace: X3
+[687   ] - ###		New value: 333-333-3333
+[687   ] - ###		Value to replace: X2
+[687   ] - ###		New value: 222-222-2222
+[687   ] - ###		Value to replace: X1
+[687   ] - ###		New value: 111-111-1111
+[687   ] - ### 	Data Injections:
+[703   ] - ###	---------------------------------
+[703   ] - Comment data: (this row will not be processed)
+
+---------------------------------
+Test Case: testUserAdd[Excel row 8]
+Description:
+Best practice: organize like tests into a single sheet.  If convenient, it is a good idea to organize a sheet of tests such that it can be run 
+independently.  This is not  always possible in the cases where a lot of pre-existing data needs to be set up (thus the need for a test fixture sheet).
+
+This sheet provides an example of ADD event tests.  Sheets may be executed autonomously and asynchronously.
+---------------------------------
+
+[734   ] - testUserAdd[Excel row 9]: Ensure that the test objects does not exist in Meta 
+[5297  ] - testUserAdd[Excel row 10]: Simulate a user add event originating from the Delimited Text File (DTF) source
+[5297  ] - ##### Input File Path: x:/input/inputFile20061215153039.csv
+[5297  ] - ##### Output File Path: x:/output/outputFile20061215153039.csv
+[5297  ] - ##### Field Delimiter: $
+[5297  ] - ...inserting delimited text file entry: 
+[5297  ] - Gillmore$Happy$Software Engineer$info@trivir.com$111-111-1111$222-222-2222$333-333-3333$happyDescVal$
+[5797  ] - RETRY (1} ...Failed to write to the log file: x:/input/inputFile20061215153039.csv Error: x:\input\inputFile20061215153039.csv (The system cannot find the path specified) testUserAdd[Excel row 10]
+[5797  ] - testUserAdd[Excel row 10]: Simulate a user add event originating from the Delimited Text File (DTF) source
+[5797  ] - ##### Input File Path: x:/input/inputFile20061215153039.csv
+[5797  ] - ##### Output File Path: x:/output/outputFile20061215153039.csv
+[5797  ] - ##### Field Delimiter: $
+[5797  ] - ...inserting delimited text file entry: 
+[5797  ] - Gillmore$Happy$Software Engineer$info@trivir.com$111-111-1111$222-222-2222$333-333-3333$happyDescVal$
+[5797  ] - ...FAILURE: ...Failed to write to the log file: x:/input/inputFile20061215153039.csv Error: x:\input\inputFile20061215153039.csv (The system cannot find the path specified)
+[5812  ] - testUserAdd[Excel row 11]: Validate that the user was provisioned successfully with all attrs in sync
+[7812  ] - RETRY (5} Validation failure: [LDAP: error code 32 - NDS error: no such entry (-601)] testUserAdd[Excel row 11]
+[7812  ] - testUserAdd[Excel row 11]: Validate that the user was provisioned successfully with all attrs in sync
+[9828  ] - RETRY (4} Validation failure: [LDAP: error code 32 - NDS error: no such entry (-601)] testUserAdd[Excel row 11]
+[9828  ] - testUserAdd[Excel row 11]: Validate that the user was provisioned successfully with all attrs in sync
+[11828 ] - RETRY (3} Validation failure: [LDAP: error code 32 - NDS error: no such entry (-601)] testUserAdd[Excel row 11]
+[11828 ] - testUserAdd[Excel row 11]: Validate that the user was provisioned successfully with all attrs in sync
+[13844 ] - RETRY (2} Validation failure: [LDAP: error code 32 - NDS error: no such entry (-601)] testUserAdd[Excel row 11]
+[13844 ] - testUserAdd[Excel row 11]: Validate that the user was provisioned successfully with all attrs in sync
+[15844 ] - RETRY (1} Validation failure: [LDAP: error code 32 - NDS error: no such entry (-601)] testUserAdd[Excel row 11]
+[15844 ] - testUserAdd[Excel row 11]: Validate that the user was provisioned successfully with all attrs in sync
+[15859 ] - ...FAILURE: Validation failure: [LDAP: error code 32 - NDS error: no such entry (-601)]
+[15875 ] - testUserAdd[Excel row 12]: Clean up the Meta object
+[15875 ] - Not mocking method. (Method = public final void org.ddsteps.DDStepsTestCase.tearDown() throws java.lang.Exception)

@@ -1,0 +1,1 @@
+java sun.security.tools.KeyTool -import -file rootcert.cer -keystore keystore -alias "type=r.name=sslkey"

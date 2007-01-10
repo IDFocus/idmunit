@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<idmunit live-profile="trivirLab" enable-email-alerts="true" enable-log-alerts="true">
+	<alerts>
+		<alert name="TriVir">
+			<description>TriVir personnel will be notified if a test marked as "Critical" fails</description>
+			<smtp-server>smtp.MYSERVER.com</smtp-server>
+			<alert-sender>idmunitAlerts@idmunit.org</alert-sender>
+			<alert-recipient>bkynaston@trivir.com</alert-recipient>
+			<subject-prefix>IdMUnit Test Failed: </subject-prefix>
+			<log-path>c:/idmunitAlerts.log</log-path>
+		</alert>
+	</alerts>
+	<profiles>
+		<profile name="trivirLab">
+			<connection>
+				<name>META</name>
+				<description>Connector for the identity vault</description>
+				<type>org.idmunit.connector.LDAP</type>
+				<server>172.19.18.132</server>
+				<user>cn=admin,o=services</user>
+				<password>B2vPD2UsfKc=</password>
+				<keystore-path/>
+				<multiplier>
+					<retry>0</retry>
+					<wait>0</wait>
+				</multiplier>
+				<substitutions>
+					<substitution>
+						<replace>%TEST1%</replace>
+						<new>ou=test</new>
+					</substitution>
+					<substitution>
+						<replace>%TEST2%</replace>
+						<new>o=users</new>
+					</substitution>
+					<substitution>
+						<replace>%TTT%</replace>
+						<new>TestUser</new>
+					</substitution>
+				</substitutions>
+				<data-injections>
+					<data-injection>
+						<type>org.idmunit.injector.DateInjection</type>
+						<key>%TODAY%</key>
+						<format>yyyyMMdd</format>
+					</data-injection>
+					<data-injection>
+						<type>org.idmunit.injector.DateInjection</type>
+						<key>%TODAY+30%</key>
+						<format>yyyyMMdd</format>
+						<!-- Positive values will push the date forward X number of days, negative values will push the date back -->
+						<mutator>30</mutator>
+					</data-injection>
+					<data-injection>
+						<type>org.idmunit.injector.DateInjection</type>
+						<key>%TODAY-30%</key>
+						<format>yyyyMMdd</format>
+						<!-- Positive values will push the date forward X number of days, negative values will push the date back -->
+						<mutator>-30</mutator>
+					</data-injection>
+				</data-injections>
+			</connection>
+			<connection>
+				<name>AD1</name>
+				<description>Connector to an Active Directory domain on Windows 2003 server</description>
+				<type>org.idmunit.connector.LDAP</type>
+				<server>172.19.18.131</server>
+				<user>cn=administrator,cn=users,dc=trivir,dc=com</user>
+				<password>B2vPD2UsfKc=</password>
+				<keystore-path/>
+				<multiplier>
+					<retry>0</retry>
+					<wait>0</wait>
+				</multiplier>
+				<substitutions>
+					<substitution>
+						<replace>ADDOMAIN</replace>
+						<new>simdev,DC=lcl</new>
+					</substitution>
+				</substitutions>
+				<data-injections>
+					<data-injection>
+						<type>org.idmunit.injector.DateInjection</type>
+						<key>%TODAY%</key>
+						<format>yyyyMMdd</format>
+					</data-injection>
+					<data-injection>
+						<type>org.idmunit.injector.DateInjection</type>
+						<key>%TODAY+30%</key>
+						<format>yyyyMMdd</format>
+						<!-- Positive values will push the date forward X number of days, negative values will push the date back -->
+						<mutator>30</mutator>
+					</data-injection>
+					<data-injection>
+						<type>org.idmunit.injector.DateInjection</type>
+						<key>%TODAY-30%</key>
+						<format>yyyyMMdd</format>
+						<!-- Positive values will push the date forward X number of days, negative values will push the date back -->
+						<mutator>-30</mutator>
+					</data-injection>
+				</data-injections>
+			</connection>
+			<connection>
+				<name>DTF</name>
+				<description>Connector to TriVirDTF data feed - must  map drive/share or UNC to IDM server or remote loader running the DTF driver</description>
+				<type>org.idmunit.connector.DTF</type>
+				<server>DriverInputFilePath=x:/input/inputFile.csv|DriverOutputFilePath=x:/output/outputFile.csv|delimiter=$</server>
+				<user/>
+				<password/>
+				<keystore-path/>
+				<multiplier>
+					<retry>0</retry>
+					<wait>0</wait>
+				</multiplier>
+				<substitutions>
+					<substitution>
+						<replace>X3</replace>
+						<new>333-333-3333</new>
+					</substitution>
+					<substitution>
+						<replace>X2</replace>
+						<new>222-222-2222</new>
+					</substitution>
+					<substitution>
+						<replace>X1</replace>
+						<new>111-111-1111</new>
+					</substitution>
+				</substitutions>
+			</connection>
+		</profile>
+	</profiles>
+</idmunit>

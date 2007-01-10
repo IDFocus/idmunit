@@ -1,0 +1,593 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" failures="0" name="org.idmunit.TrivirADDomainDriverTests" tests="67" time="162.375">
+  <properties>
+    <property name="java.vendor" value="Sun Microsystems Inc."></property>
+    <property name="lib.dir" value="lib"></property>
+    <property name="eclipse.pdebuild.templates" value="/C:/IdMUnit/designer12/Designer/eclipse/plugins/org.eclipse.pde.build_3.2.1.r321_v20060823/templates/"></property>
+    <property name="sun.management.compiler" value="HotSpot Client Compiler"></property>
+    <property name="os.name" value="Windows XP"></property>
+    <property name="ddsteps.home" value="lib"></property>
+    <property name="sun.boot.class.path" value="C:\IdMUnit\designer12\Designer\eclipse\jre\lib\endorsed\xalan.jar;C:\IdMUnit\designer12\Designer\eclipse\jre\lib\endorsed\xerces.jar;C:\IdMUnit\designer12\Designer\eclipse\jre\lib\endorsed\xml-apis.jar;C:\IdMUnit\designer12\Designer\eclipse\jre\lib\rt.jar;C:\IdMUnit\designer12\Designer\eclipse\jre\lib\i18n.jar;C:\IdMUnit\designer12\Designer\eclipse\jre\lib\sunrsasign.jar;C:\IdMUnit\designer12\Designer\eclipse\jre\lib\jsse.jar;C:\IdMUnit\designer12\Designer\eclipse\jre\lib\jce.jar;C:\IdMUnit\designer12\Designer\eclipse\jre\lib\charsets.jar;C:\IdMUnit\designer12\Designer\eclipse\jre\classes"></property>
+    <property name="sun.desktop" value="windows"></property>
+    <property name="java.vm.specification.vendor" value="Sun Microsystems Inc."></property>
+    <property name="ant.home" value="C:\IdMUnit\designer12\Designer\eclipse\plugins\org.apache.ant_1.6.5"></property>
+    <property name="java.runtime.version" value="1.5.0_05-b05"></property>
+    <property name="props.dir" value="../myProfiles"></property>
+    <property name="xls.dir" value="idmunit-core/test"></property>
+    <property name="user.name" value="Brent Kynaston"></property>
+    <property name="build.dir" value="classes"></property>
+    <property name="user.language" value="en"></property>
+    <property name="sun.boot.library.path" value="C:\IdMUnit\designer12\Designer\eclipse\jre\bin"></property>
+    <property name="ant.project.name" value="IdMUnit"></property>
+    <property name="java.version" value="1.5.0_05"></property>
+    <property name="user.timezone" value=""></property>
+    <property name="resources.dir" value="../myProfiles"></property>
+    <property name="sun.arch.data.model" value="32"></property>
+    <property name="java.endorsed.dirs" value="C:\IdMUnit\designer12\Designer\eclipse\jre\lib\endorsed"></property>
+    <property name="sun.cpu.isalist" value="pentium_pro+mmx pentium_pro pentium+mmx pentium i486 i386 i86"></property>
+    <property name="sun.jnu.encoding" value="Cp1252"></property>
+    <property name="file.encoding.pkg" value="sun.io"></property>
+    <property name="file.separator" value="\"></property>
+    <property name="java.specification.name" value="Java Platform API Specification"></property>
+    <property name="java.class.version" value="49.0"></property>
+    <property name="user.country" value="US"></property>
+    <property name="java.home" value="C:\IdMUnit\designer12\Designer\eclipse\jre"></property>
+    <property name="java.vm.info" value="mixed mode"></property>
+    <property name="ant.file" value="C:\IdMUnit\src\build.xml"></property>
+    <property name="os.version" value="5.1"></property>
+    <property name="path.separator" value=";"></property>
+    <property name="java.vm.version" value="1.5.0_05-b05"></property>
+    <property name="user.variant" value=""></property>
+    <property name="ant.library.dir" value="C:\IdMUnit\designer12\Designer\eclipse\plugins\org.apache.ant_1.6.5\lib"></property>
+    <property name="java.awt.printerjob" value="sun.awt.windows.WPrinterJob"></property>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"></property>
+    <property name="awt.toolkit" value="sun.awt.windows.WToolkit"></property>
+    <property name="ant.file.IdMUnit" value="C:\IdMUnit\src\build.xml"></property>
+    <property name="eclipse.pdebuild.scripts" value="/C:/IdMUnit/designer12/Designer/eclipse/plugins/org.eclipse.pde.build_3.2.1.r321_v20060823/scripts/"></property>
+    <property name="user.home" value="C:\Documents and Settings\Brent Kynaston"></property>
+    <property name="java.specification.vendor" value="Sun Microsystems Inc."></property>
+    <property name="test.dir" value="../myTests"></property>
+    <property name="java.library.path" value="C:\IdMUnit\designer12\Designer\eclipse\jre\bin;.;C:\WINDOWS\system32;C:\WINDOWS;c:\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\Program Files\Wave Systems Corp\Dell Preboot Manager\Access Client\v5\;C:\Novell\Designer12\Designer\eclipse\jre\bin;C:\Program Files\UltraEdit-32;C:\Program Files\QuickTime\QTSystem\"></property>
+    <property name="java.vendor.url" value="http://java.sun.com/"></property>
+    <property name="java.vm.vendor" value="Sun Microsystems Inc."></property>
+    <property name="java.runtime.name" value="Java(TM) 2 Runtime Environment, Standard Edition"></property>
+    <property name="java.class.path" value="C:\IdMUnit\src\lib\DDSteps-1.1.1-dev-20061215133454.jar;C:\IdMUnit\src\lib\activation.jar;C:\IdMUnit\src\lib\cglib-nodep.jar;C:\IdMUnit\src\lib\commons-collections.jar;C:\IdMUnit\src\lib\commons-lang.jar;C:\IdMUnit\src\lib\commons-logging.jar;C:\IdMUnit\src\lib\dbunit.jar;C:\IdMUnit\src\lib\easymock-java13.jar;C:\IdMUnit\src\lib\easymockclassextension-java13.jar;C:\IdMUnit\src\lib\ehcache.jar;C:\IdMUnit\src\lib\httpunit.jar;C:\IdMUnit\src\lib\jdom.jar;C:\IdMUnit\src\lib\js.jar;C:\IdMUnit\src\lib\junit-addons.jar;C:\IdMUnit\src\lib\junit.jar;C:\IdMUnit\src\lib\jwebunit.jar;C:\IdMUnit\src\lib\jxl.jar;C:\IdMUnit\src\lib\ldaptemplate-1.0-rc2.jar;C:\IdMUnit\src\lib\log4j.jar;C:\IdMUnit\src\lib\mail.jar;C:\IdMUnit\src\lib\msbase.jar;C:\IdMUnit\src\lib\mssqlserver.jar;C:\IdMUnit\src\lib\msutil.jar;C:\IdMUnit\src\lib\nekohtml.jar;C:\IdMUnit\src\lib\oracleJDBC14.zip;C:\IdMUnit\src\lib\poi.jar;C:\IdMUnit\src\lib\servlet-api.jar;C:\IdMUnit\src\lib\smtp.jar;C:\IdMUnit\src\lib\spring-beans.jar;C:\IdMUnit\src\lib\spring-context.jar;C:\IdMUnit\src\lib\spring-core.jar;C:\IdMUnit\src\lib\spring-dao.jar;C:\IdMUnit\src\lib\spring-jdbc.jar;C:\IdMUnit\src\lib\spring-ldap.jar;C:\IdMUnit\src\lib\spring-mock.jar;C:\IdMUnit\src\lib\xercesImpl.jar;C:\IdMUnit\src\lib\xml-apis.jar;C:\IdMUnit\src\classes;C:\IdMUnit\src\idmunit-core;C:\IdMUnit\myTests;C:\IdMUnit\myProfiles;C:\IdMUnit\src;C:\Program Files\Java\jre1.5.0_06\lib\ext\QTJava.zip;C:\IdMUnit\designer12\Designer\eclipse\plugins\org.apache.ant_1.6.5\lib\ant-launcher.jar;C:\IdMUnit\designer12\Designer\eclipse\plugins\org.apache.ant_1.6.5\lib\ant.jar;C:\IdMUnit\designer12\Designer\eclipse\plugins\org.apache.ant_1.6.5\lib\ant-junit.jar"></property>
+    <property name="ant.version" value="Apache Ant version 1.6.5 compiled on June 2 2005"></property>
+    <property name="testhtml.dir" value="junit-reports/html"></property>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"></property>
+    <property name="java.vm.specification.version" value="1.0"></property>
+    <property name="sun.cpu.endian" value="little"></property>
+    <property name="sun.os.patch.level" value="Service Pack 2"></property>
+    <property name="eclipse.pdebuild.home" value="/C:/IdMUnit/designer12/Designer/eclipse/plugins/org.eclipse.pde.build_3.2.1.r321_v20060823/./"></property>
+    <property name="java.io.tmpdir" value="C:\DOCUME~1\BRENTK~1\LOCALS~1\Temp\"></property>
+    <property name="java.vendor.url.bug" value="http://java.sun.com/cgi-bin/bugreport.cgi"></property>
+    <property name="conf.dir" value="conf"></property>
+    <property name="os.arch" value="x86"></property>
+    <property name="java.awt.graphicsenv" value="sun.awt.Win32GraphicsEnvironment"></property>
+    <property name="java.ext.dirs" value="C:\IdMUnit\designer12\Designer\eclipse\jre\lib\ext"></property>
+    <property name="user.dir" value="C:\IdMUnit\src"></property>
+    <property name="line.separator" value="
+"></property>
+    <property name="java.vm.name" value="Java HotSpot(TM) Client VM"></property>
+    <property name="basedir" value="C:\IdMUnit\src"></property>
+    <property name="ant.java.version" value="1.5"></property>
+    <property name="file.encoding" value="Cp1252"></property>
+    <property name="testreports.dir" value="junit-reports"></property>
+    <property name="java.specification.version" value="1.5"></property>
+    <property name="src.dir" value="idmunit-core"></property>
+  </properties>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testDestroyFixture[Excel row 8]" time="0.5"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testDestroyFixture[Excel row 9]" time="5.125"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testDestroyFixture[Excel row 10]" time="4.547"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testDestroyFixture[Excel row 11]" time="1.047"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testDestroyFixture[Excel row 12]" time="1.015"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testDestroyFixture[Excel row 13]" time="5.625"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testDestroyFixture[Excel row 14]" time="0.297"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testDestroyFixture[Excel row 15]" time="4.532"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testDestroyFixture[Excel row 16]" time="1.046"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testDestroyFixture[Excel row 17]" time="1.016"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testDestroyFixture[Excel row 18]" time="1.0"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testDestroyFixture[Excel row 19]" time="0.359"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testDestroyFixture[Excel row 20]" time="1.016"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testDestroyFixture[Excel row 21]" time="1.047"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testDestroyFixture[Excel row 22]" time="1.016"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testDestroyFixture[Excel row 23]" time="0.015"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testCreateFixture[Excel row 8]" time="0.015"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testCreateFixture[Excel row 9]" time="4.516"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testCreateFixture[Excel row 10]" time="4.516"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testCreateFixture[Excel row 11]" time="4.234"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testCreateFixture[Excel row 12]" time="0.531"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testCreateFixture[Excel row 13]" time="0.063"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testCreateFixture[Excel row 14]" time="0.015"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testCreateFixture[Excel row 15]" time="6.344"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testCreateFixture[Excel row 16]" time="0.703"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testCreateFixture[Excel row 17]" time="0.016"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testCreateFixture[Excel row 18]" time="0.016"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testCreateFixture[Excel row 19]" time="7.484"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testCreateFixture[Excel row 20]" time="1.594"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADUserAdd[Excel row 8]" time="0.0"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADUserAdd[Excel row 9]" time="19.922"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADUserAdd[Excel row 10]" time="5.031"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADUserAdd[Excel row 11]" time="3.11"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADUserMod[Excel row 8]" time="0.0"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADUserMod[Excel row 9]" time="6.922"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADUserMod[Excel row 10]" time="5.032"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADUserMod[Excel row 11]" time="0.328"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADUserMod[Excel row 12]" time="1.031"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADGrpMember[Excel row 8]" time="0.015"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADGrpMember[Excel row 9]" time="4.703"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADGrpMember[Excel row 10]" time="5.032"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADGrpMember[Excel row 11]" time="0.187"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADGrpMember[Excel row 12]" time="1.0"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADGrpMember[Excel row 13]" time="1.063"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADGrpMember[Excel row 14]" time="0.515"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADGrpMember[Excel row 15]" time="0.531"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADGrpMember[Excel row 16]" time="0.5"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADGrpMember[Excel row 17]" time="0.516"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADGrpMember[Excel row 18]" time="0.188"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADGrpMember[Excel row 19]" time="0.578"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADGrpMember[Excel row 20]" time="0.75"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADGrpMember[Excel row 21]" time="0.515"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADGrpMember[Excel row 22]" time="0.5"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADGrpMember[Excel row 23]" time="0.203"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADGrpMember[Excel row 24]" time="1.516"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADGrpMember[Excel row 25]" time="0.5"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADUserPswd[Excel row 8]" time="0.016"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADUserPswd[Excel row 9]" time="6.922"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADUserPswd[Excel row 10]" time="11.015"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADUserMove[Excel row 8]" time="0.016"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADUserMove[Excel row 9]" time="6.156"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADUserMove[Excel row 10]" time="1.016"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADUserMove[Excel row 11]" time="5.531"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADUserRename[Excel row 8]" time="0.0"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADUserRename[Excel row 9]" time="4.688"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADUserRename[Excel row 10]" time="1.015"></testcase>
+  <testcase classname="org.idmunit.TrivirADDomainDriverTests" name="testMetaToADUserRename[Excel row 11]" time="5.5"></testcase>
+  <system-out><![CDATA[
+[0     ] - Loading properties file from class path resource [idmunit-defaults.properties]
+[250   ] - loadDataSet(clazz = class org.idmunit.TrivirADDomainDriverTests) - Excel file loaded.
+[312   ] - Found test data for method: org.idmunit.TrivirADDomainDriverTests#testDestroyFixture
+[328   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testDestroyFixture[Excel row 8]
+[328   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testDestroyFixture[Excel row 9]
+[328   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testDestroyFixture[Excel row 10]
+[328   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testDestroyFixture[Excel row 11]
+[328   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testDestroyFixture[Excel row 12]
+[328   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testDestroyFixture[Excel row 13]
+[328   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testDestroyFixture[Excel row 14]
+[328   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testDestroyFixture[Excel row 15]
+[328   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testDestroyFixture[Excel row 16]
+[328   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testDestroyFixture[Excel row 17]
+[328   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testDestroyFixture[Excel row 18]
+[328   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testDestroyFixture[Excel row 19]
+[328   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testDestroyFixture[Excel row 20]
+[328   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testDestroyFixture[Excel row 21]
+[328   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testDestroyFixture[Excel row 22]
+[328   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testDestroyFixture[Excel row 23]
+[422   ] - Found test data for method: org.idmunit.TrivirADDomainDriverTests#testCreateFixture
+[422   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testCreateFixture[Excel row 8]
+[422   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testCreateFixture[Excel row 9]
+[422   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testCreateFixture[Excel row 10]
+[422   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testCreateFixture[Excel row 11]
+[422   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testCreateFixture[Excel row 12]
+[422   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testCreateFixture[Excel row 13]
+[422   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testCreateFixture[Excel row 14]
+[422   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testCreateFixture[Excel row 15]
+[422   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testCreateFixture[Excel row 16]
+[422   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testCreateFixture[Excel row 17]
+[422   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testCreateFixture[Excel row 18]
+[422   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testCreateFixture[Excel row 19]
+[422   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testCreateFixture[Excel row 20]
+[484   ] - Found test data for method: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserAdd
+[484   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserAdd[Excel row 8]
+[484   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserAdd[Excel row 9]
+[484   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserAdd[Excel row 10]
+[484   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserAdd[Excel row 11]
+[593   ] - Found test data for method: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserMod
+[593   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserMod[Excel row 8]
+[593   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserMod[Excel row 9]
+[593   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserMod[Excel row 10]
+[593   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserMod[Excel row 11]
+[593   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserMod[Excel row 12]
+[656   ] - Found test data for method: org.idmunit.TrivirADDomainDriverTests#testMetaToADGrpMember
+[656   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADGrpMember[Excel row 8]
+[656   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADGrpMember[Excel row 9]
+[656   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADGrpMember[Excel row 10]
+[656   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADGrpMember[Excel row 11]
+[656   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADGrpMember[Excel row 12]
+[656   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADGrpMember[Excel row 13]
+[656   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADGrpMember[Excel row 14]
+[656   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADGrpMember[Excel row 15]
+[672   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADGrpMember[Excel row 16]
+[672   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADGrpMember[Excel row 17]
+[672   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADGrpMember[Excel row 18]
+[672   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADGrpMember[Excel row 19]
+[672   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADGrpMember[Excel row 20]
+[672   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADGrpMember[Excel row 21]
+[672   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADGrpMember[Excel row 22]
+[672   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADGrpMember[Excel row 23]
+[672   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADGrpMember[Excel row 24]
+[672   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADGrpMember[Excel row 25]
+[734   ] - Found test data for method: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserPswd
+[734   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserPswd[Excel row 8]
+[734   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserPswd[Excel row 9]
+[734   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserPswd[Excel row 10]
+[812   ] - Found test data for method: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserMove
+[812   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserMove[Excel row 8]
+[812   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserMove[Excel row 9]
+[812   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserMove[Excel row 10]
+[812   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserMove[Excel row 11]
+[890   ] - Found test data for method: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserRename
+[890   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserRename[Excel row 8]
+[890   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserRename[Excel row 9]
+[890   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserRename[Excel row 10]
+[890   ] - Creating data driven test: org.idmunit.TrivirADDomainDriverTests#testMetaToADUserRename[Excel row 11]
+[890   ] - Not mocking method. (Method = public final void org.ddsteps.DDStepsTestCase.setUp() throws java.lang.Exception)
+[906   ] - Loading properties file from class path resource [idmunit-defaults.properties]
+[1031  ] - JDK 1.4+ collections available
+[1031  ] - Commons Collections 3.x available
+[1109  ] - IdMUnit Properties Entry: ConfigLocation = [../myProfiles/idmunit-config.xml]
+[1109  ] - ### Loading IdMUnit configuration profiles....
+[1109  ] - ### Enable email alerts: = [true]
+[1109  ] - ### Enable log alerts: = [true]
+[1109  ] - ### Attempting to select live target: [trivirLab]
+[1109  ] - ### Selected profile: = [trivirLab]
+[1109  ] - ###	---------------------------------
+[1109  ] - ### 	Connection Name: META
+[1109  ] - ### 	Description: Connector for the identity vault
+[1109  ] - ### 	Type: org.idmunit.connector.LDAP
+[1109  ] - ### 	Server: 172.19.18.132
+[1109  ] - ### 	User: cn=admin,o=services
+[1109  ] - ### 	Password: ***************
+[1109  ] - ### 	Multipliers:
+[1109  ] - ###		Retries multiplied by: 0
+[1109  ] - ###		Waits multiplied by: 0
+[1109  ] - ### 	Data Substitutions:
+[1109  ] - ###		Value to replace: %TEST1%
+[1109  ] - ###		New value: ou=test
+[1109  ] - ###		Value to replace: %TEST2%
+[1109  ] - ###		New value: o=users
+[1109  ] - ###		Value to replace: %TTT%
+[1109  ] - ###		New value: TestUser
+[1109  ] - ### 	Data Injections:
+[1109  ] - ###		Class used to inject data: org.idmunit.injector.DateInjection
+[1109  ] - ###		Key value to replace: %TODAY%
+[1109  ] - ###		Format of injected data: yyyyMMdd
+[1125  ] - ###		Dynamicaly generated value: 20061215
+[1125  ] - ###		Class used to inject data: org.idmunit.injector.DateInjection
+[1125  ] - ###		Key value to replace: %TODAY+30%
+[1125  ] - ###		Format of injected data: yyyyMMdd
+[1125  ] - ###		Mutator: 30
+[1125  ] - ###		Dynamicaly generated value: 20070114
+[1125  ] - ###		Class used to inject data: org.idmunit.injector.DateInjection
+[1125  ] - ###		Key value to replace: %TODAY-30%
+[1125  ] - ###		Format of injected data: yyyyMMdd
+[1125  ] - ###		Mutator: -30
+[1125  ] - ###		Dynamicaly generated value: 20061115
+[1406  ] - ###	---------------------------------
+[1406  ] - ### 	Alert Name: : TriVir
+[1406  ] - ### 	Description: TriVir personnel will be notified if a test marked as "Critical" fails
+[1406  ] - ### 	SMTP Mail Server: smtp.swacorp.com
+[1406  ] - ### 	Sender Name: idmunitAlerts@idmunit.org
+[1406  ] - ### 	Alert Recipient: bkynaston@gmail.com
+[1406  ] - ### 	Subject Prefix: IdMUnit Test Failed: 
+[1406  ] - ### 	Log Path: c:/idmunitAlerts.log
+[1406  ] - ###	---------------------------------
+[1406  ] - ### 	Connection Name: AD1
+[1406  ] - ### 	Description: Connector to an Active Directory domain on Windows 2003 server
+[1406  ] - ### 	Type: org.idmunit.connector.LDAP
+[1406  ] - ### 	Server: 172.19.18.131
+[1406  ] - ### 	User: cn=administrator,cn=users,dc=trivir,dc=com
+[1406  ] - ### 	Password: ***************
+[1406  ] - ### 	Multipliers:
+[1406  ] - ###		Retries multiplied by: 0
+[1406  ] - ###		Waits multiplied by: 0
+[1406  ] - ### 	Data Substitutions:
+[1406  ] - ###		Value to replace: ADDOMAIN
+[1406  ] - ###		New value: simdev,DC=lcl
+[1406  ] - ### 	Data Injections:
+[1406  ] - ###		Class used to inject data: org.idmunit.injector.DateInjection
+[1406  ] - ###		Key value to replace: %TODAY%
+[1406  ] - ###		Format of injected data: yyyyMMdd
+[1406  ] - ###		Dynamicaly generated value: 20061215
+[1406  ] - ###		Class used to inject data: org.idmunit.injector.DateInjection
+[1406  ] - ###		Key value to replace: %TODAY+30%
+[1406  ] - ###		Format of injected data: yyyyMMdd
+[1406  ] - ###		Mutator: 30
+[1406  ] - ###		Dynamicaly generated value: 20070114
+[1406  ] - ###		Class used to inject data: org.idmunit.injector.DateInjection
+[1406  ] - ###		Key value to replace: %TODAY-30%
+[1406  ] - ###		Format of injected data: yyyyMMdd
+[1406  ] - ###		Mutator: -30
+[1406  ] - ###		Dynamicaly generated value: 20061115
+[1406  ] - ###	---------------------------------
+[1406  ] - ###	---------------------------------
+[1406  ] - ### 	Connection Name: DTF
+[1406  ] - ### 	Description: Connector to TriVirDTF data feed - must  map drive/share to IDM server or remote loader running the DTF driver
+[1406  ] - ### 	Type: org.idmunit.connector.DTF
+[1406  ] - ### 	Server: DriverInputFilePath=x:/input/inputFile.csv|DriverOutputFilePath=x:/output/outputFile.csv|delimiter=$
+[1406  ] - ### 	Password: ***************
+[1406  ] - ### 	Multipliers:
+[1406  ] - ###		Retries multiplied by: 0
+[1406  ] - ###		Waits multiplied by: 0
+[1406  ] - ### 	Data Substitutions:
+[1406  ] - ###		Value to replace: X3
+[1406  ] - ###		New value: 333-333-3333
+[1406  ] - ###		Value to replace: X2
+[1406  ] - ###		New value: 222-222-2222
+[1406  ] - ###		Value to replace: X1
+[1406  ] - ###		New value: 111-111-1111
+[1406  ] - ### 	Data Injections:
+[1406  ] - ###	---------------------------------
+[1484  ] - Comment data: (this row will not be processed)
+
+---------------------------------
+Test Case: testDestroyFixture[Excel row 8]
+Description:
+A test fixture can be used to set up pre-existing data and state prior to executing the tests.  For example, if several MODIFY event tests will be executed, the objects  can first be setup in a test fixture, and 
+subsequently destroyed after testing is  complete.  The purpose of this sheet is to destroy data that was created for the  purpose of conducting these tests.
+
+Note the substitutions taking place on the test data in rows 9 and 10.  In the connector profile configuration, substitutions have been configured for those percent-delimited values.
+---------------------------------
+
+[1500  ] - --> Substituting value: [ou=test] for [%TEST1%].
+[1500  ] - --> Substituting value: [o=users] for [%TEST2%].
+[1500  ] - testDestroyFixture[Excel row 9]: Clean up the Meta test object
+[6203  ] - ...performing LDAP deletion for: [cn=TestUser1,ou=test,o=users]
+[6609  ] - ...SUCCESS
+[6640  ] - --> Substituting value: [TestUser] for [%TTT%].
+[6640  ] - testDestroyFixture[Excel row 10]: Clean up the Meta test object
+[11172 ] - testDestroyFixture[Excel row 11]: Validate that the objects have been removed
+[12203 ] - testDestroyFixture[Excel row 12]: Validate that the objects have been removed
+[13218 ] - testDestroyFixture[Excel row 13]: Validate that the objects have been removed
+[18859 ] - testDestroyFixture[Excel row 14]: Clean up the Meta test object
+[18937 ] - ...performing LDAP deletion for: [cn=Test3NEW,o=users]
+[19140 ] - ...SUCCESS
+[19156 ] - testDestroyFixture[Excel row 15]: Clean up the Meta test object
+[23687 ] - testDestroyFixture[Excel row 16]: Validate that the objects have been removed
+[24718 ] - testDestroyFixture[Excel row 17]: Validate that the objects have been removed
+[25734 ] - testDestroyFixture[Excel row 18]: Validate that the objects have been removed
+[26750 ] - testDestroyFixture[Excel row 19]: Clean up the Meta test object
+[26750 ] - ...performing LDAP deletion for: [cn=TestUser4,o=users]
+[27093 ] - ...SUCCESS
+[27109 ] - testDestroyFixture[Excel row 20]: Validate that the objects have been removed
+[28125 ] - testDestroyFixture[Excel row 21]: Validate that the objects have been removed
+[29172 ] - testDestroyFixture[Excel row 22]: Validate that the objects have been removed
+[30187 ] - Comment data: (this row will not be processed)
+
+---------------------------------
+Test Case: testDestroyFixture[Excel row 23]
+Description:
+Best Practice: When moving to production, it's a good idea to increase retry intervals in order to account for the drivers handling production load as tests may take longer to be processed and validated, depending on production load.
+
+This concludes the testing for TriVirADDomainDriverTests.  Please refer to the report for more information.
+---------------------------------
+
+[30187 ] - Not mocking method. (Method = public final void org.ddsteps.DDStepsTestCase.tearDown() throws java.lang.Exception)
+[30187 ] - Not mocking method. (Method = public final void org.ddsteps.DDStepsTestCase.setUp() throws java.lang.Exception)
+[30343 ] - Comment data: (this row will not be processed)
+
+---------------------------------
+Test Case: testCreateFixture[Excel row 8]
+Description:
+A test fixture can be used to set up pre-existing data and state prior to 
+executing the tests.  For example, if several MODIFY event tests will be executed, the objects can first be setup in a test fixture, and subsequently destroyed after testing is complete.
+---------------------------------
+
+[30359 ] - testCreateFixture[Excel row 9]: Validate that the objects have been reset since the last run (no object should exist)
+[34875 ] - testCreateFixture[Excel row 10]: Validate that the objects have been reset since the last run (no object should exist)
+[39390 ] - testCreateFixture[Excel row 11]: Create the test user in Meta 
+[39390 ] - Binding DN cn=TestUser1, o=users
+[43109 ] - >>>cn=TestUser1, o=users created
+[43625 ] - testCreateFixture[Excel row 12]: Validate that the user was provisioned successfully with all attrs in sync
+[43640 ] - ...SUCCESS: validating attribute: [SN] EXPECTED: [TESTLAST1] ACTUAL: [SN: TESTLAST1]
+[43640 ] - ...SUCCESS: validating attribute: [MAIL] EXPECTED: [TEST@TEST.ORG1] ACTUAL: [MAIL: TEST@TEST.ORG1]
+[43640 ] - ...SUCCESS: validating attribute: [TELEPHONENUMBER] EXPECTED: [111-111-11111] ACTUAL: [TELEPHONENUMBER: 111-111-11111]
+[43640 ] - ...SUCCESS: validating attribute: [GIVENNAME] EXPECTED: [TESTGIVEN1] ACTUAL: [GIVENNAME: TESTGIVEN1]
+[43640 ] - ...SUCCESS: validating attribute: [CN] EXPECTED: [TESTUSER1] ACTUAL: [CN: TESTUSER1]
+[43640 ] - ...SUCCESS: validating attribute: [TITLE] EXPECTED: [TESTTITLE1] ACTUAL: [TITLE: TESTTITLE1]
+[43640 ] - ...SUCCESS: validating attribute: [DESCRIPTION] EXPECTED: [TESTDESCRIPTION1] ACTUAL: [DESCRIPTION: TESTDESCRIPTION1]
+[43640 ] - ...SUCCESS: validating attribute: [SAMACCOUNTNAME] EXPECTED: [TESTUSER1] ACTUAL: [SAMACCOUNTNAME: TESTUSER1]
+[44140 ] - testCreateFixture[Excel row 13]: Validate that the objects have been reset since the last run (no object should exist)
+[44218 ] - testCreateFixture[Excel row 14]: Validate that the objects have been reset since the last run (no object should exist)
+[44218 ] - testCreateFixture[Excel row 15]: Create the test user in Meta 
+[44218 ] - Binding DN cn=TestUser3, o=users
+[50062 ] - >>>cn=TestUser3, o=users created
+[50562 ] - testCreateFixture[Excel row 16]: Validate that the user was provisioned successfully with all attrs in sync
+[50765 ] - ...SUCCESS: validating attribute: [SN] EXPECTED: [TESTLAST3] ACTUAL: [SN: TESTLAST3]
+[50765 ] - ...SUCCESS: validating attribute: [MAIL] EXPECTED: [TEST@TEST.ORG3] ACTUAL: [MAIL: TEST@TEST.ORG3]
+[50765 ] - ...SUCCESS: validating attribute: [TELEPHONENUMBER] EXPECTED: [111-111-11113] ACTUAL: [TELEPHONENUMBER: 111-111-11113]
+[50765 ] - ...SUCCESS: validating attribute: [GIVENNAME] EXPECTED: [TESTGIVEN3] ACTUAL: [GIVENNAME: TESTGIVEN3]
+[50765 ] - ...SUCCESS: validating attribute: [CN] EXPECTED: [TESTUSER3] ACTUAL: [CN: TESTUSER3]
+[50765 ] - ...SUCCESS: validating attribute: [TITLE] EXPECTED: [TESTTITLE3] ACTUAL: [TITLE: TESTTITLE3]
+[50765 ] - ...SUCCESS: validating attribute: [DESCRIPTION] EXPECTED: [TESTDESCRIPTION3] ACTUAL: [DESCRIPTION: TESTDESCRIPTION3]
+[50765 ] - ...SUCCESS: validating attribute: [SAMACCOUNTNAME] EXPECTED: [TESTUSER3] ACTUAL: [SAMACCOUNTNAME: TESTUSER3]
+[51281 ] - testCreateFixture[Excel row 17]: Validate that the objects have been reset since the last run (no object should exist)
+[51281 ] - testCreateFixture[Excel row 18]: Validate that the objects have been reset since the last run (no object should exist)
+[51312 ] - testCreateFixture[Excel row 19]: Create the test user in Meta 
+[51312 ] - Binding DN cn=TestUser4, o=users
+[58281 ] - >>>cn=TestUser4, o=users created
+[58797 ] - testCreateFixture[Excel row 20]: Validate that the user was provisioned successfully with all attrs in sync
+[59875 ] - ...SUCCESS: validating attribute: [SN] EXPECTED: [TESTLAST4] ACTUAL: [SN: TESTLAST4]
+[59875 ] - ...SUCCESS: validating attribute: [MAIL] EXPECTED: [TEST@TEST.ORG4] ACTUAL: [MAIL: TEST@TEST.ORG4]
+[59875 ] - ...SUCCESS: validating attribute: [TELEPHONENUMBER] EXPECTED: [111-111-11114] ACTUAL: [TELEPHONENUMBER: 111-111-11114]
+[59875 ] - ...SUCCESS: validating attribute: [GIVENNAME] EXPECTED: [TESTGIVEN4] ACTUAL: [GIVENNAME: TESTGIVEN4]
+[59875 ] - ...SUCCESS: validating attribute: [CN] EXPECTED: [TESTUSER4] ACTUAL: [CN: TESTUSER4]
+[59875 ] - ...SUCCESS: validating attribute: [TITLE] EXPECTED: [TESTTITLE4] ACTUAL: [TITLE: TESTTITLE4]
+[59875 ] - ...SUCCESS: validating attribute: [DESCRIPTION] EXPECTED: [TESTDESCRIPTION4] ACTUAL: [DESCRIPTION: TESTDESCRIPTION4]
+[59875 ] - ...SUCCESS: validating attribute: [SAMACCOUNTNAME] EXPECTED: [TESTUSER4] ACTUAL: [SAMACCOUNTNAME: TESTUSER4]
+[60375 ] - Not mocking method. (Method = public final void org.ddsteps.DDStepsTestCase.tearDown() throws java.lang.Exception)
+[60375 ] - Not mocking method. (Method = public final void org.ddsteps.DDStepsTestCase.setUp() throws java.lang.Exception)
+[60515 ] - Comment data: (this row will not be processed)
+
+---------------------------------
+Test Case: testMetaToADUserAdd[Excel row 8]
+Description:
+Best practice: organize like tests into a single sheet.  If convenient, it is a good idea to organize a sheet of tests such that it can be run 
+independently.  This is not  always possible in the cases where a lot of pre-existing data needs to be set up (thus the need for a test fixture sheet).
+
+This sheet provides an example of ADD event tests.  Sheets may be executed autonomously and asynchronously.
+---------------------------------
+
+[60531 ] - testMetaToADUserAdd[Excel row 9]: Create the test user in Meta 
+[65125 ] - Binding DN cn=TestUser2, o=users
+[79937 ] - >>>cn=TestUser2, o=users created
+[80453 ] - testMetaToADUserAdd[Excel row 10]: Validate that the user was provisioned successfully with all attrs in sync
+[84968 ] - ...SUCCESS: validating attribute: [SN] EXPECTED: [TESTLAST2] ACTUAL: [SN: TESTLAST2]
+[84968 ] - ...SUCCESS: validating attribute: [MAIL] EXPECTED: [TEST@TEST.ORG2] ACTUAL: [MAIL: TEST@TEST.ORG2]
+[84968 ] - ...SUCCESS: validating attribute: [TELEPHONENUMBER] EXPECTED: [111-111-11112] ACTUAL: [TELEPHONENUMBER: 111-111-11112]
+[84968 ] - ...SUCCESS: validating attribute: [GIVENNAME] EXPECTED: [TESTGIVEN2] ACTUAL: [GIVENNAME: TESTGIVEN2]
+[84968 ] - ...SUCCESS: validating attribute: [CN] EXPECTED: [TESTUSER2] ACTUAL: [CN: TESTUSER2]
+[84968 ] - ...SUCCESS: validating attribute: [TITLE] EXPECTED: [TESTTITLE2] ACTUAL: [TITLE: TESTTITLE2]
+[84968 ] - ...SUCCESS: validating attribute: [DESCRIPTION] EXPECTED: [TESTDESCRIPTION2] ACTUAL: [DESCRIPTION: TESTDESCRIPTION2]
+[84968 ] - ...SUCCESS: validating attribute: [SAMACCOUNTNAME] EXPECTED: [TESTUSER2] ACTUAL: [SAMACCOUNTNAME: TESTUSER2]
+[85468 ] - testMetaToADUserAdd[Excel row 11]: Clean up the Meta object
+[85468 ] - ...performing LDAP deletion for: [cn=TestUser2,o=users]
+[88578 ] - ...SUCCESS
+[88578 ] - Not mocking method. (Method = public final void org.ddsteps.DDStepsTestCase.tearDown() throws java.lang.Exception)
+[88578 ] - Not mocking method. (Method = public final void org.ddsteps.DDStepsTestCase.setUp() throws java.lang.Exception)
+[88718 ] - Comment data: (this row will not be processed)
+
+---------------------------------
+Test Case: testMetaToADUserMod[Excel row 8]
+Description:
+This sheet provides an example of MODIFY event tests.  
+---------------------------------
+
+[88734 ] - testMetaToADUserMod[Excel row 9]: Update synchronized attributes in Meta in order to then verify sync to AD
+[93250 ] - ...performing LDAP modification for: [cn=TestUser1,o=users]
+[93250 ] - ...preparing to update attr: [loginDisabled] with value [true]
+[93250 ] - ...preparing to update attr: [mail] with value [test@test.orgNEW2]
+[93250 ] - ...preparing to update attr: [givenName] with value [testgivenNEW2]
+[93250 ] - ...preparing to update attr: [description] with value [testDescriptionNEW2]
+[93250 ] - ...preparing to update attr: [title] with value [testtitleNEW2]
+[93250 ] - ...preparing to update attr: [sn] with value [testlastNEW2]
+[93250 ] - ...preparing to update attr: [telephoneNumber] with value [555-555-55552]
+[95640 ] - ...SUCCESS
+[95656 ] - testMetaToADUserMod[Excel row 10]: Verify sync to AD for the attributes updated in the previous test step
+[100172] - ...SUCCESS: validating attribute: [SN] EXPECTED: [TESTLASTNEW2] ACTUAL: [SN: TESTLASTNEW2]
+[100172] - ...SUCCESS: validating attribute: [USERACCOUNTCONTROL] EXPECTED: [514] ACTUAL: [USERACCOUNTCONTROL: 514]
+[100172] - ...SUCCESS: validating attribute: [MAIL] EXPECTED: [TEST@TEST.ORGNEW2] ACTUAL: [MAIL: TEST@TEST.ORGNEW2]
+[100172] - ...SUCCESS: validating attribute: [TELEPHONENUMBER] EXPECTED: [555-555-55552] ACTUAL: [TELEPHONENUMBER: 555-555-55552]
+[100172] - ...SUCCESS: validating attribute: [GIVENNAME] EXPECTED: [TESTGIVENNEW2] ACTUAL: [GIVENNAME: TESTGIVENNEW2]
+[100172] - ...SUCCESS: validating attribute: [CN] EXPECTED: [TESTUSER1] ACTUAL: [CN: TESTUSER1]
+[100172] - ...SUCCESS: validating attribute: [TITLE] EXPECTED: [TESTTITLENEW2] ACTUAL: [TITLE: TESTTITLENEW2]
+[100172] - ...SUCCESS: validating attribute: [DESCRIPTION] EXPECTED: [TESTDESCRIPTIONNEW2] ACTUAL: [DESCRIPTION: TESTDESCRIPTIONNEW2]
+[100172] - ...SUCCESS: validating attribute: [SAMACCOUNTNAME] EXPECTED: [TESTUSER1] ACTUAL: [SAMACCOUNTNAME: TESTUSER1]
+[100672] - --> Injecting value: [20061215] for [%TODAY%].
+[100672] - testMetaToADUserMod[Excel row 11]: Insert a dynamically generated value into description.  This example uses a date-injector to determine today's date and format it according to the specification in idmuni-config.xml file for this connector.
+[100672] - ...performing LDAP modification for: [cn=TestUser1,o=users]
+[100672] - ...preparing to update attr: [description] with value [20061215]
+[101000] - ...SUCCESS
+[101015] - --> Injecting value: [20061215] for [%TODAY%].
+[101015] - testMetaToADUserMod[Excel row 12]: Verify that today's date is placed into the description in AD
+[101531] - RETRY (19} Validation failed: Attribute [DESCRIPTION] not equal.  Expected dest value: [20061215] Actual dest value(s): [DESCRIPTION: TESTDESCRIPTIONNEW2] testMetaToADUserMod[Excel row 12]
+[101531] - testMetaToADUserMod[Excel row 12]: Verify that today's date is placed into the description in AD
+[101531] - ...SUCCESS: validating attribute: [DESCRIPTION] EXPECTED: [20061215] ACTUAL: [DESCRIPTION: 20061215]
+[102031] - Not mocking method. (Method = public final void org.ddsteps.DDStepsTestCase.tearDown() throws java.lang.Exception)
+[102031] - Not mocking method. (Method = public final void org.ddsteps.DDStepsTestCase.setUp() throws java.lang.Exception)
+[102187] - Comment data: (this row will not be processed)
+
+---------------------------------
+Test Case: testMetaToADGrpMember[Excel row 8]
+Description:
+This sheet provides an example of modifying multi-valued attributes, in this case group membership (Member).  To add a value to a multi-valued attribute, it is important to use the addAttr verb rather than the modObject verb because modObject will replace whatever is there already.  AddAttr will simply add a new value.  An error will be thrown if the targeted attribute is a single-valued attribute.  Note that single-valued attributes in some systems may be multi-valued attributes in other systems and vice versa. (this is often times the case when synchronizing data from eDirectory to Active Directory).
+---------------------------------
+
+[102203] - testMetaToADGrpMember[Excel row 9]: Add a  multi-valued attribute (group membership)
+[106718] - ...performing LDAP modification for: [cn=group1,o=groups]
+[106718] - ...preparing to update attr: [member] with value [cn=TestUser1,o=users]
+[106890] - ...SUCCESS
+[106906] - testMetaToADGrpMember[Excel row 10]: Validate that the extra value exists in AD
+[111422] - ...SUCCESS: validating attribute: [MEMBER] EXPECTED: [CN=TESTUSER1,CN=USERS,DC=TRIVIR,DC=COM] ACTUAL: [MEMBER: CN=TESTUSER1,CN=USERS,DC=TRIVIR,DC=COM]
+[111922] - testMetaToADGrpMember[Excel row 11]: Add a  second multi-valued attribute
+[111922] - ...performing LDAP modification for: [cn=group2,o=groups]
+[111922] - ...preparing to update attr: [member] with value [cn=TestUser1,o=users]
+[112109] - ...SUCCESS
+[112109] - testMetaToADGrpMember[Excel row 12]: Validate that the extra value exists in AD
+[112609] - RETRY (19} Validation failed: Attribute [MEMBER] not equal.  Expected dest value: [cn=TestUser1,CN=Users,DC=trivir,DC=com] but the attribute value did not exist in the application. testMetaToADGrpMember[Excel row 12]
+[112609] - testMetaToADGrpMember[Excel row 12]: Validate that the extra value exists in AD
+[112609] - ...SUCCESS: validating attribute: [MEMBER] EXPECTED: [CN=TESTUSER1,CN=USERS,DC=TRIVIR,DC=COM] ACTUAL: [MEMBER: CN=TESTUSER1,CN=USERS,DC=TRIVIR,DC=COM]
+[113125] - testMetaToADGrpMember[Excel row 13]: Add a  multi-valued attribute (additional group membership)
+[113125] - ...performing LDAP modification for: [cn=group1,o=groups]
+[113125] - ...preparing to update attr: [member] with value [cn=TestUser4,o=users]
+[114172] - ...SUCCESS
+[114187] - testMetaToADGrpMember[Excel row 14]: Validate that the first group membership still exists in Meta
+[114187] - ...SUCCESS: validating attribute: [MEMBER] EXPECTED: [CN=TESTUSER1,O=USERS] ACTUAL: [MEMBER: CN=TESTUSER1,O=USERS, CN=TESTUSER4,O=USERS]
+[114687] - testMetaToADGrpMember[Excel row 15]: Validate that the second group membership now exists in Meta
+[114718] - ...SUCCESS: validating attribute: [MEMBER] EXPECTED: [CN=TESTUSER4,O=USERS] ACTUAL: [MEMBER: CN=TESTUSER1,O=USERS, CN=TESTUSER4,O=USERS]
+[115218] - testMetaToADGrpMember[Excel row 16]: Validate that the first value exists in AD
+[115218] - ...SUCCESS: validating attribute: [MEMBER] EXPECTED: [CN=TESTUSER1,CN=USERS,DC=TRIVIR,DC=COM] ACTUAL: [MEMBER: CN=TESTUSER4,CN=USERS,DC=TRIVIR,DC=COM, CN=TESTUSER1,CN=USERS,DC=TRIVIR,DC=COM]
+[115734] - testMetaToADGrpMember[Excel row 17]: Validate that the second value exists in AD
+[115734] - ...SUCCESS: validating attribute: [MEMBER] EXPECTED: [CN=TESTUSER4,CN=USERS,DC=TRIVIR,DC=COM] ACTUAL: [MEMBER: CN=TESTUSER4,CN=USERS,DC=TRIVIR,DC=COM, CN=TESTUSER1,CN=USERS,DC=TRIVIR,DC=COM]
+[116234] - testMetaToADGrpMember[Excel row 18]: Remove a  multi-valued attribute (additional group membership)
+[116234] - ...performing LDAP modification for: [cn=group1,o=groups]
+[116234] - ...preparing to update attr: [member] with value [cn=TestUser4,o=users]
+[116422] - ...SUCCESS
+[116437] - testMetaToADGrpMember[Excel row 19]: Validate that the first group membership still exists in Meta
+[116500] - ...SUCCESS: validating attribute: [MEMBER] EXPECTED: [CN=TESTUSER1,O=USERS] ACTUAL: [MEMBER: CN=TESTUSER1,O=USERS]
+[117000] - testMetaToADGrpMember[Excel row 20]: Validate that the second group membership does not exist in Meta
+[117750] - testMetaToADGrpMember[Excel row 21]: Validate that the first value exists in AD
+[117765] - ...SUCCESS: validating attribute: [MEMBER] EXPECTED: [CN=TESTUSER1,CN=USERS,DC=TRIVIR,DC=COM] ACTUAL: [MEMBER: CN=TESTUSER1,CN=USERS,DC=TRIVIR,DC=COM]
+[118265] - testMetaToADGrpMember[Excel row 22]: Validate that the second value does not exist in AD
+[118781] - testMetaToADGrpMember[Excel row 23]: Remove all group memberships (all multi-attr values) 
+[118781] - ...performing LDAP modification for: [cn=group1,o=groups]
+[118781] - ...preparing to update attr: [member] with value [null]
+[118968] - ...SUCCESS
+[118968] - testMetaToADGrpMember[Excel row 24]: Validate that the group was removed
+[118984] - ...SUCCESS: validating attribute: [MEMBER] EXPECTED: [CN=TESTUSER1,CN=USERS,DC=TRIVIR,DC=COM] ACTUAL: [MEMBER: CN=TESTUSER1,CN=USERS,DC=TRIVIR,DC=COM]
+[119984] - RETRY (19} Test failed: would have succeeded, but ExpectFailure was set to TRUE testMetaToADGrpMember[Excel row 24]
+[119984] - testMetaToADGrpMember[Excel row 24]: Validate that the group was removed
+[120484] - testMetaToADGrpMember[Excel row 25]: Validate that the group was removed
+[120984] - Not mocking method. (Method = public final void org.ddsteps.DDStepsTestCase.tearDown() throws java.lang.Exception)
+[120984] - Not mocking method. (Method = public final void org.ddsteps.DDStepsTestCase.setUp() throws java.lang.Exception)
+[121125] - Comment data: (this row will not be processed)
+
+---------------------------------
+Test Case: testMetaToADUserPswd[Excel row 8]
+Description:
+This sheet provides an example of PASSWORD change/validation tests.  
+---------------------------------
+
+[121125] - testMetaToADUserPswd[Excel row 9]: Change the password in Meta and enable the user account
+[125640] - ...performing LDAP modification for: [cn=TestUser1,o=users]
+[125640] - ...preparing to update attr: [loginDisabled] with value [false]
+[125640] - ...preparing to update attr: [userPassword] with value [myNEW#1]
+[127547] - ...SUCCESS
+[128047] - testMetaToADUserPswd[Excel row 10]: Validate that the password change in the previous mod step sync'ed successfully.
+Note that the user must be login enabled in order to have this test succeed.  
+Validation is accomplished through authentication.
+[132562] - ...performing LDAP password validation for: [cn=TestUser1,CN=Users,DC=trivir,DC=com]
+[137062] - ...SUCCESS
+[139062] - Not mocking method. (Method = public final void org.ddsteps.DDStepsTestCase.tearDown() throws java.lang.Exception)
+[139062] - Not mocking method. (Method = public final void org.ddsteps.DDStepsTestCase.setUp() throws java.lang.Exception)
+[139234] - Comment data: (this row will not be processed)
+
+---------------------------------
+Test Case: testMetaToADUserMove[Excel row 8]
+Description:
+This sheet provides an example of MOVE tests.   Note that move commands are partition operations in eDirectory, thus a moved object can not be manipulated after the move until the necessary obituary/replication processing has occurred.  Wait/Retry is strongly recommended on ensuing operations targeted at the moved object.
+---------------------------------
+
+[139234] - testMetaToADUserMove[Excel row 9]: Move an account from one context to another in Meta.
+[143765] - ...performing LDAP move/rename for: [cn=TestUser1,o=users] to [cn=TestUser1,ou=test,o=users].
+[145390] - ...SUCCESS
+[145406] - testMetaToADUserMove[Excel row 10]: Validate that the object now resides in the correct context in eDirectory.
+[146422] - testMetaToADUserMove[Excel row 11]: This example driver does not move objects in AD.  Verify that the object is located in its original location in AD.
+[151937] - Not mocking method. (Method = public final void org.ddsteps.DDStepsTestCase.tearDown() throws java.lang.Exception)
+[151937] - Not mocking method. (Method = public final void org.ddsteps.DDStepsTestCase.setUp() throws java.lang.Exception)
+[152062] - Comment data: (this row will not be processed)
+
+---------------------------------
+Test Case: testMetaToADUserRename[Excel row 8]
+Description:
+This sheet provides an example of RENAME tests.   Note that rename commands are partition operations in eDirectory, thus a renamed object can not be manipulated after the rename until the necessary obituary/replication processing has occurred.  Wait/Retry is strongly recommended on ensuing operations targeted at the renamed object.
+---------------------------------
+
+[152078] - testMetaToADUserRename[Excel row 9]: Move an account from one context to another in Meta.
+[156578] - ...performing LDAP move/rename for: [cn=TestUser3,o=users] to [cn=Test3NEW,o=users].
+[156750] - ...SUCCESS
+[156750] - testMetaToADUserRename[Excel row 10]: Validate that the object now resides in the correct context in eDirectory.
+[157765] - testMetaToADUserRename[Excel row 11]: Renames are not synchronized in this sample driver.  Validate the old name in AD.
+[163265] - Not mocking method. (Method = public final void org.ddsteps.DDStepsTestCase.tearDown() throws java.lang.Exception)]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
