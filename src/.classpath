@@ -1,8 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="test-resources/|test-resources/|test/" kind="src" path="idmunit-core"/>
-	<classpathentry kind="src" path="myProfiles"/>
-	<classpathentry kind="src" path="myTests"/>
 	<classpathentry kind="lib" path="lib/jt400.jar"/>
 	<classpathentry kind="lib" path="lib/junit.jar"/>
 	<classpathentry kind="lib" path="lib/junit-addons.jar"/>
