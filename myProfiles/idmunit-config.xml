@@ -16,7 +16,7 @@
 				<name>META</name>
 				<description>Connector for the identity vault</description>
 				<type>org.idmunit.connector.LDAP</type>
-				<server>172.19.18.132</server>
+				<server>11111111111</server>
 				<user>cn=admin,o=services</user>
 				<password>B2vPD2UsfKc=</password>
 				<keystore-path/>
