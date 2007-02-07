@@ -116,7 +116,9 @@ public class Oracle extends DDStepsExcelTestCase implements org.idmunit.connecto
 				}
 			}
 		} catch (SQLException e) {
-			throw new IdMUnitException("Failed toUpper JDBC attrs: " + e.getMessage());
+			//Translate the error message to english for the case where the returned row was empty (query yeilded no results)
+			String errorMessage = (e.getMessage().indexOf("Cursor position not valid")!=-1)?"Error: no results found for the SQL query provided" : "Failed toUpper JDBC attrs: " + e.getMessage(); 
+			throw new IdMUnitException(errorMessage);
 		}
 		return upperCaseAttrs;
 	}
