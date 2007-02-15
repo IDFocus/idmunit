@@ -114,6 +114,7 @@ public class ISeries extends DDStepsExcelTestCase implements org.idmunit.connect
 				if(attrVal != null && attrVal.length() > 0) {
 					BasicAttribute upperCaseAttr = new BasicAttribute(upperCaseAttrName);
 					String upperCaseAttrVal = attrVal.toUpperCase();
+					upperCaseAttrVal.trim();
 					upperCaseAttr.add(upperCaseAttrVal);
 					upperCaseAttrs.put(upperCaseAttr);
 					log.info("Column Val: " + upperCaseAttrVal);
