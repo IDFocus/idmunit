@@ -370,14 +370,24 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 		return null;
 	}
 
+	protected String findUserbyLDAPFilter(String idVal, String base, String filter) throws IdMUnitException {
+		return findUser(idVal, base, filter);
+	}
+	
 	protected String findUserByID(String idVal, String base) throws IdMUnitException {
+		return findUser(idVal, base, null);
+	}
+	
+	protected String findUser(String idVal, String base, String filter) throws IdMUnitException {
 		String resolvedDn = null;
         
 		SearchControls ctls = new SearchControls();
         ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
-       	String filter = "("+idVal+")";
-       	log.info("---> Synthesized filter: " + filter);
+       	if(filter==null || filter.length()<1) {
+            filter = "("+idVal+")";
+       	}
+       	log.info("---> Synthesized filter: " + filter + " from the base: " + base);
         	
         try {
         	//Find users with a matching ID
@@ -395,7 +405,7 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 	        	}
 	        }
         } catch (NamingException ne) {
-			throw new IdMUnitException("Object Lookup for filter [" + filter +"]Failed: " + ne.getMessage());
+			throw new IdMUnitException("Object Lookup for filter [" + filter +"], base ["+base+"] Failed: " + ne.getMessage());
         }
 		return resolvedDn;
 	}
@@ -436,13 +446,19 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 		String dn = (String)assertedAttrs.get(Constants.STR_DN).get();
 		if(dn==null || dn.length() < 1) return dn;
 		
-		//Detect wildcard token in the ID
-		int baseIdx = dn.indexOf(",");
-		String idVal = dn.substring(0, baseIdx);
-		if(idVal.indexOf(Constants.TOKEN_WILDCARD)==-1) return dn;
-		log.info("---> ID to search: " + idVal);
-		dn = findUserByID(idVal, dn.substring(baseIdx+1));
-		
+		//Detect LDAP filter in the DN
+		int ldapFilterStartIdx = dn.indexOf("(");
+		if(ldapFilterStartIdx!=-1) {
+			//Search for the user by a standard LDAP filter
+			dn = findUserbyLDAPFilter(null, dn.substring(dn.indexOf(",base=")+6), dn.substring(0,dn.indexOf(",")));
+		} else {
+			//Detect standard wildcard token * in the ID
+			int baseIdx = dn.indexOf(",");
+			String idVal = dn.substring(0, baseIdx);
+			if(idVal.indexOf(Constants.TOKEN_WILDCARD)==-1) return dn;
+			log.info("---> ID to search: " + idVal);
+			dn = findUserByID(idVal, dn.substring(baseIdx+1));
+		}
 		return dn;
 	}
 
@@ -451,7 +467,7 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 		Attributes appAttrs = null;
 		try {
 			String dn = getTargetDn(assertedAttrs);
-			if(dn==null || dn.length()<1) throw new IdMUnitException(Constants.ERROR_DN_FAILED + "[" + dn + "]");
+			if(dn==null || dn.length()<1) throw new IdMUnitException(Constants.ERROR_DN_FAILED + " Check the dn or LDAP filter specified in the spreadsheet.");
 			
 			DirContext tmp = (DirContext)m_context.lookup(dn);
 			if(tmp!=null) {
