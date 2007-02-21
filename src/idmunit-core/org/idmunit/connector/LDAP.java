@@ -67,6 +67,7 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 	private static Log log = LogFactory.getLog(LDAP.class);
 	private DirContext m_context;
 	private String m_serverURL;
+	private ConnectionConfigData m_credentials;
 	
 	public LDAP() {}
 	public void insertObject(Attributes assertedAttrs) throws IdMUnitException {
@@ -78,8 +79,8 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 	}
 	
 	public void setupConnection(ConnectionConfigData creds) throws IdMUnitException {
+		this.m_credentials = creds;
 		this.m_serverURL = creds.getServerURL();	
-		
 		//Go secure if a certificate keystore was passed in
 		if(creds.getKeystorePath()!=null && creds.getKeystorePath().length() > 0) {
 			this.m_context = getLDAPSSLConnection(creds.getServerURL(), 
@@ -292,14 +293,25 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 		modDn(assertedAttrs);
 	}
 
+	private ConnectionConfigData setupCredentials(String userName, String password) throws IdMUnitException {
+		ConnectionConfigData creds = new ConnectionConfigData();
+		creds.setServerURL(m_credentials.getServerURL());
+        creds.setKeystorePath(m_credentials.getKeystorePath());
+        creds.setSubstitutions(m_credentials.getSubstitutions());
+        creds.setAdminCtx(userName);
+        creds.setClearAdminPwd(password);
+        return creds;
+	}
+	
 	public void validatePassword(Attributes assertedAttrs) throws IdMUnitException {
-		InitialDirContext tempCtx = null;
+        ConnectionConfigData tempCredentials=null;
 		try {
 			String dn = (String)assertedAttrs.get(Constants.STR_DN).get();
 			String passwordVal = (String)assertedAttrs.get(Constants.STR_USER_PASSWORD).get();
 	        log.info("...performing LDAP password validation for: [" + dn + "]");
-	        tempCtx = getLDAPConnection(this.m_serverURL, dn, passwordVal); //TODO: pass in the connectionConfigInfo and either use SSL or not, but we need to handle the UCS where an SSL port is handed in on the Server URL (i.e. 192.168.1.9:636)
-	        if(tempCtx==null) {
+	        tempCredentials = setupCredentials(dn, passwordVal);
+	        setupConnection(tempCredentials);
+	        if(tempCredentials==null) {
 				fail("Modification failure: Bad credentials: ");
 	        }
 	        
@@ -307,14 +319,13 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 		} catch (NamingException e) {
 			fail("Password validation failure: Error: " + e.getMessage());
 		} finally {
-			if(tempCtx!=null){ 
+			if(tempCredentials!=null){ 
 	        	try {
-					tempCtx.close();
+					tempCredentials.close();
 				} catch (NamingException e) {
 					log.info("...Failed to close validatePassword context.");
 				}
 	        }
-			
 		}
 	}
 
