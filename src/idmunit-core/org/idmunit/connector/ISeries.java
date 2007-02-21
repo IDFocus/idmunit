@@ -113,8 +113,7 @@ public class ISeries extends DDStepsExcelTestCase implements org.idmunit.connect
 				String attrVal = lowerCaseAttrs.getString(ctr);
 				if(attrVal != null && attrVal.length() > 0) {
 					BasicAttribute upperCaseAttr = new BasicAttribute(upperCaseAttrName);
-					String upperCaseAttrVal = attrVal.toUpperCase();
-					upperCaseAttrVal.trim();
+					String upperCaseAttrVal = attrVal.toUpperCase().trim();
 					upperCaseAttr.add(upperCaseAttrVal);
 					upperCaseAttrs.put(upperCaseAttr);
 					log.info("Column Val: " + upperCaseAttrVal);
