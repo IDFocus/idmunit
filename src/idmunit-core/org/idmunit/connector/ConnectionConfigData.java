@@ -125,13 +125,18 @@ public class ConnectionConfigData {
 		setAdminPwd(password);
 	}
 	
-	void setAdminCtx(String adminCtx) {
+	public void setAdminCtx(String adminCtx) {
 		this.adminCtx = adminCtx;
 	}
 	public String getAdminPwd() {
 		return adminPwd;
 	}
-	void setAdminPwd(String adminPwd) throws IdMUnitException {
+
+	public void setClearAdminPwd(String clearPwd) throws IdMUnitException {
+		this.adminPwd = clearPwd;
+	}
+	
+	public void setAdminPwd(String adminPwd) throws IdMUnitException {
 		//decrypt the password first
 		EncTool encryptionManager = new EncTool("IDMUNIT1");
 		this.adminPwd = encryptionManager.decryptCredentials(adminPwd);
