@@ -145,10 +145,10 @@ public class ISeries extends DDStepsExcelTestCase implements org.idmunit.connect
 					Attribute appAttr = upperCaseAttrs.get(attrName);
 					//adAttr.contains()
 					if(appAttr!=null) {
-						log.info(".....validating attribute: [" + attrName + "] EXPECTED: [" + attrVal +"] ACTUAL: [" + appAttr.toString() + "]");
 						attrVal = attrVal.toUpperCase();
+						log.info(".....validating attribute: [" + attrName + "] EXPECTED: [" + attrVal +"] ACTUAL: [" + appAttr.get().toString() + "]");
 						if(!appAttr.contains(attrVal)) {
-							fail("Validation failed: Attribute [" + attrName + "] not equal.  Expected dest value: [" + attrVal+"] Actual dest value(s): [" + appAttr.toString() + "]");
+							fail("Validation failed: Attribute [" + attrName + "] not equal.  Expected dest value: [" + attrVal+"] Actual dest value(s): [" + appAttr.get().toString() + "]");
 							} else if(attrVal==null) {
 							//Swallow this exception: we simply won't attempt to validate an attribute that was excluded from this sheet in the spreadsheet
 							}
