@@ -319,13 +319,12 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 		} catch (NamingException e) {
 			fail("Password validation failure: Error: " + e.getMessage());
 		} finally {
-			if(tempCredentials!=null){ 
+			if(m_context!=null){ 
 	        	try {
-					tempCredentials.close();
+					m_context.close();
 				} catch (NamingException e) {
 					log.info("...Failed to close validatePassword context.");
 				}
-	        }
 		}
 	}
 
