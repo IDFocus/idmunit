@@ -310,12 +310,12 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 			String dn = getTargetDn(assertedAttrs);
 			String passwordVal = (String)assertedAttrs.get(Constants.STR_USER_PASSWORD).get();
 	        log.info("...performing LDAP password validation for: [" + dn + "]");
+	        tempCredentials = setupCredentials(dn, passwordVal);
 	        if(tempCredentials==null
 	        		|| dn == null || dn.length()<1
 	        		|| passwordVal==null || passwordVal.length()<1) {
 				fail("Modification failure: Bad credentials: ");
 	        }
-	        tempCredentials = setupCredentials(dn, passwordVal);
 	        setupConnection(tempCredentials);
 	        log.info(Constants.STR_SUCCESS);
 		} catch (NamingException e) {
