@@ -190,8 +190,9 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 
 	public void modObject(Attributes assertedAttrs, int operationType) throws IdMUnitException {
 		try {
-			String dn = (String)assertedAttrs.get(Constants.STR_DN).get();
-	        log.info("...performing LDAP modification for: [" + dn + "]");
+			//String dn = (String)assertedAttrs.get(Constants.STR_DN).get();
+			String dn = getTargetDn(assertedAttrs);
+			log.info("...performing LDAP modification for: [" + dn + "]");
 	        NamingEnumeration attributesToProcess = assertedAttrs.getIDs();
 	        Attributes modificationAttrs = new BasicAttributes();
 	        while(attributesToProcess.hasMore()) {
@@ -306,15 +307,16 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 	public void validatePassword(Attributes assertedAttrs) throws IdMUnitException {
         ConnectionConfigData tempCredentials=null;
 		try {
-			String dn = (String)assertedAttrs.get(Constants.STR_DN).get();
+			String dn = getTargetDn(assertedAttrs);
 			String passwordVal = (String)assertedAttrs.get(Constants.STR_USER_PASSWORD).get();
 	        log.info("...performing LDAP password validation for: [" + dn + "]");
-	        tempCredentials = setupCredentials(dn, passwordVal);
-	        setupConnection(tempCredentials);
-	        if(tempCredentials==null) {
+	        if(tempCredentials==null
+	        		|| dn == null || dn.length()<1
+	        		|| passwordVal==null || passwordVal.length()<1) {
 				fail("Modification failure: Bad credentials: ");
 	        }
-	        
+	        tempCredentials = setupCredentials(dn, passwordVal);
+	        setupConnection(tempCredentials);
 	        log.info(Constants.STR_SUCCESS);
 		} catch (NamingException e) {
 			fail("Password validation failure: Error: " + e.getMessage());
@@ -325,6 +327,7 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 				} catch (NamingException e) {
 					log.info("...Failed to close validatePassword context.");
 				}
+			}
 		}
 	}
 
@@ -469,6 +472,7 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 			log.info("---> ID to search: " + idVal);
 			dn = findUserByID(idVal, dn.substring(baseIdx+1));
 		}
+		if(dn==null || dn.length()<1) throw new IdMUnitException(Constants.ERROR_DN_FAILED + " " + Constants.ERROR_BAD_LDAP_FILTER);
 		return dn;
 	}
 
@@ -477,8 +481,6 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 		Attributes appAttrs = null;
 		try {
 			String dn = getTargetDn(assertedAttrs);
-			if(dn==null || dn.length()<1) throw new IdMUnitException(Constants.ERROR_DN_FAILED + " Check the dn or LDAP filter specified in the spreadsheet.");
-			
 			DirContext tmp = (DirContext)m_context.lookup(dn);
 			if(tmp!=null) {
 				tmp.close(); //this is necessary in order to keep the parent connection ctx clean enough to be pooled/managed as week references inside of the parent DirContext will prevent proper pooling 
