@@ -44,7 +44,8 @@ public class Constants {
 	
 	public final static String ERROR_NOT_IMPLEMENTED = "This feature has not yet been implemented.";
 	public final static String ERROR_DN_FAILED = "Failed to resolve target DN: ";
-	public final static String ERROR_BAD_LDAP_FILTER = "Check the dn or LDAP filter specified in the spreadsheet.";
+	public final static String ERROR_LDAP_FILTER_YIELDS_NO_RESULTS = "Check the dn or LDAP filter specified in the spreadsheet to ensure it returns results.  Recommended: test the filter in an LDAP browser first.";
+	public final static String ERROR_INVALD_LDAP_FILTER = "Check the dn or LDAP filter specified in the spreadsheet. Should be listed in the form (LDAPFilter),base=LDAPSearchBase.  Example: (&(objectClass=inetOrgPerson)(cn=testuser1)),base=o=users.";
 	public final static String ERROR_MISSING_OP = "Missing operation - Please check the operation column for this row and try again.";
 	public final static String ERROR_UNKNOWN_OP = "Unknown operation - Please check the operation column for this row and try again.";
 	public final static String ERROR_MISSING_TARGET = "Missing target type definition.  Please add a type specifier for all targets defined.";

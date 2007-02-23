@@ -463,7 +463,11 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 		int ldapFilterStartIdx = dn.indexOf("(");
 		if(ldapFilterStartIdx!=-1) {
 			//Search for the user by a standard LDAP filter
-			dn = findUserbyLDAPFilter(null, dn.substring(dn.indexOf(",base=")+6), dn.substring(0,dn.indexOf(",")));
+			try {
+				dn = findUserbyLDAPFilter(null, dn.substring(dn.indexOf(",base=")+6), dn.substring(0,dn.indexOf(",")));
+			} catch (IndexOutOfBoundsException e) {
+				fail(Constants.ERROR_INVALD_LDAP_FILTER);
+			}
 		} else {
 			//Detect standard wildcard token * in the ID
 			int baseIdx = dn.indexOf(",");
@@ -472,7 +476,7 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 			log.info("---> ID to search: " + idVal);
 			dn = findUserByID(idVal, dn.substring(baseIdx+1));
 		}
-		if(dn==null || dn.length()<1) throw new IdMUnitException(Constants.ERROR_DN_FAILED + " " + Constants.ERROR_BAD_LDAP_FILTER);
+		if(dn==null || dn.length()<1) throw new IdMUnitException(Constants.ERROR_DN_FAILED + " " + Constants.ERROR_LDAP_FILTER_YIELDS_NO_RESULTS);
 		return dn;
 	}
 
