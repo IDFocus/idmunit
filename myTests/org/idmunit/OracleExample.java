@@ -9,6 +9,10 @@
  *******************************************************************************/
 package org.idmunit;
 
+import junit.framework.Test;
+
+import org.ddsteps.junit.suite.DDStepsSuiteFactory;
+
 public class OracleExample extends IdMUnitTestCase {
 	/* TO BE MODIFIED BY IDMUNIT USER
 	 * These test methods should correspond to the sheets in the spreadsheet 
