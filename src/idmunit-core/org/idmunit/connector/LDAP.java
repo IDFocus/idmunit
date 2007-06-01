@@ -464,7 +464,7 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 		if(ldapFilterStartIdx!=-1) {
 			//Search for the user by a standard LDAP filter
 			try {
-				dn = findUserbyLDAPFilter(null, dn.substring(dn.indexOf(",base=")+6), dn.substring(0,dn.indexOf(",")));
+				dn = findUserbyLDAPFilter(null, dn.substring(dn.indexOf(Constants.STR_BASE_DN_DELIMITER)+6), dn.substring(0,dn.indexOf(Constants.STR_BASE_DN_DELIMITER)));
 			} catch (IndexOutOfBoundsException e) {
 				fail(Constants.ERROR_INVALD_LDAP_FILTER);
 			}

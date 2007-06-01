@@ -187,12 +187,20 @@ import org.idmunit.connector.ConnectionConfigData;
         	System.exit(-1);
     	} 
     	try {
+    		EncTool encManager = new EncTool("IDMUNIT1");
+    		String decPassword = encManager.decryptCredentials("+xGxGn9cZ/Rjdhi5FMydnw==");
+    		System.out.println("Dec Password: " + decPassword);
+    	} catch (Throwable e) {
+    		e.getStackTrace();
+    	}
+    	/*
+    	try {
 			EncTool encryptionManager = new EncTool(args[0]);
 			System.out.println("Encrypted password value: " + encryptionManager.encryptCredentials(args[1]));
     	} catch (IdMUnitException e) {
 			System.out.println("Failed to encrypt password: " + e.getMessage());
 		}
-    	
+    	*/
     }
 
 }

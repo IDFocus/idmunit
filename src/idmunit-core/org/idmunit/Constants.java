@@ -93,6 +93,7 @@ public class Constants {
 	public final static String STR_DISABLED_ASSOC = "#0#";
 	public final static String STR_MIGRATE_ASSOC = "#4#";
 	
+	public final static String STR_BASE_DN_DELIMITER = ",base=";
 	public final static String STR_METADATA_DELIM = "//";
 	public final static String STR_OPERATION = "Operation";
 	public final static String STR_WAIT_INTERVAL = "WaitInterval";
