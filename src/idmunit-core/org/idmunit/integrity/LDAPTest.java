@@ -68,6 +68,35 @@ public class LDAPTest extends TestCase {
 		Connection ldapConnection = new LDAP();
 	}
 
+	public void testAddObjectMultiAttr() {
+		String dn = "cn=autoTestUser1,o=resources"; 
+		DataRowBean dataRow = new DataRowBean();
+	        dataRow.addValue(new DataValueBean("dn",dn));
+	        dataRow.addValue(new DataValueBean("objectclass", new String[] { "entitlement", "inetOrgPerson", "organizationalPerson"}));
+	        dataRow.addValue(new DataValueBean("cn", "autoTestUser1"));
+	        dataRow.addValue(new DataValueBean("sn", "autoLastName"));
+	        dataRow.addValue(new DataValueBean("description", new String[] { "Some description1", "Some description2", "Some description3" }));
+
+		try {
+			ConnectionConfigData creds = new ConnectionConfigData("10.10.10.10", "cn=admin,o=resources", "trivir");
+			m_connection = new LDAP(creds);
+			m_connection.addObject(dataRow);
+		} catch (IdMUnitException e) {
+			if(e.getMessage().indexOf("already exists")!=-1) {
+				Attributes attrs = new BasicAttributes();
+				attrs.put("dn", dn);
+				try {
+					m_connection.deleteObject(attrs);
+					m_connection.addObject(dataRow);
+				} catch (IdMUnitException e1) {
+					fail("Failed to clean up and re-add object: " + e.getMessage());
+				}
+			} else {
+				fail("Failed to add object: " + e.getMessage());
+			}
+		}
+	}
+
 	public void testAddObject() {
 		String dn = "cn=autoTestUser1,o=users"; 
 		DataRowBean dataRow = new DataRowBean();

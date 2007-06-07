@@ -51,10 +51,13 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * Implements an IdMUnit connector for LDAP directories.  This connector has been tested with
@@ -131,8 +134,20 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 		return newUnicodePassword;
 	}
 	
+	private Object parseMultiAttrValues(Object value) {
+		if(value.toString().indexOf(Constants.STR_MULTI_ATTR_DELIMITER)!=-1) {
+			List valueList = new ArrayList();
+			StringTokenizer tokenizer = new StringTokenizer(value.toString(), Constants.STR_MULTI_ATTR_DELIMITER);
+			while(tokenizer.hasMoreTokens()) {
+				valueList.add(tokenizer.nextToken().trim());
+			}
+			if(valueList.size()>0) return valueList.toArray(); //The down cast of object [] handle to object handle is intentional
+		}
+		return value; //No changes made
+	}
+	
 	public void addObject(DataRow dataRow) throws IdMUnitException {
-		DistinguishedName dn = null;
+		DistinguishedName dn = null; 
 		Attributes createAttrs = new BasicAttributes();
 		// insert attributes from incoming map
 		for (Iterator iter = dataRow.iterator(); iter.hasNext();) {
@@ -161,11 +176,16 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 							+ "Must be type String!" + value);
 				}
 			} else {
+				//Parse multi-valued attribute values if found in the value
+				value = parseMultiAttrValues(value);
+				
 				if (value instanceof Object[]) {
 					Object[] values = (Object[])value;
+					BasicAttribute multiValuedAttr = new BasicAttribute(name);
 					for(int i=0;i<values.length;++i) {
-						createAttrs.put(name, values[i]);
+						multiValuedAttr.add(values[i]);
 					}
+					createAttrs.put(multiValuedAttr);
 				} else {
 					createAttrs.put(name, value);
 				}
