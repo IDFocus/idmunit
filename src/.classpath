@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="test-resources/|test-resources/|test/" kind="src" path="idmunit-core"/>
 	<classpathentry kind="src" path="SampleProfiles"/>
@@ -40,7 +40,7 @@
 	<classpathentry kind="lib" path="lib/activation.jar"/>
 	<classpathentry kind="lib" path="lib/mail.jar"/>
 	<classpathentry kind="lib" path="lib/smtp.jar"/>
-	<classpathentry kind="lib" path="lib/DDSteps-1.1.1-dev-20061215133454.jar"/>
+	<classpathentry kind="lib" path="lib/DDSteps-1.1.1-dev-20070607143040.jar"/>
 	<classpathentry kind="lib" path="lib/jt400.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
