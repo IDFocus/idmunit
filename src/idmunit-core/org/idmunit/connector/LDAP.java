@@ -264,7 +264,7 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 
 	public void deleteObject(Attributes assertedAttrs) throws IdMUnitException {
 		try {
-			String dn = getTargetDn(assertedAttrs);
+			String dn = getTargetDn(assertedAttrs, false);
 			if(dn==null || dn.length()<1) {
 				//A wild-card search failed to find an entry, or the DN field in the spreadsheet is blank
 				log.info(Constants.WARNING_NO_DN);
@@ -476,6 +476,10 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 	}
 
 	private String getTargetDn(Attributes assertedAttrs) throws NamingException, IdMUnitException {
+		return getTargetDn(assertedAttrs,true);
+	}
+	
+	private String getTargetDn(Attributes assertedAttrs, boolean throwExceptionOnObjectNotFound) throws NamingException, IdMUnitException {
 		String dn = (String)assertedAttrs.get(Constants.STR_DN).get();
 		if(dn==null || dn.length() < 1) return dn;
 		
@@ -495,7 +499,7 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 			log.info("---> ID to search: " + idVal);
 			dn = findUserByID(idVal, dn.substring(baseIdx+1));
 		}
-		if(dn==null || dn.length()<1) throw new IdMUnitException(Constants.ERROR_DN_FAILED + " " + Constants.ERROR_LDAP_FILTER_YIELDS_NO_RESULTS);
+		if(throwExceptionOnObjectNotFound && (dn==null || dn.length()<1)) throw new IdMUnitException(Constants.ERROR_DN_FAILED + " " + Constants.ERROR_LDAP_FILTER_YIELDS_NO_RESULTS);
 		return dn;
 	}
 
