@@ -27,6 +27,7 @@
 package org.idmunit.extension;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -80,4 +81,44 @@ public class BasicLogger {
 		}
 	}
 
+	/**
+	 * Writes logmessage to a file in the specified path
+	 * @param logData Log message
+	 * @param fileName Full filesystem path of the log file. New entries will be appended to existing log files
+	 */
+	public static void appendData(String logData, String fileName){
+		consoleLog(logData);
+		BufferedWriter outputFile = null;
+		try {
+			if (fileName == null || fileName.length() < 1) {
+				BasicLogger.consoleLog("### Failure: please specify log file path in the configuration properties ###");
+			}
+			outputFile = new BufferedWriter(new FileWriter(fileName, true));
+			outputFile.write(logData);
+			outputFile.newLine();
+			outputFile.flush();
+			outputFile.close();
+		} catch (IOException e) {
+			consoleLog("...Failed to write to the log file: " + fileName
+					+ " Error: " + e.getMessage());
+		}
+	}
+	
+	/**
+	 * Writes logmessage to a file in the specified path
+	 * @param logData Log message
+	 * @param fileName Full filesystem path of the log file. New entries will be appended to existing log files
+	 */
+	public static void removeFile(String fileName){
+		try {
+			if (fileName == null || fileName.length() < 1) {
+				BasicLogger.consoleLog("### Failure: please specify log file path and name in the configuration properties ###");
+			}
+			File targetFile = new File(fileName);
+			targetFile.delete();
+		} catch (SecurityException e) {
+			consoleLog("...Failed to write to the log file: " + fileName
+					+ " Error: " + e.getMessage());
+		}
+	}
 }
