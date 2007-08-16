@@ -45,6 +45,7 @@ import org.apache.commons.logging.LogFactory;
 import org.ddsteps.dataset.DataRow;
 import org.ddsteps.dataset.DataValue;
 import org.ddsteps.testcase.support.DDStepsExcelTestCase;
+import org.idmunit.CommonUtil;
 import org.idmunit.Constants;
 import org.idmunit.IdMUnitException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -103,21 +104,6 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 			throw new IdMUnitException("Failed to close ldap connection: " + e.getMessage());
 		}
 	}
-	
-	private Object transformArrayValue(Object o) {
-		if (o instanceof String[]) {
-			return o;
-		} else if (o instanceof String) {
-			String string = (String) o;
-			if (StringUtils.contains(string, "\n")) {
-				return StringUtils.split(string, "\n");
-			} else {
-				return string;
-			}
-		} else {
-			return o;
-		}
-	}
 
 	private byte[] getUnicodeBytes(String password) {
         //Replace the "unicdodePwd" attribute with a new value
@@ -158,7 +144,7 @@ public class LDAP extends DDStepsExcelTestCase implements org.idmunit.connector.
 			if (value == null) {
 				continue;
 			}
-			value = transformArrayValue(value);
+			value = CommonUtil.transformArrayValue(value);
 			if (StringUtils.equals(name, Constants.STR_DN)) {
 				if (value instanceof String) {
 					dn = new DistinguishedName((String) value);

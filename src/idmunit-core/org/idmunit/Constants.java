@@ -147,6 +147,8 @@ public class Constants {
 	public final static String OP_COMMENT = "Comment";
 	public final static String OP_WAIT = "Wait";
 	public final static String OP_PAUSE = "Pause";
+	public final static String OP_REPEAT_RANGE = "RepeatOpRange";
+	
 	
 	public final static String XML_TARGET = "target";
 	public final static String XML_NAME = "name";

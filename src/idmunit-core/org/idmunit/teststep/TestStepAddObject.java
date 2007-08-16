@@ -26,9 +26,16 @@
  */
 package org.idmunit.teststep;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.ddsteps.dataset.bean.DataRowBean;
 import org.ddsteps.step.TestStep;
+import org.idmunit.CommonUtil;
+import org.idmunit.Constants;
+import org.idmunit.IdMUnitTestCase;
 import org.idmunit.connector.Connection;
+
+import com.sun.corba.se.impl.orbutil.closure.Constant;
 
 /**
  * Implements an IdMUnit test step for Add object operations
@@ -37,17 +44,32 @@ import org.idmunit.connector.Connection;
  * @see TestStep
  */
 public class TestStepAddObject implements TestStep {
-	
+    static Log LOG = LogFactory.getLog(TestStepAddObject.class);
 	private Connection m_connection;
     private DataRowBean m_data;
     
-	public TestStepAddObject(Connection idmUnitConnection, DataRowBean dataRow) {
+/**
+ * Instantiate and initialize the transaction object
+ */
+    public TestStepAddObject(Connection idmUnitConnection, DataRowBean dataRow) {
         super(); 
 		m_connection = idmUnitConnection;
 		m_data = dataRow;
     }
-
-	public void runStep() throws Exception {
-		m_connection.addObject(m_data);
+/**
+ * Execute the test step.  If the data contains a RepeatOpRange, the test step will be
+ * repeated for each iteration through the specified range (i.e. ten through one hundred specified as 10-100)
+ */	public void runStep() throws Exception {
+		//Determine whether or not a repeat range has been specified
+	 	boolean rangeInputDetected = CommonUtil.keyExists(Constants.OP_REPEAT_RANGE, m_data);
+	 	LOG.info("DEBUG: ######### Range Input detected: " + rangeInputDetected); 
+	 	if(!rangeInputDetected) {
+	 		//Process a single non-repeated transaction
+		 	m_connection.addObject(m_data);
+	 	} else {
+		 	LOG.info("DEBUG: ######### Operation repeater to be implemented.....");
+	 	}
 	}
+ 
+ 
 }
