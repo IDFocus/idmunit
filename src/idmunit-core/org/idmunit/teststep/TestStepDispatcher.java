@@ -27,6 +27,8 @@
 
 package org.idmunit.teststep;
 
+import java.util.Map;
+
 import javax.naming.directory.Attributes;
 
 import net.sf.ldaptemplate.LdapOperations;
@@ -50,8 +52,8 @@ public class TestStepDispatcher {
 	 * @param connection The connection to the target system where the object will be added
 	 * @return {@link TestStepAddObject} The actual test step object.  //TODO: This should be refactored to be a generic TestStep. 
 	 */
-	public static TestStepAddObject getTestStepAddObject(DataRowBean data, Connection connection) {
-    	return new TestStepAddObject(connection, data);
+	public static TestStepAddObject getTestStepAddObject(Map operationalDataMap, DataRowBean data, Connection connection) {
+    	return new TestStepAddObject(operationalDataMap, connection, data);
     }
 
 	/**

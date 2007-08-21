@@ -93,6 +93,7 @@ public class Constants {
 	public final static String STR_DISABLED_ASSOC = "#0#";
 	public final static String STR_MIGRATE_ASSOC = "#4#";
 	
+	public final static String STR_RANGE_DELIMITER = "-";
 	public final static String STR_BASE_DN_DELIMITER = ",base=";
 	public final static String STR_MULTI_ATTR_DELIMITER = "|"; //TODO: Enable override operational column in the spreadsheet to override this value if requested 
 	public final static String STR_METADATA_DELIM = "//";

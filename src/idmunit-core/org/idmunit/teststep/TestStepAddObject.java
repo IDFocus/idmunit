@@ -26,6 +26,9 @@
  */
 package org.idmunit.teststep;
 
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ddsteps.dataset.bean.DataRowBean;
@@ -47,27 +50,42 @@ public class TestStepAddObject implements TestStep {
     static Log LOG = LogFactory.getLog(TestStepAddObject.class);
 	private Connection m_connection;
     private DataRowBean m_data;
+    private Map m_operationData;
     
 /**
  * Instantiate and initialize the transaction object
  */
-    public TestStepAddObject(Connection idmUnitConnection, DataRowBean dataRow) {
+    public TestStepAddObject(Map operationalDataMap, Connection idmUnitConnection, DataRowBean dataRow) {
         super(); 
 		m_connection = idmUnitConnection;
 		m_data = dataRow;
+		m_operationData = operationalDataMap;
+		
     }
 /**
  * Execute the test step.  If the data contains a RepeatOpRange, the test step will be
  * repeated for each iteration through the specified range (i.e. ten through one hundred specified as 10-100)
  */	public void runStep() throws Exception {
 		//Determine whether or not a repeat range has been specified
-	 	boolean rangeInputDetected = CommonUtil.keyExists(Constants.OP_REPEAT_RANGE, m_data);
-	 	LOG.info("DEBUG: ######### Range Input detected: " + rangeInputDetected); 
+		String repeatRange = (String)m_operationData.get(Constants.OP_REPEAT_RANGE);	
+		boolean rangeInputDetected = (repeatRange!=null && repeatRange.length()>0);
 	 	if(!rangeInputDetected) {
 	 		//Process a single non-repeated transaction
 		 	m_connection.addObject(m_data);
 	 	} else {
-		 	LOG.info("DEBUG: ######### Operation repeater to be implemented.....");
+	 		//Repeat operation range was detected, for each iteration perform the following:
+	 		//  1. Replace range counter for each data field
+	 		//  2. Execute the test step
+	 		//  3. If an error occurs add it to a list
+	 		//  4. If there are any errors in the list after completion, fail the test with a report of broken iterations
+	 		int rangeStart = Integer.parseInt(StringUtils.substringBefore(repeatRange, Constants.STR_RANGE_DELIMITER));
+	 		int rangeEnd = Integer.parseInt(StringUtils.substringAfter(repeatRange, Constants.STR_RANGE_DELIMITER));
+	 		LOG.info("### Repeat Operation Range detected: Start:" + rangeStart + " End: " + rangeEnd);
+	 		for(int ctr=rangeStart;ctr<=rangeEnd;++ctr) {
+		 		LOG.info("### Execute repeated operation iteration: " + ctr);
+		 		//  1. Replace range counter for each data field //TODO: Leverage Data Injectors for this purpose if possible
+		 		CommonUtil.interpolateVariables(m_data);
+	 		}
 	 	}
 	}
  

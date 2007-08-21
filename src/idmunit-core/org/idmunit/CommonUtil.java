@@ -27,6 +27,7 @@
 package org.idmunit;
 
 import java.util.Iterator;
+import java.util.Map;
 
 import net.sf.ldaptemplate.BadLdapGrammarException;
 import net.sf.ldaptemplate.support.DistinguishedName;
@@ -41,6 +42,12 @@ import org.ddsteps.dataset.bean.DataRowBean;
  * @version %I%, %G%
  */
 public class CommonUtil {
+	/**
+	 * @deprecated
+	 * @param keyName
+	 * @param data
+	 * @return
+	 */
 	public static boolean keyExists(String keyName, DataRowBean data) {
 		for (Iterator iter = data.iterator(); iter.hasNext();) {
 			DataValue dataValue = (DataValue) iter.next();
@@ -58,6 +65,11 @@ public class CommonUtil {
 		return false;
 	}
 		
+	/**
+	 * Normalize data values to string types
+	 * @param o
+	 * @return
+	 */
 	public static Object transformArrayValue(Object o) {
 		if (o instanceof String[]) {
 			return o;
@@ -71,6 +83,11 @@ public class CommonUtil {
 		} else {
 			return o;
 		}
+	}
+	
+	public static void interpolateVariables(Map data) {
+		//For each key/value pair, translate the data in the value component to insert the current variable value
+		
 	}
 
 	

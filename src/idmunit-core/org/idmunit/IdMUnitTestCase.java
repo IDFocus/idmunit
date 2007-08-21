@@ -341,7 +341,7 @@ public abstract class IdMUnitTestCase extends DDStepsExcelTestCase {
 	    	if(op.equalsIgnoreCase(Constants.OP_ADD_OBJECT)) {
 	        	//add user to source AD domain
 	    		DataRowBean dataRow = getRowDataBean();
-	    	    TestStepDispatcher.getTestStepAddObject(dataRow,
+	    	    TestStepDispatcher.getTestStepAddObject(operationalDataMap, dataRow,
 	       				this.targetConnection).runStep();
 	    	} else if(op.equalsIgnoreCase(Constants.OP_MOD_OBJECT)
 	    			|| op.equalsIgnoreCase(Constants.OP_MODIFY_OBJECT)
