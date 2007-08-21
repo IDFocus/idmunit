@@ -84,7 +84,7 @@ public class TestStepAddObject implements TestStep {
 	 		for(int ctr=rangeStart;ctr<=rangeEnd;++ctr) {
 		 		LOG.info("### Execute repeated operation iteration: " + ctr);
 		 		//  1. Replace range counter for each data field //TODO: Leverage Data Injectors for this purpose if possible
-		 		CommonUtil.interpolateVariables(m_data);
+		 		//CommonUtil.interpolateVariables(m_data);
 	 		}
 	 	}
 	}
