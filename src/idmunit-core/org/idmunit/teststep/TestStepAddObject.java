@@ -84,7 +84,9 @@ public class TestStepAddObject implements TestStep {
 	 		for(int ctr=rangeStart;ctr<=rangeEnd;++ctr) {
 		 		LOG.info("### Execute repeated operation iteration: " + ctr);
 		 		//  1. Replace range counter for each data field //TODO: Leverage Data Injectors for this purpose if possible
-		 		//CommonUtil.interpolateVariables(m_data);
+		 		//CommonUtil.interpolateCounter(m_data, ctr); //TODO: must refactor  TestStepAdd... to leverage Attributes rather than DataRowBeans, who's members are immutable
+		 		//Process the current repeated transaction
+			 	//m_connection.addObject(m_data);
 	 		}
 	 	}
 	}

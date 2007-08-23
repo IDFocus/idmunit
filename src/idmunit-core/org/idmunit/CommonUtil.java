@@ -84,10 +84,22 @@ public class CommonUtil {
 			return o;
 		}
 	}
-	
-	public static void interpolateVariables(Map data) {
+/**
+ * Replace the replace-character (i.e. "~") with the current counter position value
+ * @param data
+ * @param counter
+ */	
+	public static void interpolateCounter(DataRowBean data, int counter) {
 		//For each key/value pair, translate the data in the value component to insert the current variable value
-		
+		Iterator dataIterator = data.iterator();
+		Map.Entry mapEntry;
+		while(dataIterator.hasNext()) {
+			DataValue dataValue = (DataValue) dataIterator.next();
+			String name = dataValue.getName();
+			String value = (String)dataValue.getValue();
+			String updatedValue = value.replaceAll(Constants.STR_RANGE_COUNTER_SYMBOL, String.valueOf(counter));
+			//dataValue.setValue(updatedValue);//TODO: update the data structure to contain the transformed value
+		}
 	}
 
 	
