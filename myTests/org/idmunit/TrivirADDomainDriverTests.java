@@ -13,7 +13,7 @@ import junit.framework.Test;
 
 import org.ddsteps.junit.suite.DDStepsSuiteFactory;
 
-public class TrivirADDomainDriverTests extends IdMUnitTestCase {
+public class TrivirADDomainDriverTests extends IdMUnitTestCase { 
 	/* TO BE MODIFIED BY IDMUNIT USER */
 	public void testDestroyFixture() throws Exception {executeTest();}
 	public void testCreateFixture() throws Exception {executeTest();}
