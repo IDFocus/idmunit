@@ -1,6 +1,6 @@
 /* 
  * IdMUnit - Automated Testing Framework for Identity Management Solutions
- * Copyright (c) 2008 TriVir, LLC
+ * Copyright (c) 2005-2008 TriVir, LLC
  *
  * This program is licensed under the terms of the GNU General Public License
  * Version 2 (the "License") as published by the Free Software Foundation, and 
@@ -24,37 +24,40 @@
  * Fairfax, Virginia 22030
  *
  */
-package org.idmunit.connector;
+package org.idmunit;
 
 import java.util.Collection;
-import java.util.Map;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
-import org.idmunit.IdMUnitException;
+public class Failures {
+    private List<String> failures = new LinkedList<String>();
 
-/**
- * This class is provided for backwards compatability with older versions of
- * IdMUnit. All new tests should use LdapConnector instead of this class.
- * 
- * @deprecated
- */
-public class LDAP extends LdapConnector {
-    public void opModObject(Map<String, Collection<String>> data) throws IdMUnitException {
-        opReplaceAttr(data);
+    public void add(String message) {
+        failures.add(message);
     }
 
-    public void opModifyObject(Map<String, Collection<String>> data) throws IdMUnitException {
-        opReplaceAttr(data);
+    public void add(String message, Collection expected, Collection actual) {
+        String formatted = "";
+        if (message != null)
+            formatted = message + " ";
+        failures.add(formatted + "expected:<" + expected + "> but was:<" + actual + ">");
     }
 
-    public void opModAttr(Map<String, Collection<String>> data) throws IdMUnitException {
-        opReplaceAttr(data);
+    public boolean hasFailures() {
+        return failures.size() != 0;
     }
 
-    public void opDelObject(Map<String, Collection<String>> data) throws IdMUnitException {
-    	opDeleteObject(data);
-    }
+    public String toString() {
+        StringBuffer s = new StringBuffer();
+        for (Iterator i=failures.iterator(); i.hasNext(); ) {
+            if (s.length() > 0) {
+                s.append(System.getProperty("line.separator"));
+            }
+            s.append(i.next());
+        }
 
-    public void opRenObject(Map<String, Collection<String>> data) throws IdMUnitException {
-    	opRenameObject(data);
+        return s.toString();
     }
 }

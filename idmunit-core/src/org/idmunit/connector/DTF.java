@@ -1,6 +1,6 @@
 /* 
  * IdMUnit - Automated Testing Framework for Identity Management Solutions
- * Copyright (c) 2005-2006 TriVir, LLC
+ * Copyright (c) 2005-2008 TriVir, LLC
  *
  * This program is licensed under the terms of the GNU General Public License
  * Version 2 (the "License") as published by the Free Software Foundation, and 
@@ -27,24 +27,18 @@
 package org.idmunit.connector;
 
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.BasicAttribute;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ddsteps.dataset.DataRow;
 import org.ddsteps.dataset.DataValue;
 import org.ddsteps.testcase.support.DDStepsExcelTestCase;
-import org.idmunit.Constants;
 import org.idmunit.IdMUnitException;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
@@ -59,6 +53,11 @@ import java.util.StringTokenizer;
  * @see org.idmunit.connector.Connection
  */
 public class DTF extends DDStepsExcelTestCase implements org.idmunit.connector.Connection {
+    private final static String ERROR_DTF_CONFIG = "Configuration error - the DTF connector serverUrl should contain inputFilePath=VALUE1|outputFilePath=VALUE2 where value1 and value2 provide the correct path with full filename (including extension).";
+    private final static String STR_SUCCESS = "...SUCCESS";
+    private final static String STR_DN = "dn";
+    private final static int DTF_BUFFER = 1000; //allocate up to this many bytes for the output to insert into the delimited text file
+
 	private static Log log = LogFactory.getLog(Oracle.class);
 	private String m_driverInputFilePath;
 	private String m_driverOutputFilePath;
@@ -97,7 +96,7 @@ public class DTF extends DDStepsExcelTestCase implements org.idmunit.connector.C
 		//Provide limited validation of the format for the config: inputFilePath=VALUE|outputFilePath=VALUE
 		if(serverUrl == null || serverUrl.length() < 1 
 			|| serverUrl.indexOf("|") == -1) {
-			throw new IdMUnitException(Constants.ERROR_DTF_CONFIG);
+			throw new IdMUnitException(ERROR_DTF_CONFIG);
 		}
 		
 		//Parse out the input file path
@@ -134,28 +133,29 @@ public class DTF extends DDStepsExcelTestCase implements org.idmunit.connector.C
 		//TODO: close file handles
 	}
 
-	private Attributes toUpper(ResultSet lowerCaseAttrs) throws IdMUnitException {
-		Attributes upperCaseAttrs = new BasicAttributes();
-		try {  
-			lowerCaseAttrs.next();//only compare the first row for now
-			ResultSetMetaData metaData = lowerCaseAttrs.getMetaData();
-			for(int ctr=1;ctr<metaData.getColumnCount()+1;++ctr) {
-				String upperCaseAttrName = metaData.getColumnName(ctr).toUpperCase();
-				log.info("Column Name: " + upperCaseAttrName);
-				String attrVal = lowerCaseAttrs.getString(ctr);
-				if(attrVal != null && attrVal.length() > 0) {
-					BasicAttribute upperCaseAttr = new BasicAttribute(upperCaseAttrName);
-					String upperCaseAttrVal = attrVal.toUpperCase();
-					upperCaseAttr.add(upperCaseAttrVal);
-					upperCaseAttrs.put(upperCaseAttr);
-					log.info("Column Val: " + upperCaseAttrVal);
-				}
-			}
-		} catch (SQLException e) {
-			throw new IdMUnitException("Failed toUpper JDBC attrs: " + e.getMessage());
-		}
-		return upperCaseAttrs;
-	}
+//	// TODO: function is unused, delete, or use.
+//	private Attributes toUpper(ResultSet lowerCaseAttrs) throws IdMUnitException {
+//		Attributes upperCaseAttrs = new BasicAttributes();
+//		try {  
+//			lowerCaseAttrs.next();//only compare the first row for now
+//			ResultSetMetaData metaData = lowerCaseAttrs.getMetaData();
+//			for(int ctr=1;ctr<metaData.getColumnCount()+1;++ctr) {
+//				String upperCaseAttrName = metaData.getColumnName(ctr).toUpperCase();
+//				log.info("Column Name: " + upperCaseAttrName);
+//				String attrVal = lowerCaseAttrs.getString(ctr);
+//				if(attrVal != null && attrVal.length() > 0) {
+//					BasicAttribute upperCaseAttr = new BasicAttribute(upperCaseAttrName);
+//					String upperCaseAttrVal = attrVal.toUpperCase();
+//					upperCaseAttr.add(upperCaseAttrVal);
+//					upperCaseAttrs.put(upperCaseAttr);
+//					log.info("Column Val: " + upperCaseAttrVal);
+//				}
+//			}
+//		} catch (SQLException e) {
+//			throw new IdMUnitException("Failed toUpper JDBC attrs: " + e.getMessage());
+//		}
+//		return upperCaseAttrs;
+//	}
 
 	public void validateObject(Attributes assertedAttrs) throws IdMUnitException {
 		//TODO: implement
@@ -163,12 +163,12 @@ public class DTF extends DDStepsExcelTestCase implements org.idmunit.connector.C
 	}
 
 	private String buildFileData(DataRow assertedAttrs) {
-		StringBuffer fileData = new StringBuffer(Constants.DTF_BUFFER);
+		StringBuffer fileData = new StringBuffer(DTF_BUFFER);
 		for (Iterator iter = assertedAttrs.iterator(); iter.hasNext();) {
 			DataValue dataValue = (DataValue) iter.next();
 			String attrName = dataValue.getName();
 			Object attrVal = dataValue.getValue();
-			if(attrName==null || attrVal==null || attrName.equalsIgnoreCase(Constants.STR_DN))
+			if(attrName==null || attrVal==null || attrName.equalsIgnoreCase(STR_DN))
 				continue;
 			//Append the data to the data entry here
 			fileData.append(attrVal);
@@ -191,7 +191,7 @@ public class DTF extends DDStepsExcelTestCase implements org.idmunit.connector.C
 		BufferedWriter outputFile = null;
 		try {
 			if(m_driverInputFilePath==null || m_driverInputFilePath.length()<1) {
-				throw new IdMUnitException(Constants.ERROR_DTF_CONFIG);
+				throw new IdMUnitException(ERROR_DTF_CONFIG);
 			}
 			//TODO: add time stamp to the file name to differentiate between test executions
 			//SimpleDateFormat dateFormatter = new SimpleDateFormat(Constants.DATE_FORMAT);
@@ -207,12 +207,12 @@ public class DTF extends DDStepsExcelTestCase implements org.idmunit.connector.C
 		} catch (IOException e) {
 			throw new IdMUnitException("...Failed to write to the log file: " + m_driverInputFilePath + " Error: " + e.getMessage());
 		}
-		log.info(Constants.STR_SUCCESS);
+		log.info(STR_SUCCESS);
 	}
 
 	public void deleteObject(Attributes assertedAttrs) throws IdMUnitException {
 		//Find and delete IdMUnit-generated DTF files
-		if(m_fileDeletePrefix==null || m_fileDeletePrefix.length()<1) throw new IdMUnitException(Constants.ERROR_DTF_CONFIG);  
+		if(m_fileDeletePrefix==null || m_fileDeletePrefix.length()<1) throw new IdMUnitException(ERROR_DTF_CONFIG);  
 		int lastSlashIndex = m_fileDeletePrefix.lastIndexOf("/");
 		String dtfPath = m_fileDeletePrefix.substring(0,lastSlashIndex);
 		String inputFileName = m_fileDeletePrefix.substring(lastSlashIndex+1);
@@ -255,7 +255,7 @@ public class DTF extends DDStepsExcelTestCase implements org.idmunit.connector.C
 		// TODO Auto-generated method stub
 		
 	}
-	public Map search(String filter, String base, String[] collisionAttrs) throws IdMUnitException {
+	public Map<String, String> search(String filter, String base, String[] collisionAttrs) throws IdMUnitException {
 		// TODO Auto-generated method stub
 		return null;
 	}

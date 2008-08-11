@@ -1,6 +1,6 @@
 /* 
  * IdMUnit - Automated Testing Framework for Identity Management Solutions
- * Copyright (c) 2005-2006 TriVir, LLC
+ * Copyright (c) 2005-2008 TriVir, LLC
  *
  * This program is licensed under the terms of the GNU General Public License
  * Version 2 (the "License") as published by the Free Software Foundation, and 
@@ -41,8 +41,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 import javax.crypto.spec.IvParameterSpec;
 
-import org.ddsteps.junit.behaviour.DdRowBehaviour;
-import org.idmunit.connector.ConnectionConfigData;
+import org.idmunit.util.Version;
 
 /**
  * Provides FIPS encryption capability using the DES algorithm, as implemented in the Sun cryptography libraries.  
@@ -181,7 +180,7 @@ import org.idmunit.connector.ConnectionConfigData;
 	 * @param args
 	 */
 	public static void main(String[] args) {
-    	System.out.println("IdMUnit " + Constants.VERSION);
+    	System.out.println("IdMUnit v." + Version.getVersion(EncTool.class));
     	if(args.length < 2) {
         	displayInstructions();
         	System.exit(-1);

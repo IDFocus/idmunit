@@ -1,6 +1,6 @@
 /* 
  * IdMUnit - Automated Testing Framework for Identity Management Solutions
- * Copyright (c) 2005-2006 TriVir, LLC
+ * Copyright (c) 2005-2008 TriVir, LLC
  *
  * This program is licensed under the terms of the GNU General Public License
  * Version 2 (the "License") as published by the Free Software Foundation, and 
@@ -26,24 +26,18 @@
  */
 package org.idmunit.extension;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
 import javax.activation.DataHandler;
 import javax.mail.Message;
-import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.idmunit.Alert;
-import org.idmunit.Constants;
 import org.idmunit.IdMUnitException;
 import org.idmunit.IdMUnitTestCase;
 

@@ -1,6 +1,6 @@
 /* 
  * IdMUnit - Automated Testing Framework for Identity Management Solutions
- * Copyright (c) 2005-2006 TriVir, LLC
+ * Copyright (c) 2005-2008 TriVir, LLC
  *
  * This program is licensed under the terms of the GNU General Public License
  * Version 2 (the "License") as published by the Free Software Foundation, and 
@@ -38,7 +38,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ddsteps.dataset.DataRow;
 import org.ddsteps.testcase.support.DDStepsExcelTestCase;
-import org.idmunit.Constants;
 import org.idmunit.IdMUnitException;
 
 import java.sql.Connection;
@@ -46,6 +45,8 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -55,7 +56,11 @@ import java.util.Map;
  * @see org.idmunit.connector.Connection
  */
 public class Oracle extends DDStepsExcelTestCase implements org.idmunit.connector.Connection {
-	private static Log log = LogFactory.getLog(Oracle.class);
+    private final static String STR_SQL = "sql";
+
+    private final static String STR_SUCCESS = "...SUCCESS";
+
+    private static Log log = LogFactory.getLog(Oracle.class);
 	private Connection m_connection;
 	
 	public Oracle() {}
@@ -110,7 +115,7 @@ public class Oracle extends DDStepsExcelTestCase implements org.idmunit.connecto
 				if(attrVal != null && attrVal.length() > 0) {
 					BasicAttribute upperCaseAttr = new BasicAttribute(upperCaseAttrName);
 					String upperCaseAttrVal = attrVal.toUpperCase();
-					upperCaseAttrVal.trim();
+					upperCaseAttrVal = upperCaseAttrVal.trim();
 					upperCaseAttr.add(upperCaseAttrVal);
 					upperCaseAttrs.put(upperCaseAttr);
 					log.info("Column Val: " + upperCaseAttrVal);
@@ -126,18 +131,24 @@ public class Oracle extends DDStepsExcelTestCase implements org.idmunit.connecto
 
 	public void validateObject(Attributes assertedAttrs) throws IdMUnitException {
 	    Statement stmt      = null;
+		ArrayList<String> errorsFound = new ArrayList<String>();
 		try {
-			String sql = (String)assertedAttrs.get(Constants.STR_SQL).get();
+			Attribute sqlAttr = assertedAttrs.get(STR_SQL);
+			if (sqlAttr == null) {
+				// TODO: should be a test error, not a failure . .
+				throw new IdMUnitException("Please include your validation query in a column titled [" + STR_SQL + "] to use validation in this connector.");
+			}
+			String sql = (String)sqlAttr.get();
 	        //log.info("...performing LDAP validation for: [" + dn + "]");
 			ResultSet resultSet = null;
 		    stmt = m_connection.createStatement();
 		    resultSet = stmt.executeQuery(sql);
-			Attributes upperCaseAttrs = toUpper(resultSet); 
+			Attributes upperCaseAttrs = toUpper(resultSet);
 			NamingEnumeration ne = assertedAttrs.getAll();
 			while(ne.hasMoreElements()) {
 				Attribute attribute = (Attribute)ne.next();
 				String attrName = attribute.getID().toUpperCase();
-				if(!(attrName.equalsIgnoreCase(Constants.STR_SQL))) {
+				if(!(attrName.equalsIgnoreCase(STR_SQL))) {
 					String attrVal = (String)attribute.get();
 					Attribute appAttr = upperCaseAttrs.get(attrName);
 					//adAttr.contains()
@@ -145,13 +156,16 @@ public class Oracle extends DDStepsExcelTestCase implements org.idmunit.connecto
 						log.info(".....validating attribute: [" + attrName + "] EXPECTED: [" + attrVal +"] ACTUAL: [" + appAttr.toString() + "]");
 						attrVal = attrVal.toUpperCase();
 						if(!appAttr.contains(attrVal)) {
-							fail("Validation failed: Attribute [" + attrName + "] not equal.  Expected dest value: [" + attrVal+"] Actual dest value(s): [" + appAttr.toString() + "]");
+							//fail("Validation failed: Attribute [" + attrName + "] not equal.  Expected dest value: [" + attrVal+"] Actual dest value(s): [" + appAttr.toString() + "]");
+							errorsFound.add("Validation failed: Attribute [" + attrName + "] not equal.  Expected dest value: [" + attrVal+"] Actual dest value(s): [" + appAttr.toString() + "]");
+							continue;
 							} else if(attrVal==null) {
 							//Swallow this exception: we simply won't attempt to validate an attribute that was excluded from this sheet in the spreadsheet
 							}
-						log.info(Constants.STR_SUCCESS);
+						log.info(STR_SUCCESS);
 					} else {
-						fail("Validation failed: Attribute [" + attrName + "] not equal.  Expected dest value: [" + attrVal+"] but the attribute value did not exist in the application.");
+						//fail("Validation failed: Attribute [" + attrName + "] not equal.  Expected dest value: [" + attrVal+"] but the attribute value did not exist in the application.");
+						errorsFound.add("Validation failed: Attribute [" + attrName + "] not equal.  Expected dest value: [" + attrVal+"] but the attribute value did not exist in the application.");
 					}
 				}
 			}
@@ -167,12 +181,20 @@ public class Oracle extends DDStepsExcelTestCase implements org.idmunit.connecto
 		      }
 
 		}
+		if (errorsFound.size() > 0) {
+			StringBuffer failMessages = new StringBuffer("");
+			for(Iterator itErrors = errorsFound.iterator(); itErrors.hasNext();) {
+				failMessages.append(itErrors.next());
+				failMessages.append("\r\n");
+			}
+			fail(failMessages.toString() + "\r\n[" + errorsFound.size() + "] errors found.");
+		}
 	}
 
 	public void insertObject(Attributes assertedAttrs) throws IdMUnitException {
 	    Statement stmt      = null;
 		try {
-			String sql = (String)assertedAttrs.get(Constants.STR_SQL).get();
+			String sql = (String)assertedAttrs.get(STR_SQL).get();
 		    log.info("...apply SQL statement: " + sql);
 			stmt = m_connection.createStatement();
 		    stmt.executeQuery(sql);
@@ -184,7 +206,9 @@ public class Oracle extends DDStepsExcelTestCase implements org.idmunit.connecto
 			throw new IdMUnitException("SQL Execution exception: " + se.getMessage());
 		} finally {
 	      try {
-		        stmt.close(); 
+	    	  if (stmt != null) {
+				stmt.close(); 
+	    	  }
 		      } catch(SQLException ex) {
 		    	  throw new IdMUnitException("Failed to close prepared statement: " + ex.getMessage());
 		      }
@@ -222,7 +246,7 @@ public class Oracle extends DDStepsExcelTestCase implements org.idmunit.connecto
 		
 	}
 
-	public Map search(String filter, String base, String[] collisionAttrs) throws IdMUnitException {
+	public Map<String, String> search(String filter, String base, String[] collisionAttrs) throws IdMUnitException {
 		// TODO Auto-generated method stub
 		return null;
 	}

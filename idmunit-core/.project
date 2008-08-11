@@ -14,16 +14,4 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>SampleTests</name>
-			<type>2</type>
-			<location>C:/IdMUnit/mytests</location>
-		</link>
-		<link>
-			<name>SampleProfiles</name>
-			<type>2</type>
-			<location>C:/IdMUnit/myProfiles</location>
-		</link>
-	</linkedResources>
 </projectDescription>

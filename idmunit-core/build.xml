@@ -1,18 +1,11 @@
 <?xml version="1.0"?>
-<project name="IdMUnit" basedir="." default="Execute IdMUnit Tests">
+<project name="IdMUnit" basedir="." default="dist">
+	<property name="release" value="2.0" />
 
 	<!-- Set some basic properties -->
 	<property name="ddsteps.home" value="lib" />
-	<property name="src.dir" value="idmunit-core"/>
-	<property name="test.dir" value="../myTests"/>
-	<property name="xls.dir" value="idmunit-core/test"/>
-	<property name="props.dir" value="../myProfiles"/>
-	<property name="resources.dir" value="../myProfiles"/>
-	<property name="lib.dir" value="lib"/>
-	<property name="conf.dir" value="conf" />
-	<property name="build.dir" value="classes" />
-	<property name="testreports.dir" value="junit-reports" />
-	<property name="testhtml.dir" value="${testreports.dir}/html" />
+	<property name="src.dir" value="src"/>
+	<property name="build.dir" value="build/classes" />
 	<property name="dist.dir" value="dist" />
 
 	<!-- Path for building test cases. Include all jars from DDSteps. -->
@@ -21,89 +14,65 @@
 			<include name="**/*.jar" />
 			<include name="**/*.zip" />
 		</fileset>
-		<path location="${xls.dir}" />
-		<path location="${src.dir}" />
-		<path location="${test.dir}" />
 	</path>
 
-	<!-- Path for running test cases. The source directory is needed by -->
-	<!-- DDSteps to find the Excel file containing the test data. -->
-	<path id="test-classpath">
-		<fileset dir="${ddsteps.home}">
-			<include name="**/*.jar" />
-			<include name="**/*.zip" />
-		</fileset>
-		<path location="${build.dir}" />
-		<path location="${conf.dir}" />
-		<path location="${xls.dir}" />
-		<path location="${src.dir}" />
-		<path location="${test.dir}" />
-		<path location="${props.dir}" />
-		<path location="${resources.dir}" />
-	</path>
-	
 	<!-- Compiles our test case to classes directory. -->
 	<target name="build">
-		<delete dir="${build.dir}" />
 		<mkdir dir="${build.dir}" />
 
 		<javac destdir="${build.dir}" failonerror="true">
 			<src path="${src.dir}" />
-			<src path="${test.dir}" />
 			<classpath refid="build-classpath" />
 		</javac>
 	</target>
 
-	<!-- Runs our test case and generates a nice HTML report. -->
-	<target name="Execute IdMUnit Tests" depends="build">
-		<delete dir="${testreports.dir}" />
-		<delete dir="${testhtml.dir}" />
-		<mkdir dir="${testreports.dir}" />
-		<mkdir dir="${testhtml.dir}" />
-
-		<junit printsummary="true" fork="yes">
-			<formatter type="xml" />
-			<test name="org.idmunit.TrivirADDomainDriverTests" todir="${testreports.dir}" />
-			<test name="org.idmunit.TrivirDTFDriverTests" todir="${testreports.dir}" />
-			<classpath refid="test-classpath" />
-		</junit>
-		
-		<junitreport todir="${testhtml.dir}">
-			<fileset dir="${testreports.dir}">
-				<include name="TEST-*.xml" />
-			</fileset>
-			<report format="frames" todir="${testhtml.dir}" />
-		</junitreport>
-	</target>
-	
-	<target name="Generate source documentation" depends="build">
-		<delete dir="docs/javadoc" />
-		<mkdir dir="docs/javadoc" />
+	<target name="javadoc" depends="build">
+		<delete dir="build/javadoc" />
+		<mkdir dir="build/javadoc" />
 		<javadoc
-	           destdir="docs/javadoc"
-	           author="true"
-	           version="true"
-	           use="true"
-	           windowtitle="IdMUnit Source Documentation">
-	
-	    <fileset dir="${src.dir}" defaultexcludes="yes">
-	      <include name="org/idmunit/**"/>
-	    </fileset>
-	
-	    <doctitle><![CDATA[<h1>IdMUnit</h1>]]></doctitle>
-	    <bottom><![CDATA[<i>Copyright &#169; 2005-2006 TriVir, LLC. Licensed under GNU GPL.  Please see www.idmunit.org for more information.</i>]]></bottom>
-	    <tag name="todo" scope="all" description="To do:"/>
-	    <group title="Group 1 Packages" packages="org.idmunit.*"/>
-	    <link offline="true" href="http://java.sun.com/products/jdk/1.2/docs/api/" packagelistLoc="tmp"/>
-	    <link href="http://developer.java.sun.com/developer/products/xml/docs/api/"/>
-	  </javadoc>
+			   destdir="build/javadoc"
+			   classpathref="build-classpath"
+			   author="true"
+			   version="true"
+			   use="true"
+			   windowtitle="IdMUnit Source Documentation">
+
+			<fileset dir="${src.dir}" defaultexcludes="yes">
+			  <include name="org/idmunit/**"/>
+			</fileset>
+
+			<doctitle><![CDATA[<h1>IdMUnit</h1>]]></doctitle>
+			<bottom><![CDATA[<i>Copyright &#169; 2005-2008 TriVir, LLC. Licensed under GNU GPL.  Please see www.idmunit.org for more information.</i>]]></bottom>
+			<tag name="todo" scope="all" description="To do:"/>
+			<group title="Group 1 Packages" packages="org.idmunit.*"/>
+			<link offline="true" href="http://java.sun.com/products/jdk/1.2/docs/api/" packagelistLoc="tmp"/>
+			<link href="http://developer.java.sun.com/developer/products/xml/docs/api/"/>
+		</javadoc>
 	</target>
 
-	<target name="Generate binary distribution" depends="build">
-		<delete dir="${dist.dir}" />
+	<target name="jar" depends="build">
 		<mkdir dir="${dist.dir}" />
 		<jar destfile="${dist.dir}/idmunit.jar" index="true" keepcompression="true">
 			<fileset dir="${build.dir}" excludes="**/*.xml;**/*.properties"/>
 		</jar>
+	</target>
+
+	<target name="dist" depends="jar,javadoc">
+		<zip destfile="${dist.dir}/idmunit-${release}.zip">
+			<zipfileset file="${dist.dir}/idmunit.jar" prefix="idmunit-${release}"/>
+			<zipfileset dir="${ddsteps.home}" prefix="idmunit-${release}/lib">
+				<include name="**/*.jar" />
+				<include name="**/*.zip" />
+			</zipfileset>
+			<zipfileset dir="build/javadoc" prefix="idmunit-${release}/docs/api"/>
+			<zipfileset dir="docs" includes="*.pdf" prefix="idmunit-${release}/docs"/>
+			<zipfileset dir="examples" excludes="build.xml" prefix="idmunit-${release}/examples"/>
+			<zipfileset file="examples/build.xml" prefix="idmunit-${release}"/>
+		</zip>
+	</target>
+
+	<target name="clean">
+		<delete dir="${build.dir}"/>
+		<delete file="${dist.dir}/idmunit.jar"/>
 	</target>
 </project>

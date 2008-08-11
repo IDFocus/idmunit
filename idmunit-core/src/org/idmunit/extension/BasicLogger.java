@@ -1,6 +1,6 @@
 /* 
  * IdMUnit - Automated Testing Framework for Identity Management Solutions
- * Copyright (c) 2005-2006 TriVir, LLC
+ * Copyright (c) 2005-2008 TriVir, LLC
  *
  * This program is licensed under the terms of the GNU General Public License
  * Version 2 (the "License") as published by the Free Software Foundation, and 
@@ -33,9 +33,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.idmunit.Constants;
-import org.idmunit.IdMUnitException;
-
 /**
  * Implements simple synchronous single-threaded logging mechanism that requires no additional configuration or dependencies
  * @author Brent Kynaston, Software Engineer, TriVir LLC
@@ -44,7 +41,7 @@ import org.idmunit.IdMUnitException;
 public class BasicLogger {
 	private static String getCurrentTimeStamp() {
 		SimpleDateFormat dateFormatter = new SimpleDateFormat(
-				Constants.STR_LOGGING_DATE_FORMAT);
+                "yyyyMMdd HH:mm:ss");
 		Date timestamp = new Date();
 		return dateFormatter.format(timestamp);
 	}

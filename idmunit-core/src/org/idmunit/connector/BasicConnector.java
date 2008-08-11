@@ -31,30 +31,15 @@ import java.util.Map;
 
 import org.idmunit.IdMUnitException;
 
-/**
- * This class is provided for backwards compatability with older versions of
- * IdMUnit. All new tests should use LdapConnector instead of this class.
- * 
- * @deprecated
- */
-public class LDAP extends LdapConnector {
-    public void opModObject(Map<String, Collection<String>> data) throws IdMUnitException {
-        opReplaceAttr(data);
-    }
+public abstract class BasicConnector extends AbstractConnector {
+    protected static final String CONFIG_KEYSTORE_PATH = "KeystorePath";
+    protected static final String CONFIG_PASSWORD = "Password";
+    protected static final String CONFIG_SERVER = "Server";
+    protected static final String CONFIG_USER = "User";
 
-    public void opModifyObject(Map<String, Collection<String>> data) throws IdMUnitException {
-        opReplaceAttr(data);
-    }
-
-    public void opModAttr(Map<String, Collection<String>> data) throws IdMUnitException {
-        opReplaceAttr(data);
-    }
-
-    public void opDelObject(Map<String, Collection<String>> data) throws IdMUnitException {
-    	opDeleteObject(data);
-    }
-
-    public void opRenObject(Map<String, Collection<String>> data) throws IdMUnitException {
-    	opRenameObject(data);
-    }
+    protected void opAddObject(Map<String, Collection<String>> data) throws IdMUnitException {}
+    protected void opDeleteObject(Map<String, Collection<String>> data) throws IdMUnitException {}
+    protected void opMoveObject(Map<String, Collection<String>> data) throws IdMUnitException {}
+    protected void opRenameObject(Map<String, Collection<String>> data) throws IdMUnitException {}
+    protected void opValidateObject(Map<String, Collection<String>> data) throws IdMUnitException {}
 }

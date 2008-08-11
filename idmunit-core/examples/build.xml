@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<project name="IdMUnit" basedir="." default="Execute IdMUnit Tests">
+
+	<!-- Set some basic properties -->
+	<property name="ddsteps.home" value="lib" />
+	<property name="test.dir" value="examples/tests"/>
+	<property name="xls.dir" value="examples/tests"/>
+	<property name="props.dir" value="examples/profiles"/>
+	<property name="resources.dir" value="examples/profiles"/>
+	<property name="lib.dir" value="lib"/>
+	<property name="build.dir" value="build/classes" />
+	<property name="testreports.dir" value="junit-reports" />
+	<property name="testhtml.dir" value="${testreports.dir}/html" />
+	<property name="dist.dir" value="dist" />
+
+	<!-- Path for building test cases. Include all jars from DDSteps. -->
+	<path id="build-classpath">
+		<fileset dir="${ddsteps.home}">
+			<include name="**/*.jar" />
+			<include name="**/*.zip" />
+		</fileset>
+		<fileset file="idmunit.jar"/>
+	</path>
+
+	<!-- Path for running test cases. The source directory is needed by -->
+	<!-- DDSteps to find the Excel file containing the test data. -->
+	<path id="test-classpath">
+		<path refid="build-classpath"/>
+		<path location="${build.dir}" />
+		<path location="${xls.dir}" />
+		<path location="${props.dir}" />
+		<path location="${resources.dir}" />
+	</path>
+
+	<!-- Compiles our test case to classes directory. -->
+	<target name="build">
+		<mkdir dir="${build.dir}" />
+		<javac srcdir="${test.dir}" destdir="${build.dir}" classpathref="build-classpath" failonerror="true"/>
+	</target>
+
+	<!-- Runs our test case and generates a nice HTML report. -->
+	<target name="Execute IdMUnit Tests" depends="build">
+		<delete dir="${testreports.dir}" />
+		<delete dir="${testhtml.dir}" />
+		<mkdir dir="${testreports.dir}" />
+		<mkdir dir="${testhtml.dir}" />
+
+		<junit printsummary="true" fork="yes">
+			<formatter type="xml" />
+			<test name="org.idmunit.TrivirADDomainDriverTests" todir="${testreports.dir}" />
+			<test name="org.idmunit.TrivirDTFDriverTests" todir="${testreports.dir}" />
+			<classpath refid="test-classpath" />
+		</junit>
+
+		<junitreport todir="${testhtml.dir}">
+			<fileset dir="${testreports.dir}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="frames" todir="${testhtml.dir}" />
+		</junitreport>
+	</target>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    </target>
+</project>

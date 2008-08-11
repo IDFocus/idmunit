@@ -1,6 +1,6 @@
 /* 
  * IdMUnit - Automated Testing Framework for Identity Management Solutions
- * Copyright (c) 2005-2006 TriVir, LLC
+ * Copyright (c) 2005-2008 TriVir, LLC
  *
  * This program is licensed under the terms of the GNU General Public License
  * Version 2 (the "License") as published by the Free Software Foundation, and 
@@ -29,8 +29,6 @@ package org.idmunit.connector;
 import java.util.Map;
 
 import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-
 import org.ddsteps.dataset.DataRow;
 import org.idmunit.IdMUnitException;
 
@@ -68,6 +66,6 @@ import org.idmunit.IdMUnitException;
 	public abstract void validateObject(Attributes assertedAttrs)
 			throws IdMUnitException;
 
-	public abstract Map search(String filter, String base, String[] collisionAttrs)
+	public abstract Map<String, String> search(String filter, String base, String[] collisionAttrs)
 	throws IdMUnitException;
 }

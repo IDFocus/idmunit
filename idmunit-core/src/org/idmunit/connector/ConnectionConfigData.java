@@ -1,6 +1,6 @@
 /* 
  * IdMUnit - Automated Testing Framework for Identity Management Solutions
- * Copyright (c) 2005-2006 TriVir, LLC
+ * Copyright (c) 2005-2008 TriVir, LLC
  *
  * This program is licensed under the terms of the GNU General Public License
  * Version 2 (the "License") as published by the Free Software Foundation, and 
@@ -34,7 +34,7 @@ import org.idmunit.Alert;
 import org.idmunit.ConfigLoader;
 import org.idmunit.EncTool;
 import org.idmunit.IdMUnitException;
-import org.idmunit.injector.Injection;
+import org.idmunit.injector.InjectionConfigData;
 
 /**
  * Holds credential data for the target system
@@ -50,7 +50,7 @@ public class ConnectionConfigData {
 	private String adminPwd;
 	private String keystorePath;
 	private Map dataSubstitutions;
-	private List<Injection> dataInjections;
+	private List<InjectionConfigData> dataInjections;
 	private Map<String, Alert> idmunitAlerts;
 	private int multiplierRetry;
 	private int multiplierWait;
@@ -152,15 +152,15 @@ public class ConnectionConfigData {
 		return idmunitAlerts;
 	}
 
-	public void setIdmunitAlerts(Map idmunitAlerts) {
+	public void setIdmunitAlerts(Map<String, Alert> idmunitAlerts) {
 		this.idmunitAlerts = idmunitAlerts;
 	}
 
-	public void setDataInjections(List<Injection> dataInjections) {
+	public void setDataInjections(List<InjectionConfigData> dataInjections) {
 		this.dataInjections = dataInjections;
 	}
 
-	public List<Injection> getDataInjections() {
+	public List<InjectionConfigData> getDataInjections() {
 		return dataInjections;
 	}
 }

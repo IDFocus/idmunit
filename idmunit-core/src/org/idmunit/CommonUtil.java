@@ -1,6 +1,6 @@
 /* 
  * IdMUnit - Automated Testing Framework for Identity Management Solutions
- * Copyright (c) 2005-2006 TriVir, LLC
+ * Copyright (c) 2005-2008 TriVir, LLC
  *
  * This program is licensed under the terms of the GNU General Public License
  * Version 2 (the "License") as published by the Free Software Foundation, and 
@@ -27,10 +27,6 @@
 package org.idmunit;
 
 import java.util.Iterator;
-import java.util.Map;
-
-import net.sf.ldaptemplate.BadLdapGrammarException;
-import net.sf.ldaptemplate.support.DistinguishedName;
 
 import org.apache.commons.lang.StringUtils;
 import org.ddsteps.dataset.DataValue;
@@ -75,7 +71,11 @@ public class CommonUtil {
 			return o;
 		} else if (o instanceof String) {
 			String string = (String) o;
-			if (StringUtils.contains(string, "\n")) {
+			// This check for \r\n was added because I need the ability to add an attribute with a full CRLF in the actual attribute value!
+			// 	as it is impossible to put a \r\n in a cell without using the idmunit substition, this seemed a safe change.			
+			if (StringUtils.contains(string, "\r\n")) {
+				return string;
+			} else if (StringUtils.contains(string, "\n")) {
 				return StringUtils.split(string, "\n");
 			} else {
 				return string;
@@ -92,12 +92,12 @@ public class CommonUtil {
 	public static void interpolateCounter(DataRowBean data, int counter) {
 		//For each key/value pair, translate the data in the value component to insert the current variable value
 		Iterator dataIterator = data.iterator();
-		Map.Entry mapEntry;
+		//Map.Entry mapEntry;
 		while(dataIterator.hasNext()) {
-			DataValue dataValue = (DataValue) dataIterator.next();
-			String name = dataValue.getName();
-			String value = (String)dataValue.getValue();
-			String updatedValue = value.replaceAll(Constants.STR_RANGE_COUNTER_SYMBOL, String.valueOf(counter));
+			//DataValue dataValue = (DataValue) dataIterator.next();
+			//String name = dataValue.getName();
+			//String value = (String)dataValue.getValue();
+			//String updatedValue = value.replaceAll(Constants.STR_RANGE_COUNTER_SYMBOL, String.valueOf(counter));
 			//dataValue.setValue(updatedValue);//TODO: update the data structure to contain the transformed value
 		}
 	}

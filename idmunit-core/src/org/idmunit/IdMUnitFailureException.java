@@ -24,37 +24,23 @@
  * Fairfax, Virginia 22030
  *
  */
-package org.idmunit.connector;
+package org.idmunit;
 
-import java.util.Collection;
-import java.util.Map;
-
-import org.idmunit.IdMUnitException;
-
-/**
- * This class is provided for backwards compatability with older versions of
- * IdMUnit. All new tests should use LdapConnector instead of this class.
- * 
- * @deprecated
- */
-public class LDAP extends LdapConnector {
-    public void opModObject(Map<String, Collection<String>> data) throws IdMUnitException {
-        opReplaceAttr(data);
+public class IdMUnitFailureException extends IdMUnitException {
+	private static final long serialVersionUID = -3229433265344743974L;
+    public IdMUnitFailureException() {
+        super();
     }
-
-    public void opModifyObject(Map<String, Collection<String>> data) throws IdMUnitException {
-        opReplaceAttr(data);
+    
+    public IdMUnitFailureException(String message, Throwable cause) {
+        super(message, cause);
     }
-
-    public void opModAttr(Map<String, Collection<String>> data) throws IdMUnitException {
-        opReplaceAttr(data);
+    
+    public IdMUnitFailureException(String message) {
+        super(message);
     }
-
-    public void opDelObject(Map<String, Collection<String>> data) throws IdMUnitException {
-    	opDeleteObject(data);
-    }
-
-    public void opRenObject(Map<String, Collection<String>> data) throws IdMUnitException {
-    	opRenameObject(data);
+    
+    public IdMUnitFailureException(Throwable cause) {
+        super(cause);
     }
 }

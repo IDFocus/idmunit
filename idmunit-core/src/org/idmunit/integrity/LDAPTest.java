@@ -1,6 +1,6 @@
 /* 
  * IdMUnit - Automated Testing Framework for Identity Management Solutions
- * Copyright (c) 2005-2006 TriVir, LLC
+ * Copyright (c) 2005-2008 TriVir, LLC
  *
  * This program is licensed under the terms of the GNU General Public License
  * Version 2 (the "License") as published by the Free Software Foundation, and 
@@ -26,19 +26,14 @@
  */
 package org.idmunit.integrity;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-
-import org.ddsteps.dataset.bean.DataRowBean;
-import org.ddsteps.dataset.bean.DataValueBean;
 import org.idmunit.IdMUnitException;
-import org.idmunit.connector.Connection;
-import org.idmunit.connector.ConnectionConfigData;
+import org.idmunit.connector.Connector;
 import org.idmunit.connector.LDAP;
 
 import junit.framework.TestCase;
@@ -54,7 +49,12 @@ import junit.framework.TestCase;
  * @version %I%, %G%
  */
 public class LDAPTest extends TestCase {
-	Connection m_connection;
+	private static final String CONFIG_KEYSTORE_PATH = "KeystorePath";
+    private static final String CONFIG_PASSWORD = "Password";
+    private static final String CONFIG_SERVER = "Server";
+    private static final String CONFIG_USER = "User";
+
+	Connector m_connection;
 	
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -65,29 +65,33 @@ public class LDAPTest extends TestCase {
 	}
 	
 	public void testInstantiateLDAPClass() {
-		Connection ldapConnection = new LDAP();
+		new LDAP();
 	}
 
 	public void testAddObjectMultiAttr() {
 		String dn = "cn=autoTestUser1,o=resources"; 
-		DataRowBean dataRow = new DataRowBean();
-	        dataRow.addValue(new DataValueBean("dn",dn));
-	        dataRow.addValue(new DataValueBean("objectclass", new String[] { "entitlement", "inetOrgPerson", "organizationalPerson"}));
-	        dataRow.addValue(new DataValueBean("cn", "autoTestUser1"));
-	        dataRow.addValue(new DataValueBean("sn", "autoLastName"));
-	        dataRow.addValue(new DataValueBean("description", new String[] { "Some description1", "Some description2", "Some description3" }));
+		Map<String, Collection<String>> dataRow = new HashMap<String, Collection<String>>();
+        putSingleValue(dataRow, "dn",dn);
+        dataRow.put("objectclass", Arrays.asList(new String[] {"top", "inetOrgPerson"}));
+        putSingleValue(dataRow, "cn", "autoTestUser1");
+        putSingleValue(dataRow, "sn", "autoLastName");
+        putSingleValue(dataRow, "description", "Some description");
 
 		try {
-			ConnectionConfigData creds = new ConnectionConfigData("10.10.10.10", "cn=admin,o=resources", "trivir");
-			m_connection = new LDAP(creds);
-			m_connection.addObject(dataRow);
+			Map<String, String> config = new HashMap<String, String>();
+			config.put(CONFIG_PASSWORD, "trivir");
+			config.put(CONFIG_SERVER, "10.10.10.10");
+			config.put(CONFIG_USER, "cn=admin,o=resources");
+			m_connection = new LDAP();
+			m_connection.setup(config);
+			m_connection.execute("addObject", dataRow);
 		} catch (IdMUnitException e) {
 			if(e.getMessage().indexOf("already exists")!=-1) {
-				Attributes attrs = new BasicAttributes();
-				attrs.put("dn", dn);
+				Map<String, Collection<String>> attrs = new HashMap<String, Collection<String>>();
+				putSingleValue(attrs, "dn", dn);
 				try {
-					m_connection.deleteObject(attrs);
-					m_connection.addObject(dataRow);
+					m_connection.execute("deleteObject", attrs);
+					m_connection.execute("addObject", dataRow);
 				} catch (IdMUnitException e1) {
 					fail("Failed to clean up and re-add object: " + e.getMessage());
 				}
@@ -99,22 +103,22 @@ public class LDAPTest extends TestCase {
 
 	public void testAddObject() {
 		String dn = "cn=autoTestUser1,o=users"; 
-		DataRowBean dataRow = new DataRowBean();
-	        dataRow.addValue(new DataValueBean("dn",dn));
-	        dataRow.addValue(new DataValueBean("objectclass", new String[] { "top", "inetOrgPerson" }));
-	        dataRow.addValue(new DataValueBean("cn", "autoTestUser1"));
-	        dataRow.addValue(new DataValueBean("sn", "autoLastName"));
-	        dataRow.addValue(new DataValueBean("description", "Some description"));
+		Map<String, Collection<String>> dataRow = new HashMap<String, Collection<String>>();
+        putSingleValue(dataRow, "dn",dn);
+        dataRow.put("objectclass", Arrays.asList(new String[] {"top", "inetOrgPerson"}));
+        putSingleValue(dataRow, "cn", "autoTestUser1");
+        putSingleValue(dataRow, "sn", "autoLastName");
+        putSingleValue(dataRow, "description", "Some description");
 
 		try {
-			m_connection.addObject(dataRow);
+			m_connection.execute("addObject", dataRow);
 		} catch (IdMUnitException e) {
 			if(e.getMessage().indexOf("already exists")!=-1) {
-				Attributes attrs = new BasicAttributes();
-				attrs.put("dn", dn);
+				Map<String, Collection<String>> attrs = new HashMap<String, Collection<String>>();
+				putSingleValue(attrs, "dn", dn);
 				try {
-					m_connection.deleteObject(attrs);
-					m_connection.addObject(dataRow);
+					m_connection.execute("deleteObject", attrs);
+					m_connection.execute("addObject", dataRow);
 				} catch (IdMUnitException e1) {
 					fail("Failed to clean up and re-add object: " + e.getMessage());
 				}
@@ -126,28 +130,28 @@ public class LDAPTest extends TestCase {
 	
 	public void testModifyObject() {
 		String dn = "cn=autoTestUser1,o=users"; 
-		DataRowBean dataRow = new DataRowBean();
-	        dataRow.addValue(new DataValueBean("dn",dn));
-	        dataRow.addValue(new DataValueBean("objectclass", new String[] { "top", "inetOrgPerson" }));
-	        dataRow.addValue(new DataValueBean("cn", "autoTestUser1"));
-	        dataRow.addValue(new DataValueBean("sn", "autoLastName"));
-	        dataRow.addValue(new DataValueBean("description", "Some description"));
+		Map<String, Collection<String>> dataRow = new HashMap<String, Collection<String>>();
+        putSingleValue(dataRow, "dn",dn);
+        dataRow.put("objectclass", Arrays.asList(new String[] {"top", "inetOrgPerson"}));
+        putSingleValue(dataRow, "cn", "autoTestUser1");
+        putSingleValue(dataRow, "sn", "autoLastName");
+        putSingleValue(dataRow, "description", "Some description");
 
-			Attributes modificationAttrs= new BasicAttributes();
-			modificationAttrs.put("dn", dn);
-			modificationAttrs.put("givenname", "Updated Given Name");
-			modificationAttrs.put("sn", "New Surname");
+		Map<String, Collection<String>> modificationAttrs = new HashMap<String, Collection<String>>();
+		putSingleValue(modificationAttrs, "dn", dn);
+		putSingleValue(modificationAttrs, "givenname", "Updated Given Name");
+		putSingleValue(modificationAttrs, "sn", "New Surname");
 		try {
-			m_connection.addObject(dataRow);
-			m_connection.modObject(modificationAttrs, DirContext.REPLACE_ATTRIBUTE);
+			m_connection.execute("addObject", dataRow);
+			m_connection.execute("modObject", modificationAttrs);
 		} catch (IdMUnitException e) {
 			if(e.getMessage().indexOf("already exists")!=-1) {
-				Attributes attrs = new BasicAttributes();
-				attrs.put("dn", dn);
+				Map<String, Collection<String>> attrs = new HashMap<String, Collection<String>>();
+				putSingleValue(attrs, "dn", dn);
 				try {
-					m_connection.deleteObject(attrs);
-					m_connection.addObject(dataRow);
-					m_connection.modObject(modificationAttrs, DirContext.REPLACE_ATTRIBUTE);
+					m_connection.execute("deleteObject", attrs);
+					m_connection.execute("addObject", dataRow);
+					m_connection.execute("modObject", modificationAttrs);
 				} catch (IdMUnitException e1) {
 					fail("Failed to clean up and re-add object: " + e.getMessage());
 				}
@@ -156,36 +160,37 @@ public class LDAPTest extends TestCase {
 			}
 		}
 	}
+
 	public void testModifyAddAttr() {
 		String dn = "cn=autoTestUser1,o=users"; 
-		DataRowBean dataRow = new DataRowBean();
-	        dataRow.addValue(new DataValueBean("dn",dn));
-	        dataRow.addValue(new DataValueBean("objectclass", new String[] { "top", "inetOrgPerson" }));
-	        dataRow.addValue(new DataValueBean("cn", "autoTestUser1"));
-	        dataRow.addValue(new DataValueBean("sn", "autoLastName"));
-	        dataRow.addValue(new DataValueBean("description", "Some description"));
+		Map<String, Collection<String>> dataRow = new HashMap<String, Collection<String>>();
+        putSingleValue(dataRow, "dn",dn);
+        dataRow.put("objectclass", Arrays.asList(new String[] {"top", "inetOrgPerson"}));
+        putSingleValue(dataRow, "cn", "autoTestUser1");
+        putSingleValue(dataRow, "sn", "autoLastName");
+        putSingleValue(dataRow, "description", "Some description");
 
-			Attributes modificationAttrs= new BasicAttributes();
-			modificationAttrs.put("dn", dn);
-			modificationAttrs.put("givenname", "Updated Given Name");
-			modificationAttrs.put("sn", "New Surname");
+		Map<String, Collection<String>> modificationAttrs = new HashMap<String, Collection<String>>();
+		putSingleValue(modificationAttrs, "dn", dn);
+		putSingleValue(modificationAttrs, "givenname", "Updated Given Name");
+		putSingleValue(modificationAttrs, "sn", "New Surname");
 
-			Attributes multiValueAttr= new BasicAttributes();
-			multiValueAttr.put("dn", dn);
-			multiValueAttr.put("description", "myTestDescription1");
+		Map<String, Collection<String>> multiValueAttr = new HashMap<String, Collection<String>>();
+		putSingleValue(multiValueAttr, "dn", dn);
+		putSingleValue(multiValueAttr, "description", "myTestDescription1");
 		try {
-			m_connection.addObject(dataRow);
-			m_connection.modObject(modificationAttrs, DirContext.REPLACE_ATTRIBUTE);
-			m_connection.modObject(multiValueAttr, DirContext.ADD_ATTRIBUTE);
+			m_connection.execute("addObject", dataRow);
+			m_connection.execute("modObject", modificationAttrs);
+			m_connection.execute("addAttr", multiValueAttr);
 		} catch (IdMUnitException e) {
 			if(e.getMessage().indexOf("already exists")!=-1) {
-				Attributes attrs = new BasicAttributes();
-				attrs.put("dn", dn);
+				Map<String, Collection<String>> attrs = new HashMap<String, Collection<String>>();
+				putSingleValue(attrs, "dn", dn);
 				try {
-					m_connection.deleteObject(attrs);
-					m_connection.addObject(dataRow);
-					m_connection.modObject(modificationAttrs, DirContext.REPLACE_ATTRIBUTE);
-					m_connection.modObject(multiValueAttr, DirContext.ADD_ATTRIBUTE);
+					m_connection.execute("deleteObject", attrs);
+					m_connection.execute("addObject", dataRow);
+					m_connection.execute("modObject", modificationAttrs);
+					m_connection.execute("addAttr", multiValueAttr);
 				} catch (IdMUnitException e1) {
 					fail("Failed to clean up and re-add object: " + e.getMessage());
 				}
@@ -197,29 +202,29 @@ public class LDAPTest extends TestCase {
 	
 	public void testModifyClearAttr() {
 		String dn = "cn=autoTestUser1,o=users"; 
-		DataRowBean dataRow = new DataRowBean();
-	        dataRow.addValue(new DataValueBean("dn",dn));
-	        dataRow.addValue(new DataValueBean("objectclass", new String[] { "top", "inetOrgPerson" }));
-	        dataRow.addValue(new DataValueBean("cn", "autoTestUser1"));
-	        dataRow.addValue(new DataValueBean("sn", "autoLastName"));
-	        dataRow.addValue(new DataValueBean("description", "Some description"));
+		Map<String, Collection<String>> dataRow = new HashMap<String, Collection<String>>();
+        putSingleValue(dataRow, "dn",dn);
+        dataRow.put("objectclass", Arrays.asList(new String[] {"top", "inetOrgPerson"}));
+        putSingleValue(dataRow, "cn", "autoTestUser1");
+        putSingleValue(dataRow, "sn", "autoLastName");
+        putSingleValue(dataRow, "description", "Some description");
 
-			Attributes modificationAttrs= new BasicAttributes();
-			modificationAttrs.put("dn", dn);
-			modificationAttrs.put("givenname", "Updated Given Name");
-			modificationAttrs.put("sn", "New Surname");
+		Map<String, Collection<String>> modificationAttrs = new HashMap<String, Collection<String>>();
+		putSingleValue(modificationAttrs, "dn", dn);
+		putSingleValue(modificationAttrs, "givenname", "Updated Given Name");
+		putSingleValue(modificationAttrs, "sn", "New Surname");
 
-			Attributes multiValueAttr= new BasicAttributes();
-			multiValueAttr.put("dn", dn);
-			multiValueAttr.put(new BasicAttribute("description", "Some description"));
+		Map<String, Collection<String>> multiValueAttr = new HashMap<String, Collection<String>>();
+		putSingleValue(multiValueAttr, "dn", dn);
+		putSingleValue(multiValueAttr, "description", "Some description");
 		try {
-			Attributes attrs = new BasicAttributes();
-			attrs.put("dn", dn);
-			m_connection.deleteObject(attrs);
+			Map<String, Collection<String>> attrs = new HashMap<String, Collection<String>>();
+			putSingleValue(attrs, "dn", dn);
+			m_connection.execute("deleteObject", attrs);
 			Thread.sleep(1000);
-			m_connection.addObject(dataRow);
-			m_connection.modObject(modificationAttrs, DirContext.REPLACE_ATTRIBUTE);
-			m_connection.modObject(multiValueAttr, DirContext.REMOVE_ATTRIBUTE);
+			m_connection.execute("addObject", dataRow);
+			m_connection.execute("modObject", modificationAttrs);
+			m_connection.execute("removeAttr", multiValueAttr);
 		} catch (IdMUnitException e) {
 				fail("Failed to mod object: " + e.getMessage());
 		} catch (InterruptedException ie) {
@@ -229,35 +234,35 @@ public class LDAPTest extends TestCase {
 
 	public void testMoveRenameObject() {
 		String dn = "cn=autoTestUser2,o=users"; 
-		DataRowBean dataRow = new DataRowBean();
-	        dataRow.addValue(new DataValueBean("dn",dn));
-	        dataRow.addValue(new DataValueBean("objectclass", new String[] { "top", "inetOrgPerson" }));
-	        dataRow.addValue(new DataValueBean("cn", "autoTestUser1"));
-	        dataRow.addValue(new DataValueBean("sn", "autoLastName"));
-	        dataRow.addValue(new DataValueBean("description", "Some description"));
+		Map<String, Collection<String>> dataRow = new HashMap<String, Collection<String>>();
+        putSingleValue(dataRow, "dn", dn);
+        dataRow.put("objectclass", Arrays.asList(new String[] {"top", "inetOrgPerson"}));
+        putSingleValue(dataRow, "cn", "autoTestUser1");
+        putSingleValue(dataRow, "sn", "autoLastName");
+        putSingleValue(dataRow, "description", "Some description");
 
 		try {
-			Attributes deleteAttrs= new BasicAttributes();
-			deleteAttrs.put("dn", dn);
-			m_connection.deleteObject(deleteAttrs);
-			deleteAttrs.put("dn", "cn=autoTestUser2NEW,ou=test,o=users");
-			m_connection.deleteObject(deleteAttrs);
-			m_connection.addObject(dataRow);
-			Attributes modificationAttrs= new BasicAttributes();
-			modificationAttrs.put("dn", dn);
-			modificationAttrs.put("newdn", "cn=autoTestUser2NEW,ou=test,o=users");
-			m_connection.moveObject(modificationAttrs);
+			Map<String, Collection<String>> deleteAttrs = new HashMap<String, Collection<String>>();
+			putSingleValue(deleteAttrs, "dn", dn);
+			m_connection.execute("deleteObject", deleteAttrs);
+			putSingleValue(deleteAttrs, "dn", "cn=autoTestUser2NEW,ou=test,o=users");
+			m_connection.execute("deleteObject", deleteAttrs);
+			m_connection.execute("addObject", dataRow);
+			Map<String, Collection<String>> modificationAttrs = new HashMap<String, Collection<String>>();
+			putSingleValue(modificationAttrs, "dn", dn);
+			putSingleValue(modificationAttrs, "newdn", "cn=autoTestUser2NEW,ou=test,o=users");
+			m_connection.execute("moveObject", modificationAttrs);
 		} catch (IdMUnitException e) {
 			if(e.getMessage().indexOf("already exists")!=-1) {
-				Attributes attrs = new BasicAttributes();
-				attrs.put("dn", dn);
+				Map<String, Collection<String>> attrs = new HashMap<String, Collection<String>>();
+				putSingleValue(attrs, "dn", dn);
 				try {
-					m_connection.deleteObject(attrs);
-					m_connection.addObject(dataRow);
-					Attributes modificationAttrs= new BasicAttributes();
-					modificationAttrs.put("dn", dn);
-					modificationAttrs.put("newdn", "cn=autoTestUser2NEW,ou=test,o=users");
-					m_connection.moveObject(modificationAttrs);
+					m_connection.execute("deleteObject", attrs);
+					m_connection.execute("addObject", dataRow);
+					Map<String, Collection<String>> modificationAttrs = new HashMap<String, Collection<String>>();
+					putSingleValue(modificationAttrs, "dn", dn);
+					putSingleValue(modificationAttrs, "newdn", "cn=autoTestUser2NEW,ou=test,o=users");
+					m_connection.execute("moveObject", modificationAttrs);
 				} catch (IdMUnitException e1) {
 					fail("Failed to clean up and re-add object: " + e.getMessage());
 				}
@@ -267,38 +272,47 @@ public class LDAPTest extends TestCase {
 		}
 	}
 
+	private void putSingleValue(Map<String, Collection<String>> map, String name, String value) {
+		Collection<String> values = new ArrayList<String>();
+		map.put(name, values);
+	}
+
 	public void testModifyPassword() {
-		String dn = "cn=autoTestUser1,o=users"; 
-		DataRowBean dataRow = new DataRowBean();
-	        dataRow.addValue(new DataValueBean("dn",dn));
-	        dataRow.addValue(new DataValueBean("objectclass", new String[] { "top", "inetOrgPerson" }));
-	        dataRow.addValue(new DataValueBean("cn", "autoTestUser1"));
-	        dataRow.addValue(new DataValueBean("sn", "autoLastName"));
-	        dataRow.addValue(new DataValueBean("description", "Some description"));
+		String dn = "cn=autoTestUser1,o=users";
+		Map<String, Collection<String>> dataRow = new HashMap<String, Collection<String>>();
+        putSingleValue(dataRow, "dn", dn);
+        dataRow.put("objectclass", Arrays.asList(new String[] {"top", "inetOrgPerson"}));
+        putSingleValue(dataRow, "cn", "autoTestUser1");
+        putSingleValue(dataRow, "sn", "autoLastName");
+        putSingleValue(dataRow, "description", "Some description");
 
-			Attributes modificationAttrs= new BasicAttributes();
-			modificationAttrs.put("dn", dn);
-			modificationAttrs.put("userPassword", "trivir#111");
+		Map<String, Collection<String>> modificationAttrs = new HashMap<String, Collection<String>>();
+		putSingleValue(modificationAttrs, "dn", dn);
+		putSingleValue(modificationAttrs, "userPassword", "trivir#111");
 
-			Connection adMgr = null;
-			try {
-			ConnectionConfigData creds = new ConnectionConfigData("192.168.189.135", "cn=administrator,cn=users,dc=trivir,dc=com", "trivir");
-				adMgr = new LDAP(creds);
-			m_connection.addObject(dataRow);
-			m_connection.modObject(modificationAttrs, DirContext.REPLACE_ATTRIBUTE);
-			modificationAttrs.put("dn", "cn=autoTestUser1,cn=users,dc=trivir,dc=com");
-			adMgr.validatePassword(modificationAttrs);
+		Connector adMgr = null;
+		try {
+			Map<String, String> config = new HashMap<String, String>();
+			config.put(CONFIG_PASSWORD, "trivir");
+			config.put(CONFIG_SERVER, "192.168.189.135");
+			config.put(CONFIG_USER, "cn=administrator,cn=users,dc=trivir,dc=com");
+			adMgr = new LDAP();
+			adMgr.setup(config);
+			m_connection.execute("addObject", dataRow);
+			m_connection.execute("modObject", modificationAttrs);
+			putSingleValue(modificationAttrs, "dn", "cn=autoTestUser1,cn=users,dc=trivir,dc=com");
+			adMgr.execute("validatePassword", modificationAttrs);
 		} catch (IdMUnitException e) {
 			if(e.getMessage().indexOf("already exists")!=-1) {
-				Attributes attrs = new BasicAttributes();
-				attrs.put("dn", dn);
+				Map<String, Collection<String>> attrs = new HashMap<String, Collection<String>>();
+				putSingleValue(attrs, "dn", dn);
 				try {
-					m_connection.deleteObject(attrs);
-					m_connection.addObject(dataRow);
-					m_connection.modObject(modificationAttrs, DirContext.REPLACE_ATTRIBUTE);
+					m_connection.execute("deleteObject", attrs);
+					m_connection.execute("addObject", dataRow);
+					m_connection.execute("modObject", modificationAttrs);
 					Thread.sleep(5000);
-					modificationAttrs.put("dn", "cn=autoTestUser1,cn=users,dc=trivir,dc=com");
-					adMgr.validatePassword(modificationAttrs);
+					putSingleValue(modificationAttrs, "dn", "cn=autoTestUser1,cn=users,dc=trivir,dc=com");
+					adMgr.execute("validatePassword", modificationAttrs);
 				} catch (IdMUnitException e1) {
 					fail("Failed to clean up and re-add object: " + e1.getMessage());
 				} catch (InterruptedException ie) {
@@ -312,40 +326,44 @@ public class LDAPTest extends TestCase {
 
 	public void testAddADUser() {
 		String dn = "cn=testuser,CN=Users,DC=trivir,DC=com"; 
-		DataRowBean dataRow = new DataRowBean();
-	        dataRow.addValue(new DataValueBean("dn",dn));
-	        dataRow.addValue(new DataValueBean("objectClass", "user"));
-	        dataRow.addValue(new DataValueBean("samAccountName", "testuser"));
-	        dataRow.addValue(new DataValueBean("cn", "testuser"));
-	       // dataRow.addValue(new DataValueBean("userPassword", "testuser#1"));
-	        //dataRow.addValue(new DataValueBean("userPrincipalName", "testuser@idmunit.org"));
-	        dataRow.addValue(new DataValueBean("sn", "autoLastName"));
-	        //dataRow.addValue(new DataValueBean("memberOf", "CN=UK-Intranet,CN=Users,DC=trivir,DC=com"));
-	        dataRow.addValue(new DataValueBean("givenName", "firstVal"));
-	        //dataRow.addValue(new DataValueBean("userAccountControl", "512"));
-	        
-	        
-	        //dataRow.addValue(new DataValueBean("fullName", "Fall Childs"));
-	        //dataRow.addValue(new DataValueBean("description", "Some description"));
+		Map<String, Collection<String>> dataRow = new HashMap<String, Collection<String>>();
+        putSingleValue(dataRow, "dn",dn);
+        putSingleValue(dataRow, "objectClass", "user");
+        putSingleValue(dataRow, "samAccountName", "testuser");
+        putSingleValue(dataRow, "cn", "testuser");
+       // dataRow.addValue(new DataValueBean("userPassword", "testuser#1"));
+        //dataRow.addValue(new DataValueBean("userPrincipalName", "testuser@idmunit.org"));
+        putSingleValue(dataRow, "sn", "autoLastName");
+        //dataRow.addValue(new DataValueBean("memberOf", "CN=UK-Intranet,CN=Users,DC=trivir,DC=com"));
+        putSingleValue(dataRow, "givenName", "firstVal");
+        //dataRow.addValue(new DataValueBean("userAccountControl", "512"));
+        
+        
+        //dataRow.addValue(new DataValueBean("fullName", "Fall Childs"));
+        //dataRow.addValue(new DataValueBean("description", "Some description"));
 
-			Attributes modificationAttrs= new BasicAttributes();
-			modificationAttrs.put("dn", "CN=UK-Intranet,CN=Users,DC=trivir,DC=com");
-			modificationAttrs.put("member", dn);
+		Map<String, Collection<String>> modificationAttrs = new HashMap<String, Collection<String>>();
+		putSingleValue(modificationAttrs, "dn", "CN=UK-Intranet,CN=Users,DC=trivir,DC=com");
+		putSingleValue(modificationAttrs, "member", dn);
 
-			Connection adMgr = null;
-			try {
-				ConnectionConfigData creds = new ConnectionConfigData("192.168.189.135", "cn=administrator,cn=users,dc=trivir,dc=com", "trivir");
-				adMgr = new LDAP(creds);
-			adMgr.addObject(dataRow);
-			adMgr.modObject(modificationAttrs, DirContext.REPLACE_ATTRIBUTE);
+		Connector adMgr = null;
+		try {
+			Map<String, String> config = new HashMap<String, String>();
+			config.put(CONFIG_PASSWORD, "trivir");
+			config.put(CONFIG_SERVER, "192.168.189.135");
+			config.put(CONFIG_USER, "cn=administrator,cn=users,dc=trivir,dc=com");
+			adMgr = new LDAP();
+			adMgr.setup(config);
+			adMgr.execute("addObject", dataRow);
+			adMgr.execute("modObject", modificationAttrs);
 		} catch (IdMUnitException e) {
 			if(e.getMessage().indexOf("EXISTS")!=-1) {
-				Attributes attrs = new BasicAttributes();
-				attrs.put("dn", dn);
+				Map<String, Collection<String>> attrs = new HashMap<String, Collection<String>>();
+				putSingleValue(attrs, "dn", dn);
 				try {
-					adMgr.deleteObject(attrs);
-					adMgr.addObject(dataRow);
-					adMgr.modObject(modificationAttrs, DirContext.REPLACE_ATTRIBUTE);
+					adMgr.execute("deleteObject", attrs);
+					adMgr.execute("addObject", dataRow);
+					adMgr.execute("modObject", modificationAttrs);
 				} catch (IdMUnitException e1) {
 					fail("Failed to clean up and re-add object: " + e1.getMessage());
 				} 
@@ -357,39 +375,43 @@ public class LDAPTest extends TestCase {
 	public void testAddUserInGtEnv() {
 		String keyStorePath = "D:\\IdMUnit\\util\\security\\keystore";
 		String dn = "cn=testuser,CN=Users,dc=test,dc=tst"; 
-		DataRowBean dataRow = new DataRowBean();
-	        dataRow.addValue(new DataValueBean("dn",dn));
-	        dataRow.addValue(new DataValueBean("objectClass", "user"));
-	        dataRow.addValue(new DataValueBean("samAccountName", "testuser"));
-	        dataRow.addValue(new DataValueBean("cn", "testuser"));
-	        
-	        dataRow.addValue(new DataValueBean("sn", "autoLastName"));
-	        dataRow.addValue(new DataValueBean("givenName", "firstVal"));
-	        dataRow.addValue(new DataValueBean("userAccountControl", "512"));
-	        dataRow.addValue(new DataValueBean("unicodePwd", "myPassword#1"));
-	        
-			Attributes modificationAttrs= new BasicAttributes();
-			modificationAttrs.put("dn", "CN=test,DC=test,DC=tst");
-			modificationAttrs.put("member", dn);
+		Map<String, Collection<String>> dataRow = new HashMap<String, Collection<String>>();
+        putSingleValue(dataRow, "dn",dn);
+        putSingleValue(dataRow, "objectClass", "user");
+        putSingleValue(dataRow, "samAccountName", "testuser");
+        putSingleValue(dataRow, "cn", "testuser");
+        
+        putSingleValue(dataRow, "sn", "autoLastName");
+        putSingleValue(dataRow, "givenName", "firstVal");
+        putSingleValue(dataRow, "userAccountControl", "512");
+        putSingleValue(dataRow, "unicodePwd", "myPassword#1");
+        
+		Map<String, Collection<String>> modificationAttrs = new HashMap<String, Collection<String>>();
+		putSingleValue(modificationAttrs, "dn", "CN=test,DC=test,DC=tst");
+		putSingleValue(modificationAttrs, "member", dn);
 
-			Connection adMgr = null;
-			try {
-				ConnectionConfigData creds = new ConnectionConfigData("xxx.xxx.xxx.xxx", "cn=Administrator,CN=test,DC=test,DC=tst", "ENCRYPTEDPASSWORDVAL");
-				creds.setKeystorePath(keyStorePath);
-				adMgr = new LDAP(creds);
-			Attributes attrs = new BasicAttributes();
-			attrs.put("dn", dn);
-			adMgr.deleteObject(attrs);
-			adMgr.addObject(dataRow);
+		Connector adMgr = null;
+		try {
+			Map<String, String> config = new HashMap<String, String>();
+			config.put(CONFIG_KEYSTORE_PATH, keyStorePath);
+			config.put(CONFIG_PASSWORD, "ENCRYPTEDPASSWORDVAL");
+			config.put(CONFIG_SERVER, "xxx.xxx.xxx.xxx");
+			config.put(CONFIG_USER, "cn=Administrator,CN=test,DC=test,DC=tst");
+			adMgr = new LDAP();
+			adMgr.setup(config);
+			Map<String, Collection<String>> attrs = new HashMap<String, Collection<String>>();
+			putSingleValue(attrs, "dn", dn);
+			adMgr.execute("deleteObject", attrs);
+			adMgr.execute("addObject", dataRow);
 		//	adMgr.modObject(modificationAttrs, DirContext.REPLACE_ATTRIBUTE);
 		} catch (IdMUnitException e) {
 			if(e.getMessage().indexOf("EXISTS")!=-1) {
-				Attributes attrs = new BasicAttributes();
-				attrs.put("dn", dn);
+				Map<String, Collection<String>> attrs = new HashMap<String, Collection<String>>();
+				putSingleValue(attrs, "dn", dn);
 				try {
-					adMgr.deleteObject(attrs);
-					adMgr.addObject(dataRow);
-					adMgr.modObject(modificationAttrs, DirContext.REPLACE_ATTRIBUTE);
+					adMgr.execute("deleteObject", attrs);
+					adMgr.execute("addObject", dataRow);
+					adMgr.execute("modObject", modificationAttrs);
 				} catch (IdMUnitException e1) {
 					fail("Failed to clean up and re-add object: " + e1.getMessage());
 				} 
@@ -401,153 +423,133 @@ public class LDAPTest extends TestCase {
 	public void testAddUserInQCADEnv() {
 		for (int ctr=0;;++ctr) {
 			System.out.println("######### Counter: " + ctr);
-				String keyStorePath = "E:\\IdMUnit\\util\\security\\keystore";
-				String dn = "cn=AutoTestUser4,ou=test,o=tst"; 
-				DataRowBean dataRow = new DataRowBean();
-			        dataRow.addValue(new DataValueBean("dn",dn));
-			        dataRow.addValue(new DataValueBean("objectClass", "user"));
-			        dataRow.addValue(new DataValueBean("samAccountName", "TestUser4"));
-			        dataRow.addValue(new DataValueBean("cn", "TestUser4"));
-			        
-			        dataRow.addValue(new DataValueBean("sn", "autoLastName"));
-			        dataRow.addValue(new DataValueBean("givenName", "firstVal"));
-			        dataRow.addValue(new DataValueBean("userAccountControl", "512"));
-			        dataRow.addValue(new DataValueBean("unicodePwd", "myPassword#1"));
-			        
-					Connection adMgr = null;
+			String keyStorePath = "E:\\IdMUnit\\util\\security\\keystore";
+			String dn = "cn=AutoTestUser4,ou=test,o=tst"; 
+			Map<String, Collection<String>> dataRow = new HashMap<String, Collection<String>>();
+	        putSingleValue(dataRow, "dn",dn);
+	        putSingleValue(dataRow, "objectClass", "user");
+	        putSingleValue(dataRow, "samAccountName", "TestUser4");
+	        putSingleValue(dataRow, "cn", "TestUser4");
+	        
+	        putSingleValue(dataRow, "sn", "autoLastName");
+	        putSingleValue(dataRow, "givenName", "firstVal");
+	        putSingleValue(dataRow, "userAccountControl", "512");
+	        putSingleValue(dataRow, "unicodePwd", "myPassword#1");
+	        
+			Connector adMgr = null;
+			try {
+				Map<String, String> config = new HashMap<String, String>();
+				config.put(CONFIG_KEYSTORE_PATH, keyStorePath);
+				config.put(CONFIG_PASSWORD, "ENCRYPTEDPASSWORDVAL");
+				config.put(CONFIG_SERVER, "xxx.xxx.xxx.xxx");
+				config.put(CONFIG_USER, "cn=Administrator,CN=test,DC=test,DC=tst");
+				adMgr = new LDAP();
+				adMgr.setup(config);
+				Map<String, Collection<String>> attrs = new HashMap<String, Collection<String>>();
+				putSingleValue(attrs, "dn", dn);
+				adMgr.execute("deleteObject", attrs);
+				adMgr.execute("addObject", dataRow); 
+				adMgr.tearDown();
+	
+			//	adMgr.modObject(modificationAttrs, DirContext.REPLACE_ATTRIBUTE);
+			} catch (IdMUnitException e) {
+				if(e.getMessage().indexOf("EXISTS")!=-1) {
+					Map<String, Collection<String>> attrs = new HashMap<String, Collection<String>>();
+					putSingleValue(attrs, "dn", dn);
 					try {
-						ConnectionConfigData creds = new ConnectionConfigData("xxx.xxx.xxx.xxx", 
-								"cn=edirectory,ou=test,dc=test,dc=tst", 
-								"ENCRYPTEDPASSWORDVAL");
-						creds.setKeystorePath(keyStorePath);
-						adMgr = new LDAP(creds);
-					Attributes attrs = new BasicAttributes();
-					attrs.put("dn", dn);
-					adMgr.deleteObject(attrs);
-					adMgr.addObject(dataRow); 
-					adMgr.closeConnection();
-		
-				//	adMgr.modObject(modificationAttrs, DirContext.REPLACE_ATTRIBUTE);
-				} catch (IdMUnitException e) {
-					if(e.getMessage().indexOf("EXISTS")!=-1) {
-						Attributes attrs = new BasicAttributes();
-						attrs.put("dn", dn);
-						try {
-							adMgr.deleteObject(attrs);
-							adMgr.addObject(dataRow);
-						} catch (IdMUnitException e1) {
-							fail("Failed to clean up and re-add object: " + e1.getMessage());
-						} 
-					} else {
-						fail("Failed to add object: " + e.getMessage());
-					}
+						adMgr.execute("deleteObject", attrs);
+						adMgr.execute("addObject", dataRow);
+					} catch (IdMUnitException e1) {
+						fail("Failed to clean up and re-add object: " + e1.getMessage());
+					} 
+				} else {
+					fail("Failed to add object: " + e.getMessage());
 				}
+			}
 		}
-}
+	}
+
 	public void testAddUserInQCIVEnv() {
 		for (int ctr=0;;++ctr) {
 			System.out.println("######### Counter: " + ctr);
-				String dn = "cn=AutoTestUser4,ou=test,o=tst"; 
-				DataRowBean dataRow = new DataRowBean();
-			        dataRow.addValue(new DataValueBean("dn",dn));
-			        dataRow.addValue(new DataValueBean("objectClass", "inetorgperson"));
-			        dataRow.addValue(new DataValueBean("cn", "AutoTestUser4"));
-			        
-			        dataRow.addValue(new DataValueBean("sn", "autoLastName"));
-			        dataRow.addValue(new DataValueBean("givenName", "firstVal"));
-			        
-					Connection connectionManager = null;
-					try {
-						ConnectionConfigData creds = new ConnectionConfigData("xxx.xxx.xxx.xxx", 
-								"cn=admin,o=services", 
-								"ENCRYPTEDPASSWORDVAL");
-						connectionManager = new LDAP(creds);
-					Attributes attrs = new BasicAttributes();
-					attrs.put("dn", dn);
-					Attributes modificationAttrs= new BasicAttributes();
-					modificationAttrs.put("dn", dn);
-					modificationAttrs.put("description", "tempval");
-					connectionManager.validateObject(modificationAttrs);
-					connectionManager.closeConnection();
-				} catch (IdMUnitException e) {
-					fail("Failed to add object: " + e.getMessage());
-				}
+			String dn = "cn=AutoTestUser4,ou=test,o=tst"; 
+			Map<String, Collection<String>> dataRow = new HashMap<String, Collection<String>>();
+	        putSingleValue(dataRow, "dn",dn);
+	        putSingleValue(dataRow, "objectClass", "inetorgperson");
+	        putSingleValue(dataRow, "cn", "AutoTestUser4");
+	        
+	        putSingleValue(dataRow, "sn", "autoLastName");
+	        putSingleValue(dataRow, "givenName", "firstVal");
+	        
+			Connector connectionManager = null;
+			try {
+				Map<String, String> config = new HashMap<String, String>();
+				config.put(CONFIG_PASSWORD, "ENCRYPTEDPASSWORDVAL");
+				config.put(CONFIG_SERVER, "xxx.xxx.xxx.xxx");
+				config.put(CONFIG_USER, "cn=Administrator,CN=test,DC=test,DC=tst");
+				connectionManager = new LDAP();
+				connectionManager.setup(config);
+				Map<String, Collection<String>> attrs = new HashMap<String, Collection<String>>();
+				putSingleValue(attrs, "dn", dn);
+				Map<String, Collection<String>> modificationAttrs = new HashMap<String, Collection<String>>();
+				putSingleValue(modificationAttrs, "dn", dn);
+				putSingleValue(modificationAttrs, "description", "tempval");
+				connectionManager.execute("validateObject", modificationAttrs);
+				connectionManager.tearDown();
+			} catch (IdMUnitException e) {
+				fail("Failed to add object: " + e.getMessage());
+			}
 		}
-}
+	}
+
 	public void testReadnsaccountlockFromiPlanet() {
 		String dn = "uid=TestTSTLOCK,ou=test,o=tst"; 
-		DataRowBean dataRow = new DataRowBean();
-        dataRow.addValue(new DataValueBean("dn",dn));
-        dataRow.addValue(new DataValueBean("cn","LOCKUser, Test"));
-	        dataRow.addValue(new DataValueBean("objectClass", "qcPerson"));
+		Map<String, Collection<String>> dataRow = new HashMap<String, Collection<String>>();
+        putSingleValue(dataRow, "dn",dn);
+        putSingleValue(dataRow, "cn","LOCKUser, Test");
+        putSingleValue(dataRow, "objectClass", "qcPerson");
+        
+        putSingleValue(dataRow, "sn", "autoLastName");
+        putSingleValue(dataRow, "givenName", "firstVal");
 	        
-	        dataRow.addValue(new DataValueBean("sn", "autoLastName"));
-	        dataRow.addValue(new DataValueBean("givenName", "firstVal"));
-	        
-			Connection connectionMgr = null;
-			try {
-				ConnectionConfigData creds = new ConnectionConfigData("xxx.xxx.xxx.xxx", 
-						"cn=dirmgr", 
-						"ENCRYPTEDPASSWORDVAL");
-				connectionMgr = new LDAP(creds);
-			Attributes attrs = new BasicAttributes();
-			attrs.put("dn", dn);
-			connectionMgr.deleteObject(attrs);
-			connectionMgr.addObject(dataRow);
+		Connector connectionMgr = null;
+		try {
+			Map<String, String> config = new HashMap<String, String>();
+			config.put(CONFIG_PASSWORD, "ENCRYPTEDPASSWORDVAL");
+			config.put(CONFIG_SERVER, "xxx.xxx.xxx.xxx");
+			config.put(CONFIG_USER, "cn=dirmgr");
+			connectionMgr = new LDAP();
+			connectionMgr.setup(config);
+			Map<String, Collection<String>> attrs = new HashMap<String, Collection<String>>();
+			putSingleValue(attrs, "dn", dn);
+			connectionMgr.execute("deleteObject", attrs);
+			connectionMgr.execute("addObject", dataRow);
 			//Set the nsaccountlock attribute
-			Attributes modAttrs = new BasicAttributes();
-			modAttrs.put("nsaccountlock", "true");
-			modAttrs.put("dn", dn);
-			connectionMgr.modObject(modAttrs, DirContext.REPLACE_ATTRIBUTE);
+			Map<String, Collection<String>> modAttrs = new HashMap<String, Collection<String>>();
+			putSingleValue(modAttrs, "nsaccountlock", "true");
+			putSingleValue(modAttrs, "dn", dn);
+			connectionMgr.execute("modObject", modAttrs);
 			//Read the nsaccountlock attribute
-			Attributes newAttrs = new BasicAttributes();
-			newAttrs.put("dn", dn);
-			newAttrs.put("uid", "TestTSTLOCK");
-			connectionMgr.validateObject(newAttrs);
-			connectionMgr.closeConnection();
+			Map<String, Collection<String>> newAttrs = new HashMap<String, Collection<String>>();
+			putSingleValue(newAttrs, "dn", dn);
+			putSingleValue(newAttrs, "uid", "TestTSTLOCK");
+			connectionMgr.execute("validateObject", newAttrs);
+			connectionMgr.tearDown();
 	
 		//	adMgr.modObject(modificationAttrs, DirContext.REPLACE_ATTRIBUTE);
 		} catch (IdMUnitException e) {
 			if(e.getMessage().indexOf("EXISTS")!=-1) {
-				Attributes attrs = new BasicAttributes();
-				attrs.put("dn", dn);
+				Map<String, Collection<String>> attrs = new HashMap<String, Collection<String>>();
+				putSingleValue(attrs, "dn", dn);
 				try {
-					connectionMgr.deleteObject(attrs);
-					connectionMgr.addObject(dataRow);
+					connectionMgr.execute("deleteObject", attrs);
+					connectionMgr.execute("addObject", dataRow);
 				} catch (IdMUnitException e1) {
 					fail("Failed to clean up and re-add object: " + e1.getMessage());
 				} 
-		} else {
-			fail("Failed to add object: " + e.getMessage());
+			} else {
+				fail("Failed to add object: " + e.getMessage());
+			}
 		}
 	}
-}
-
-	public void testFindUsers() {
-		DataRowBean dataRow = new DataRowBean();
-	        dataRow.addValue(new DataValueBean("objectclass", new String[] { "top", "inetOrgPerson" }));
-	        dataRow.addValue(new DataValueBean("cn", "autoTestUser1"));
-	        dataRow.addValue(new DataValueBean("sn", "autoLastName"));
-	        dataRow.addValue(new DataValueBean("description", "Some description"));
-
-			Connection adMgr = null;
-			try {
-			ConnectionConfigData creds = new ConnectionConfigData("SPECIFY", "SPECIFY", "SPECIFY");
-				adMgr = new LDAP(creds);
-				Map foundUsers = adMgr.search("(objectclass=inetOrgPerson)", "ou=users,o=test", new String[]{"date"});
-			System.out.println("Number found: " + foundUsers.size());
-			Iterator<String> itr = foundUsers.keySet().iterator();
-			while(itr.hasNext()) {
-				String dn = itr.next();
-				String attrs = (String)foundUsers.get(dn);
-				
-				System.out.println("Dn: " + dn);
-				System.out.println("Attrs: " + attrs);
-			}
-		} catch (IdMUnitException e) {
-			fail("Failed search: " + e.getMessage());
-		} 
-	}
-
-	
 }

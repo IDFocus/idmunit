@@ -1,6 +1,6 @@
 /* 
  * IdMUnit - Automated Testing Framework for Identity Management Solutions
- * Copyright (c) 2005-2006 TriVir, LLC
+ * Copyright (c) 2005-2008 TriVir, LLC
  *
  * This program is licensed under the terms of the GNU General Public License
  * Version 2 (the "License") as published by the Free Software Foundation, and 
@@ -42,7 +42,6 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 
-import org.idmunit.Constants;
 import org.idmunit.IdMUnitException;
 import org.idmunit.connector.Oracle;
 
@@ -58,6 +57,10 @@ import org.idmunit.connector.Oracle;
  * @version %I%, %G%
  */
 public class JDBCConnectorPrototype extends TestCase {
+    private final static String STR_SQL = "sql";
+
+    private final static String STR_SUCCESS = "...SUCCESS";
+
 	private Connection m_connection;
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -158,7 +161,7 @@ public class JDBCConnectorPrototype extends TestCase {
 	public void validateObject(Attributes assertedAttrs) throws IdMUnitException {
 	    Statement stmt      = null;
 		try {
-			String query = (String)assertedAttrs.get(Constants.STR_SQL).get();
+			String query = (String)assertedAttrs.get(STR_SQL).get();
 	        //System.out.println("...performing LDAP validation for: [" + dn + "]");
 			ResultSet resultSet = null;
 		    stmt = m_connection.createStatement();
@@ -168,7 +171,7 @@ public class JDBCConnectorPrototype extends TestCase {
 			while(ne.hasMoreElements()) {
 				Attribute attribute = (Attribute)ne.next();
 				String attrName = attribute.getID().toUpperCase();
-				if(!(attrName.equalsIgnoreCase(Constants.STR_SQL))) {
+				if(!(attrName.equalsIgnoreCase(STR_SQL))) {
 					String attrVal = (String)attribute.get();
 					Attribute appAttr = upperCaseAttrs.get(attrName);
 					//adAttr.contains()
@@ -180,7 +183,7 @@ public class JDBCConnectorPrototype extends TestCase {
 							} else if(attrVal==null) {
 							//Swallow this exception: we simply won't attempt to validate an attribute that was excluded from this sheet in the spreadsheet
 							}
-						System.out.println(Constants.STR_SUCCESS);
+						System.out.println(STR_SUCCESS);
 					} else {
 						fail("Validation failed: Attribute [" + attrName + "] not equal.  Expected dest value: [" + attrVal+"] but the attribute value did not exist in the application.");
 					}

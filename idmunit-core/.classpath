@@ -1,46 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="test-resources/|test-resources/|test/" kind="src" path="idmunit-core"/>
-	<classpathentry kind="src" path="SampleProfiles"/>
-	<classpathentry kind="src" path="SampleTests"/>
-	<classpathentry kind="lib" path="lib/junit.jar"/>
-	<classpathentry kind="lib" path="lib/junit-addons.jar"/>
-	<classpathentry kind="lib" path="lib/spring-beans.jar"/>
-	<classpathentry kind="lib" path="lib/spring-context.jar"/>
-	<classpathentry kind="lib" path="lib/spring-core.jar"/>
-	<classpathentry kind="lib" path="lib/spring-dao.jar"/>
-	<classpathentry kind="lib" path="lib/spring-jdbc.jar"/>
-	<classpathentry kind="lib" path="lib/spring-mock.jar"/>
-	<classpathentry kind="lib" path="lib/cglib-nodep.jar"/>
-	<classpathentry kind="lib" path="lib/commons-collections.jar"/>
-	<classpathentry kind="lib" path="lib/commons-lang.jar"/>
-	<classpathentry kind="lib" path="lib/commons-logging.jar"/>
-	<classpathentry kind="lib" path="lib/dbunit.jar"/>
-	<classpathentry kind="lib" path="lib/easymockclassextension-java13.jar"/>
-	<classpathentry kind="lib" path="lib/easymock-java13.jar"/>
-	<classpathentry kind="lib" path="lib/ehcache.jar"/>
-	<classpathentry kind="lib" path="lib/httpunit.jar"/>
-	<classpathentry kind="lib" path="lib/js.jar"/>
-	<classpathentry kind="lib" path="lib/jwebunit.jar"/>
-	<classpathentry kind="lib" path="lib/jxl.jar"/>
-	<classpathentry kind="lib" path="lib/log4j.jar"/>
-	<classpathentry kind="lib" path="lib/nekohtml.jar"/>
-	<classpathentry kind="lib" path="lib/poi.jar"/>
-	<classpathentry kind="lib" path="lib/servlet-api.jar"/>
-	<classpathentry kind="lib" path="lib/spring-ldap.jar"/>
-	<classpathentry kind="lib" path="lib/xercesImpl.jar"/>
-	<classpathentry kind="lib" path="lib/xml-apis.jar"/>
-	<classpathentry kind="lib" path="lib/ldaptemplate-1.0-rc2.jar"/>
-	<classpathentry kind="lib" path="lib/msbase.jar"/>
-	<classpathentry kind="lib" path="lib/mssqlserver.jar"/>
-	<classpathentry kind="lib" path="lib/msutil.jar"/>
-	<classpathentry kind="lib" path="lib/oracleJDBC14.zip"/>
-	<classpathentry kind="lib" path="lib/jdom.jar"/>
+	<classpathentry excluding="**/.svn/**" kind="src" path="test"/>
+	<classpathentry excluding="**/.svn/**" kind="src" path="src"/>
+	<classpathentry exported="true" kind="lib" path="lib/junit.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/junit-addons.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-beans.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-context.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-core.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-dao.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-jdbc.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-mock.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/cglib-nodep.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-collections.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-lang.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/commons-logging.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/dbunit.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/easymockclassextension-java13.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/easymock-java13.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ehcache.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/httpunit.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/js.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jwebunit.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jxl.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/log4j.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/nekohtml.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/poi.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/servlet-api.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/spring-ldap.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xercesImpl.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/xml-apis.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ldaptemplate-1.0-rc2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/msbase.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mssqlserver.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/msutil.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/oracleJDBC14.zip"/>
+	<classpathentry exported="true" kind="lib" path="lib/jdom.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/activation.jar"/>
-	<classpathentry kind="lib" path="lib/mail.jar"/>
-	<classpathentry kind="lib" path="lib/smtp.jar"/>
-	<classpathentry kind="lib" path="lib/DDSteps-1.1.1-dev-20070607143040.jar"/>
-	<classpathentry kind="lib" path="lib/jt400.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/activation.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/mail.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/smtp.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/DDSteps-1.1.1-dev-20070607143040.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jt400.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

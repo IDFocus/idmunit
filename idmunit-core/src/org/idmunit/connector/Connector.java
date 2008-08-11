@@ -31,30 +31,8 @@ import java.util.Map;
 
 import org.idmunit.IdMUnitException;
 
-/**
- * This class is provided for backwards compatability with older versions of
- * IdMUnit. All new tests should use LdapConnector instead of this class.
- * 
- * @deprecated
- */
-public class LDAP extends LdapConnector {
-    public void opModObject(Map<String, Collection<String>> data) throws IdMUnitException {
-        opReplaceAttr(data);
-    }
-
-    public void opModifyObject(Map<String, Collection<String>> data) throws IdMUnitException {
-        opReplaceAttr(data);
-    }
-
-    public void opModAttr(Map<String, Collection<String>> data) throws IdMUnitException {
-        opReplaceAttr(data);
-    }
-
-    public void opDelObject(Map<String, Collection<String>> data) throws IdMUnitException {
-    	opDeleteObject(data);
-    }
-
-    public void opRenObject(Map<String, Collection<String>> data) throws IdMUnitException {
-    	opRenameObject(data);
-    }
+public interface Connector {
+    public void setup(Map<String, String> config) throws IdMUnitException;
+    public void tearDown() throws IdMUnitException;
+    public void execute(String operation, Map<String, Collection<String>> data) throws IdMUnitException;
 }

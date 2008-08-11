@@ -1,6 +1,6 @@
 /* 
  * IdMUnit - Automated Testing Framework for Identity Management Solutions
- * Copyright (c) 2005-2008 TriVir, LLC
+ * Copyright (c) 2007-2008 TriVir, LLC
  *
  * This program is licensed under the terms of the GNU General Public License
  * Version 2 (the "License") as published by the Free Software Foundation, and 
@@ -24,37 +24,12 @@
  * Fairfax, Virginia 22030
  *
  */
-package org.idmunit;
+package org.idmunit.util;
 
-import org.ddsteps.junit.behaviour.DdRowBehaviour;
-import org.idmunit.connector.ConnectionConfigData;
+public class Version {
+	private Version() {}
 
-/**
- * Exception class for communicating exceptional behavior to the framework user
- * @author Brent Kynaston, Software Engineer, TriVir LLC
- * @version %I%, %G%
- * @see ConnectionConfigData
- * @see org.idmunit.connector.Connection
- * @see Alert
- * @see DdRowBehaviour
- */
-public class IdMUnitException extends Exception {
-	static final long serialVersionUID = 1;
-
-    public IdMUnitException() {
-        super();
-    }
-    
-    public IdMUnitException(String message, Throwable cause) {
-        super(message, cause);
-    }
-    
-    public IdMUnitException(String message) {
-        super(message);
-    }
-    
-    public IdMUnitException(Throwable cause) {
-        super(cause);
-    }
+	public static String getVersion(Class clazz) {
+		return clazz.getPackage().getImplementationVersion();
+	}
 }
-

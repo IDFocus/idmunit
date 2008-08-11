@@ -1,6 +1,6 @@
 /* 
  *  TriVir IDMPollingDaemon (This is a non-open-source commercial plug-in to IdMUnit)
- *  Copyright (C) 2004-2006 TriVir, LLC.  All Rights Reserved.
+ *  Copyright (C) 2004-2008 TriVir, LLC.  All Rights Reserved.
  *  www.TriVir.com
  *  TriVir LLC
  *  11570 Popes Head View Lane
@@ -12,24 +12,6 @@
  *
  */
 package org.idmunit.extension;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-
-import org.idmunit.Constants;
-import org.idmunit.IdMUnitException;
-import org.idmunit.connector.Connection;
-import org.idmunit.connector.ConnectionConfigData;
-import org.idmunit.connector.LDAP;
 
 /**
  * This is a commercial plug-in to IdMUnit and Novell Identity Manager that <br>
