@@ -133,30 +133,6 @@ public class DTF extends DDStepsExcelTestCase implements org.idmunit.connector.C
 		//TODO: close file handles
 	}
 
-//	// TODO: function is unused, delete, or use.
-//	private Attributes toUpper(ResultSet lowerCaseAttrs) throws IdMUnitException {
-//		Attributes upperCaseAttrs = new BasicAttributes();
-//		try {  
-//			lowerCaseAttrs.next();//only compare the first row for now
-//			ResultSetMetaData metaData = lowerCaseAttrs.getMetaData();
-//			for(int ctr=1;ctr<metaData.getColumnCount()+1;++ctr) {
-//				String upperCaseAttrName = metaData.getColumnName(ctr).toUpperCase();
-//				log.info("Column Name: " + upperCaseAttrName);
-//				String attrVal = lowerCaseAttrs.getString(ctr);
-//				if(attrVal != null && attrVal.length() > 0) {
-//					BasicAttribute upperCaseAttr = new BasicAttribute(upperCaseAttrName);
-//					String upperCaseAttrVal = attrVal.toUpperCase();
-//					upperCaseAttr.add(upperCaseAttrVal);
-//					upperCaseAttrs.put(upperCaseAttr);
-//					log.info("Column Val: " + upperCaseAttrVal);
-//				}
-//			}
-//		} catch (SQLException e) {
-//			throw new IdMUnitException("Failed toUpper JDBC attrs: " + e.getMessage());
-//		}
-//		return upperCaseAttrs;
-//	}
-
 	public void validateObject(Attributes assertedAttrs) throws IdMUnitException {
 		//TODO: implement
 		log.info("### DTF connector validateObject verb not yet implemented ###");
