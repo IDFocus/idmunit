@@ -51,7 +51,7 @@
 	</target>
 
 	<target name="jar" depends="build">
-		<mkdir dir="${dist.dir}" />
+		<mkdir dir="${dist.dir}"/>
 		<jar destfile="${dist.dir}/idmunit.jar" index="true" keepcompression="true">
 			<fileset dir="${build.dir}" excludes="**/*.xml;**/*.properties"/>
 		</jar>
@@ -60,14 +60,17 @@
 	<target name="dist" depends="jar,javadoc">
 		<zip destfile="${dist.dir}/idmunit-${release}.zip">
 			<zipfileset file="${dist.dir}/idmunit.jar" prefix="idmunit-${release}"/>
+			<zipfileset file="License.txt" prefix="idmunit-${release}"/>
+			<zipfileset file="LicensePolicies.txt" prefix="idmunit-${release}"/>
+			<zipfileset dir="dependencies" prefix="idmunit-${release}/dependencies"/>
+			<zipfileset dir="docs" includes="*.pdf" prefix="idmunit-${release}/docs"/>
+			<zipfileset dir="build/javadoc" prefix="idmunit-${release}/docs/api"/>
+			<zipfileset file="examples/build.xml" prefix="idmunit-${release}"/>
+			<zipfileset dir="examples" excludes="build.xml" prefix="idmunit-${release}/examples"/>
 			<zipfileset dir="${ddsteps.home}" prefix="idmunit-${release}/lib">
 				<include name="**/*.jar" />
 				<include name="**/*.zip" />
 			</zipfileset>
-			<zipfileset dir="build/javadoc" prefix="idmunit-${release}/docs/api"/>
-			<zipfileset dir="docs" includes="*.pdf" prefix="idmunit-${release}/docs"/>
-			<zipfileset dir="examples" excludes="build.xml" prefix="idmunit-${release}/examples"/>
-			<zipfileset file="examples/build.xml" prefix="idmunit-${release}"/>
 		</zip>
 	</target>
 
