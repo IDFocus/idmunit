@@ -34,7 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.TreeMap;
+import java.util.LinkedHashMap;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
@@ -431,7 +431,7 @@ public abstract class IdMUnitTestCase extends DDStepsExcelTestCase {
     }
 
     private Map<String, Collection<String>> convertData() {
-        TreeMap<String, Collection<String>> data = new TreeMap<String, Collection<String>>(String.CASE_INSENSITIVE_ORDER);
+       Map<String, Collection<String>> data = new LinkedHashMap<String, Collection<String>>();
         Iterator itr = attributeMap.keySet().iterator();
         while(itr.hasNext()) {
             String attrName = (String)itr.next();
