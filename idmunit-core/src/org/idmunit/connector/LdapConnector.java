@@ -422,8 +422,11 @@ public class LdapConnector extends BasicConnector {
                 ++resultCtr;
                 sr = (SearchResult) results.next();
                 if(resultCtr==1) {
-                    resolvedDn = sr.getName() + "," + base;
-                    logger.finer("---> Target DN for validation: [" + resolvedDn + "]");
+                	if(sr.getName()!=null && sr.getName().length()>0) {
+                		resolvedDn = sr.getName() + "," + base;
+                		logger.finer("---> Target DN for validation: [" + resolvedDn + "]");
+	        		} else resolvedDn = base;
+                		logger.finer("---> Target DN for validation: [" + resolvedDn + "]");
                 } else { 
                     logger.finer("---> Other objects found matching filter: [" + sr.getName() + "," + base + "].");
                 }
