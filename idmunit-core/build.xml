@@ -74,6 +74,10 @@
 		</zip>
 	</target>
 
+	<target name="run-examples" depends="build">
+		<ant antfile="examples/build.xml"/>
+	</target>
+
 	<target name="clean">
 		<delete dir="${build.dir}"/>
 		<delete file="${dist.dir}/idmunit.jar"/>
