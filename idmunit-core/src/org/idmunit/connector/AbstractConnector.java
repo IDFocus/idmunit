@@ -36,7 +36,14 @@ import java.util.TreeMap;
 
 import org.idmunit.IdMUnitException;
 
-public abstract class AbstractConnector implements Connector {
+/**
+ * This class facilitates dynamic execution of IdMUnit spreadsheet-defined transactions through dynamic run-time type identification (RTTI) and object introspection
+ * @since IdMUnit 2.0
+ * @author Huston Franklin, Software Engineer, TriVir LLC
+ * @see BasicConnector
+ * @see Connector  
+ * @version %I%, %G%
+ */public abstract class AbstractConnector implements Connector {
     Map<String, Method> methods = new TreeMap<String, Method>(String.CASE_INSENSITIVE_ORDER);
     
     public AbstractConnector() {

@@ -56,7 +56,12 @@ import org.idmunit.Failures;
 import org.idmunit.IdMUnitException;
 import org.idmunit.IdMUnitFailureException;
 
-public class LdapConnector extends BasicConnector {
+/**
+ * Implements the IdMUnit 2.0 Connector interface.  This class replaces LDAP.java which implemented Connection.java.
+ * @since IdMUnit 2.0
+ * @author Brent Kynaston, Software Engineer, TriVir LLC
+ * @version %I%, %G%
+ */public class LdapConnector extends BasicConnector {
     private final static String STR_DN = "dn";
     private final static String STR_NEW_DN = "newdn";
     private final static String STR_USER_PASSWORD = "userPassword";

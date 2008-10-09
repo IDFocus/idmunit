@@ -31,6 +31,12 @@ import java.util.Map;
 
 import org.idmunit.IdMUnitException;
 
+/**
+ * IdMUnit 2.0+ interface for IdMUnit connectors.  This interface has been simplified to execute generic "transactions" rather than
+ * explicit verbs.  If a connector is implemented according to this interface, IdMUnit will be able to make full use of it!  
+ * @author Huston Franklin, Software Engineer, TriVir LLC
+ * @version %I%, %G%
+ */
 public interface Connector {
     public void setup(Map<String, String> config) throws IdMUnitException;
     public void tearDown() throws IdMUnitException;

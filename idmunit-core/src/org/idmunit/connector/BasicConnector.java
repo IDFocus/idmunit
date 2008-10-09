@@ -31,7 +31,14 @@ import java.util.Map;
 
 import org.idmunit.IdMUnitException;
 
-public abstract class BasicConnector extends AbstractConnector {
+/**
+ * This class provides a basic implementation of the AbstractConnector class which was introduced to make IdMUnit transactions more generic.
+ * @since IdMUnit 2.0
+ * @author Huston Franklin, Software Engineer, TriVir LLC
+ * @see AbstractConnector
+ * @see Connector  
+ * @version %I%, %G%
+ */public abstract class BasicConnector extends AbstractConnector {
     protected static final String CONFIG_KEYSTORE_PATH = "KeystorePath";
     protected static final String CONFIG_PASSWORD = "Password";
     protected static final String CONFIG_SERVER = "Server";
