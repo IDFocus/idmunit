@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import javax.naming.Context;
 import javax.naming.NameNotFoundException;
@@ -52,29 +52,27 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.idmunit.Failures;
 import org.idmunit.IdMUnitException;
 import org.idmunit.IdMUnitFailureException;
 
-/**
- * Implements the IdMUnit 2.0 Connector interface.  This class replaces LDAP.java which implemented Connection.java.
- * @since IdMUnit 2.0
- * @author Brent Kynaston, Software Engineer, TriVir LLC
- * @version %I%, %G%
- */public class LdapConnector extends BasicConnector {
+public class LdapConnector extends BasicConnector {
     private final static String STR_DN = "dn";
     private final static String STR_NEW_DN = "newdn";
     private final static String STR_USER_PASSWORD = "userPassword";
-    private final static String STR_SUCCESS = "...SUCCESS";
+    protected final static String STR_SUCCESS = "...SUCCESS";
     
     private final static String STR_UNICODE_PASSWORD = "unicodePwd";
-    private final static String STR_DXML_ASSOC = "DirXML-Associations";
+    protected final static String STR_DXML_ASSOC = "DirXML-Associations";
 
-    private static Logger logger = Logger.getLogger(LdapConnector.class.getName());
+    private static Log logger = LogFactory.getLog(LdapConnector.class);
 
     private TreeSet<String> operationalAttributes = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 
     private Map config;
+	private boolean insensitive = false;
 
     private DirContext m_context;
 
@@ -82,7 +80,7 @@ import org.idmunit.IdMUnitFailureException;
         operationalAttributes.add("nsaccountlock");
         operationalAttributes.add("DirXML-State");
     }
-
+    
     public void opAddAttr(Map<String, Collection<String>> dataRow) throws IdMUnitException {
         modifyObject(dataRow, DirContext.ADD_ATTRIBUTE);
     }
@@ -116,13 +114,13 @@ import org.idmunit.IdMUnitFailureException;
             throw new IdMUnitException("A Distinguished Name must be supplied in column '" + STR_DN + "'");
         }
 
-        logger.finer("Binding DN " + dn);
+        logger.debug("Binding DN " + dn);
         try {
             DirContext tmpCtx = this.m_context.createSubcontext(dn, createAttrs);
             if(tmpCtx!=null) { 
                 tmpCtx.close();//this is necessary in order to keep the parent connection ctx clean enough to be pooled/managed as week references inside of the parent DirContext will prevent proper pooling
             }
-            logger.finer(">>>" + dn + " created");
+            logger.debug(">>>" + dn + " created");
         } catch (NamingException  e) {                   
             throw new IdMUnitException("Failed to create object: " + dn + " with error: " + e.getMessage(), e);
         }            
@@ -130,7 +128,7 @@ import org.idmunit.IdMUnitFailureException;
 
     public void opClearAttr(Map<String, Collection<String>> data) throws IdMUnitException {
         String dn = getTargetDn(data);
-        logger.finer("...performing LDAP modification for: [" + dn + "]");
+        logger.debug("...performing LDAP modification for: [" + dn + "]");
 
         List<ModificationItem> mods = new ArrayList<ModificationItem>();
         for (String attrName : data.keySet() ) {
@@ -150,20 +148,20 @@ import org.idmunit.IdMUnitFailureException;
             try {
                 m_context.modifyAttributes(dn, (ModificationItem[])mods.toArray(new ModificationItem[mods.size()]));
             } catch (NameNotFoundException e) {
-            	logger.fine ("...WARNING: object doesn't exist, continuing.");
+            	logger.warn("...WARNING: object doesn't exist, continuing.");
             	// TODO: send warning here?
             } catch (NamingException e) {
                 if(e.getMessage().contains("16")) {
-                    logger.fine("...already removed, operation unnecessary.");
+                    logger.warn("...already removed, operation unnecessary.");
                 } else {
                     throw new IdMUnitException("Modification failure: Error: " + e.getMessage(), e);
                 }
             }
         } else {
-            logger.fine("...No attributes to update");
+            logger.debug("...No attributes to update");
         }
 
-        logger.finer(STR_SUCCESS);
+        logger.info(STR_SUCCESS);
     }
 
     public void opDeleteObject(Map<String, Collection<String>> data) throws IdMUnitException {
@@ -172,15 +170,15 @@ import org.idmunit.IdMUnitFailureException;
             dn = getTargetDn(data);
         } catch (IdMUnitException e) {
             //A wild-card search failed to find an entry, or the DN field in the spreadsheet is blank
-            logger.fine("---> Wild-card deletion found no DNs matching the specified filter, or the DN in the spreadsheet is blank.");
+            logger.warn("---> Wild-card deletion found no DNs matching the specified filter, or the DN in the spreadsheet is blank.");
             return; //Never fail when told to delete a DN that isn't there
         }
 
         try {
             m_context.lookup(dn);
-            logger.finer("...performing LDAP deletion for: [" + dn + "]");
+            logger.info("...performing LDAP deletion for: [" + dn + "]");
             m_context.unbind(dn);
-            logger.finer(STR_SUCCESS);
+            logger.info(STR_SUCCESS);
         } catch (NamingException e) {
             String errorMessage = e.getMessage().toUpperCase();
             if(errorMessage.indexOf("NO SUCH ENTRY")!= -1 || errorMessage.indexOf("NO_OBJECT")!=-1 || errorMessage.indexOf("OBJECT")!=-1) {
@@ -202,10 +200,10 @@ import org.idmunit.IdMUnitFailureException;
             throw new IdMUnitException("A Distinguished Name must be supplied in column '" + STR_NEW_DN + "'");
         }
 
-        logger.finer("...performing LDAP move/rename for: [" + dn + "] to [" + newDn + "].");
+        logger.info("...performing LDAP move/rename for: [" + dn + "] to [" + newDn + "].");
         try {
             m_context.rename(dn, newDn);
-            logger.finer(STR_SUCCESS);
+            logger.info(STR_SUCCESS);
         } catch (NamingException e) {
             throw new IdMUnitException("Move/Rename failure: Error: " + e.getMessage(), e);
         }
@@ -213,7 +211,7 @@ import org.idmunit.IdMUnitFailureException;
 
     public void opRemoveAttr(Map<String, Collection<String>> data) throws IdMUnitException {
         String dn = getTargetDn(data);
-        logger.finer("...performing LDAP modification for: [" + dn + "]");
+        logger.info("...performing LDAP modification for: [" + dn + "]");
 
         TreeMap<String, Collection<String>> curAttrs;
 		try {
@@ -249,17 +247,24 @@ import org.idmunit.IdMUnitFailureException;
                 Attribute modValues = new BasicAttribute(attrName);
 
                 Collection<String> curValues = curAttrs.get(attrName);
+                //Only remove values if they are actually present on the object
                 if (curValues != null) {
 	                for (String curValue : curValues) {
 	                    for (String value : values) {
+	                    	//TODO: Add configuration option at connector definition level to enable/disable case sensitivity for rex-ex comparisons
 	                        if (curValue.matches(value)) {
 	                            modValues.add(curValue);
 	                        }
 	                    }
 	                }
                 }
-                mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE, modValues));
-                logger.finer("...preparing to remove [" + modValues + "] from '" + attrName + "'.");
+                //Only apply the modification if there are explicit values to remove, otherwise all values will be removed!
+                if(modValues.size()>0) {
+                	mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE, modValues)); 
+                	logger.debug("...preparing to remove [" + modValues + "] from '" + attrName + "'.");
+                } else {
+                	logger.warn("...WARNING: specified value doesn't exist, continuing.");
+                }
             }
         }
 
@@ -268,16 +273,16 @@ import org.idmunit.IdMUnitFailureException;
                 m_context.modifyAttributes(dn, (ModificationItem[])mods.toArray(new ModificationItem[mods.size()]));
             } catch (NamingException e) {
                 if(e.getMessage().contains("16")) {
-                    logger.finer("...already removed, operation unnecessary.");
+                    logger.warn("...already removed, operation unnecessary.");
                 } else {
                     throw new IdMUnitException("Modification failure: Error: " + e.getMessage(), e);
                 }
             }
         } else {
-            logger.fine("...No attributes to update");
+            logger.debug("...No attributes to update");
         }
 
-        logger.finer(STR_SUCCESS);
+        logger.info(STR_SUCCESS);
     }
 
     public void opRenameObject(Map<String, Collection<String>> assertedAttrs) throws IdMUnitException {
@@ -339,9 +344,9 @@ import org.idmunit.IdMUnitFailureException;
         try {
             String dn = getTargetDn(expectedAttrs);
             String passwordVal = getSingleValue(expectedAttrs, STR_USER_PASSWORD);
-            logger.finer("...performing LDAP password validation for: [" + dn + "]");
+            logger.info("...performing LDAP password validation for: [" + dn + "]");
             tempConn = createLDAPConnection(dn, passwordVal);
-            logger.finer(STR_SUCCESS);
+            logger.info(STR_SUCCESS);
         } catch (IdMUnitException e) {
             throw new IdMUnitFailureException("Password validation failure: Error: " + e.getMessage());
         } finally {
@@ -349,7 +354,7 @@ import org.idmunit.IdMUnitFailureException;
                 try {
                     tempConn.close();
                 } catch (NamingException e) {
-                    logger.info("...Failed to close validatePassword context.");
+                    logger.warn("...Failed to close validatePassword context.");
                 }
             }
         }
@@ -403,10 +408,10 @@ import org.idmunit.IdMUnitFailureException;
             return new InitialDirContext(env);
         }catch (Exception e) {
             if (keystorePath != null && keystorePath.length() > 0) {
-                logger.finer("### Failed to obtain an SSL LDAP server connection to: [" + server + "].");
+                logger.debug("### Failed to obtain an SSL LDAP server connection to: [" + server + "].");
                 throw new IdMUnitException("Failed to obtain an SSL LDAP Connection: " + e.getMessage(), e);
             } else {
-                logger.finer("### Failed to obtain an LDAP server connection to: [" + server + "].");
+                logger.debug("### Failed to obtain an LDAP server connection to: [" + server + "].");
                 throw new IdMUnitException("Failed to obtain an LDAP Connection: " + e.getMessage());
             }
         }
@@ -426,14 +431,15 @@ import org.idmunit.IdMUnitFailureException;
             while (results.hasMore()) {
                 ++resultCtr;
                 sr = (SearchResult) results.next();
-                if(resultCtr==1) {
-                	if(sr.getName()!=null && sr.getName().length()>0) {
+                if(resultCtr == 1) {
+                	if(sr.getName()!= null && sr.getName().length() > 0) {
                 		resolvedDn = sr.getName() + "," + base;
-                		logger.finer("---> Target DN for validation: [" + resolvedDn + "]");
-	        		} else resolvedDn = base;
-                		logger.finer("---> Target DN for validation: [" + resolvedDn + "]");
+	        		} else {
+	        			resolvedDn = base;
+	        		}
+            		logger.debug("---> Target DN for validation: [" + resolvedDn + "]");
                 } else { 
-                    logger.finer("---> Other objects found matching filter: [" + sr.getName() + "," + base + "].");
+                    logger.debug("---> Other objects found matching filter: [" + sr.getName() + "," + base + "].");
                 }
             }
         } catch (NamingException ne) {
@@ -497,11 +503,11 @@ import org.idmunit.IdMUnitFailureException;
             String idVal = nameComponents[0];
             if (idVal.indexOf("*")==-1) return dn;
             // cn=TIDMTST*1,ou=users,o=myorg
-            logger.finer("---> ID to search: " + idVal);
+            logger.debug("---> ID to search: " + idVal);
 
             String base = dn.substring(dn.indexOf(nameComponents[1]));
             String filter = "("+idVal+")";
-            logger.finer("---> Synthesized filter: " + filter + " from the base: " + base);
+            logger.debug("---> Synthesized filter: " + filter + " from the base: " + base);
                 
             dn = findUser(base, filter);
         }
@@ -518,7 +524,7 @@ import org.idmunit.IdMUnitFailureException;
 
     private void modifyObject(Map<String, Collection<String>> dataRow, int operationType) throws IdMUnitException {
         String dn = getTargetDn(dataRow);
-        logger.finer("...performing LDAP modification for: [" + dn + "]");
+        logger.debug("...performing LDAP modification for: [" + dn + "]");
 
         List<ModificationItem> mods = new ArrayList<ModificationItem>();
         for (String attrName : dataRow.keySet()) {
@@ -560,7 +566,7 @@ import org.idmunit.IdMUnitFailureException;
                     modValues.add(j.next());
                 }
                 mods.add(new ModificationItem(operationType, modValues));
-                logger.finer("...preparing to update attr: [" + attrName + "] with value [" + values + "]");
+                logger.debug("...preparing to update attr: [" + attrName + "] with value [" + values + "]");
             }
         }
 
@@ -569,16 +575,16 @@ import org.idmunit.IdMUnitFailureException;
                 m_context.modifyAttributes(dn, (ModificationItem[])mods.toArray(new ModificationItem[mods.size()]));
             } catch (NamingException e) {
                 if(e.getMessage().contains("16")) {
-                    logger.finer("...already removed, operation unnecessary.");
+                    logger.warn("...already removed, operation unnecessary.");
                 } else {
                     throw new IdMUnitException("Modification failure: Error: " + e.getMessage(), e);
                 }
             }
         } else {
-            logger.fine("...No attributes to update");
+            logger.debug("...No attributes to update");
         }
 
-        logger.finer(STR_SUCCESS);
+        logger.info(STR_SUCCESS);
     }
 
     private static TreeMap<String, Collection<String>> attributesToMap(Attributes attributes) throws NamingException {
@@ -613,23 +619,24 @@ import org.idmunit.IdMUnitFailureException;
         return attrs;
     }
 
-    private static void compareAttributeValues(String attrName, Collection<String> expected, Collection<String> actual, Failures failures) throws IdMUnitException {
-        for (String actualValue : actual) {
-            for (String expectedValue : expected) {
-                // Support validation of whether or not an attribute exists (using a wildcard in the spreadsheet - '*')
-                if (expectedValue.equals("*")) {
-                    logger.finest(STR_SUCCESS + ": validating attribute: [" + attrName + "] EXPECTED: [" + expectedValue + "] ACTUAL: [" + actualValue + "]");
-                    return;
+    protected void compareAttributeValues(String attrName, Collection<String> expected, Collection<String> actual, Failures failures) throws IdMUnitException {
+        Collection<String> unmatched = new LinkedList<String>(actual);
+        outer:
+        for (String expectedValue : expected) {
+        	Pattern p = Pattern.compile(expectedValue, insensitive ? Pattern.CASE_INSENSITIVE : 0);
+        	for (Iterator<String> i=unmatched.iterator(); i.hasNext(); ) {
+        		String actualValue = i.next();
+
+                if (p.matcher(actualValue).matches()) {
+                    logger.info(STR_SUCCESS + ": validating attribute: [" + attrName + "] EXPECTED: [" + expectedValue +"] ACTUAL: [" + actualValue + "]");
+                    i.remove();
+                    continue outer;
                 }
-                
-                if (expectedValue.equals(actualValue)) {
-                    logger.finest(STR_SUCCESS + ": validating attribute: [" + attrName + "] EXPECTED: [" + expectedValue +"] ACTUAL: [" + actualValue + "]");
-                    return;
-                }
-            }
+        	}
+
+            failures.add(attrName, expected, actual);
+        	return;
         }
-        
-        failures.add(attrName, expected, actual);
     }
 
     private static String getDXMLAssocByDriverName(String driverDn, Collection attr) {

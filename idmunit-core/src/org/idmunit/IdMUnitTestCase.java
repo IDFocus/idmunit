@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.LinkedHashMap;
 
+
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
@@ -225,7 +226,9 @@ public abstract class IdMUnitTestCase extends DDStepsExcelTestCase {
         	for (long retriesRemaining = getRetryCount() - 1;; --retriesRemaining) {
                 try {
                     try {
-                        new TestStepExecute(operationalDataMap, connector, getOperation(), convertData()).runStep();
+                    	LOG.info(this.getName() + ": " + getOperationData(OP_COMMENT));
+
+                    	new TestStepExecute(operationalDataMap, connector, getOperation(), convertData()).runStep();
                     } finally {
                         //Wait to allow for standard latency (interval override in spread sheet)
                         delay();
@@ -263,7 +266,7 @@ public abstract class IdMUnitTestCase extends DDStepsExcelTestCase {
                     } else {
                         LOG.info("...FAILURE: " + e.getMessage());
                         logCriticalErrors(e.getMessage());
-                        throw e;
+                        throw new AssertionFailedError(e.getMessage());
                     }
                 } catch (IdMUnitException e) {
                     if (expectedFailure()) {
@@ -431,7 +434,7 @@ public abstract class IdMUnitTestCase extends DDStepsExcelTestCase {
     }
 
     private Map<String, Collection<String>> convertData() {
-       Map<String, Collection<String>> data = new LinkedHashMap<String, Collection<String>>();
+        Map<String, Collection<String>> data = new LinkedHashMap<String, Collection<String>>();
         Iterator itr = attributeMap.keySet().iterator();
         while(itr.hasNext()) {
             String attrName = (String)itr.next();

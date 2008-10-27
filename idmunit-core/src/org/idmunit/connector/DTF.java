@@ -26,13 +26,9 @@
  */
 package org.idmunit.connector;
 
-import javax.naming.directory.Attributes;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.ddsteps.dataset.DataRow;
-import org.ddsteps.dataset.DataValue;
-import org.ddsteps.testcase.support.DDStepsExcelTestCase;
 import org.idmunit.IdMUnitException;
 
 import java.io.BufferedWriter;
@@ -40,9 +36,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 
@@ -52,26 +50,20 @@ import java.util.StringTokenizer;
  * @version %I%, %G%
  * @see org.idmunit.connector.Connection
  */
-public class DTF extends DDStepsExcelTestCase implements org.idmunit.connector.Connection {
+public class DTF extends BasicConnector {
     private final static String ERROR_DTF_CONFIG = "Configuration error - the DTF connector serverUrl should contain inputFilePath=VALUE1|outputFilePath=VALUE2 where value1 and value2 provide the correct path with full filename (including extension).";
     private final static String STR_SUCCESS = "...SUCCESS";
     private final static String STR_DN = "dn";
     private final static int DTF_BUFFER = 1000; //allocate up to this many bytes for the output to insert into the delimited text file
 
 	private static Log log = LogFactory.getLog(Oracle.class);
-	private String m_driverInputFilePath;
-	private String m_driverOutputFilePath;
-	private String m_fileDeletePrefix;
-	private String m_delim;
+	protected String m_driverInputFilePath;
+	protected String m_driverOutputFilePath;
+	protected String m_fileDeletePrefix;
+	protected String m_delim;
 	
-	public DTF() {}
-	
-	public DTF(ConnectionConfigData creds) throws IdMUnitException {
-		setupConnection(creds);
-	}
-	
-	public void setupConnection(ConnectionConfigData creds) throws IdMUnitException {
-		getConnection(creds.getServerURL(), creds.getAdminCtx(), creds.getAdminPwd());
+	public void setup(Map<String, String> config) throws IdMUnitException {
+		getConnection(config.get(CONFIG_SERVER), config.get(CONFIG_USER), config.get(CONFIG_PASSWORD));
 	}
 	
 	private String getFilePath(String targetPath) {
@@ -124,30 +116,19 @@ public class DTF extends DDStepsExcelTestCase implements org.idmunit.connector.C
 		log.info("##### Field Delimiter: " + m_delim);
 	}
 	
-	public void insertObject(Attributes assertedAttrs) throws IdMUnitException {
-		//TODO: implement
-		log.info("### DTF connector insertObject verb not yet implemented ###");
-	}
-	
-	public void closeConnection() throws IdMUnitException {
-		//TODO: close file handles
-	}
-
-	public void validateObject(Attributes assertedAttrs) throws IdMUnitException {
-		//TODO: implement
-		log.info("### DTF connector validateObject verb not yet implemented ###");
-	}
-
-	private String buildFileData(DataRow assertedAttrs) {
+	private String buildFileData(Map<String, Collection<String>> data) {
+		Set<String> keySet = data.keySet();
 		StringBuffer fileData = new StringBuffer(DTF_BUFFER);
-		for (Iterator iter = assertedAttrs.iterator(); iter.hasNext();) {
-			DataValue dataValue = (DataValue) iter.next();
-			String attrName = dataValue.getName();
-			Object attrVal = dataValue.getValue();
+		for (Iterator<String> iter = keySet.iterator(); iter.hasNext();) {
+			//DataValue dataValue = (DataValue) iter.next();
+			String attrName = (String)iter.next();
+			Collection<String> attrVal = (Collection<String>)data.get(attrName);
 			if(attrName==null || attrVal==null || attrName.equalsIgnoreCase(STR_DN))
 				continue;
 			//Append the data to the data entry here
-			fileData.append(attrVal);
+			for (Iterator<String> iter2 = attrVal.iterator(); iter2.hasNext();) {
+				fileData.append(iter2.next());
+			}
 			fileData.append(m_delim);
 		}
 		return fileData.toString();
@@ -159,9 +140,9 @@ public class DTF extends DDStepsExcelTestCase implements org.idmunit.connector.C
 		Date timestamp = new Date();
 		return dateFormatter.format(timestamp);
 	}
-
-	public void addObject(DataRow dataRow) throws IdMUnitException {
-		String fileData = buildFileData(dataRow);
+	public void opAddObject(Map<String, Collection<String>> data) throws IdMUnitException {
+		
+		String fileData = buildFileData(data);
 		log.info("...inserting delimited text file entry: ");
 		log.info(fileData);
 		BufferedWriter outputFile = null;
@@ -184,9 +165,9 @@ public class DTF extends DDStepsExcelTestCase implements org.idmunit.connector.C
 			throw new IdMUnitException("...Failed to write to the log file: " + m_driverInputFilePath + " Error: " + e.getMessage());
 		}
 		log.info(STR_SUCCESS);
-	}
+	}	
 
-	public void deleteObject(Attributes assertedAttrs) throws IdMUnitException {
+	public void opDeleteObject(Map<String, Collection<String>> data) throws IdMUnitException {
 		//Find and delete IdMUnit-generated DTF files
 		if(m_fileDeletePrefix==null || m_fileDeletePrefix.length()<1) throw new IdMUnitException(ERROR_DTF_CONFIG);  
 		int lastSlashIndex = m_fileDeletePrefix.lastIndexOf("/");
@@ -212,27 +193,10 @@ public class DTF extends DDStepsExcelTestCase implements org.idmunit.connector.C
 		    }
 	}
 
-	public void modObject(Attributes assertedAttrs, int operationType) throws IdMUnitException {
-		// TODO Auto-generated method stub
-		
-	}
 
-	public void moveObject(Attributes assertedAttrs) throws IdMUnitException {
+	
+	public void tearDown() throws IdMUnitException {
 		// TODO Auto-generated method stub
 		
-	}
-
-	public void renameObject(Attributes assertedAttrs) throws IdMUnitException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void validatePassword(Attributes assertedAttrs) throws IdMUnitException {
-		// TODO Auto-generated method stub
-		
-	}
-	public Map<String, String> search(String filter, String base, String[] collisionAttrs) throws IdMUnitException {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

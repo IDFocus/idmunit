@@ -39,6 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import org.ddsteps.dataset.DataRow;
 import org.ddsteps.testcase.support.DDStepsExcelTestCase;
 import org.idmunit.IdMUnitException;
+import org.idmunit.IdMUnitFailureException;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -170,7 +171,7 @@ public class Oracle extends DDStepsExcelTestCase implements org.idmunit.connecto
 				}
 			}
 		} catch (NamingException e) {
-			fail("Validation failure: " + e.getMessage());
+			throw new IdMUnitFailureException("Validation failure: " + e.getMessage());
 		} catch (SQLException se) {
 			throw new IdMUnitException("Validation exception: " + se.getMessage());
 		} finally {
@@ -187,7 +188,7 @@ public class Oracle extends DDStepsExcelTestCase implements org.idmunit.connecto
 				failMessages.append(itErrors.next());
 				failMessages.append("\r\n");
 			}
-			fail(failMessages.toString() + "\r\n[" + errorsFound.size() + "] errors found.");
+			throw new IdMUnitFailureException(failMessages.toString() + "\r\n[" + errorsFound.size() + "] errors found.");
 		}
 	}
 

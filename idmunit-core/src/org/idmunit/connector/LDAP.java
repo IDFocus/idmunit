@@ -27,8 +27,12 @@
 package org.idmunit.connector;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.idmunit.Failures;
 import org.idmunit.IdMUnitException;
 
 /**
@@ -38,6 +42,8 @@ import org.idmunit.IdMUnitException;
  * @deprecated
  */
 public class LDAP extends LdapConnector {
+    private static Log logger = LogFactory.getLog(LDAP.class);
+
     public void opModObject(Map<String, Collection<String>> data) throws IdMUnitException {
         opReplaceAttr(data);
     }
@@ -56,5 +62,38 @@ public class LDAP extends LdapConnector {
 
     public void opRenObject(Map<String, Collection<String>> data) throws IdMUnitException {
     	opRenameObject(data);
+    }
+
+    protected void compareAttributeValues(String attrName, Collection<String> expected, Collection<String> actual, Failures failures) throws IdMUnitException {
+        // Support validation of whether or not an attribute exists (using a wildcard in the spreadsheet - '*')
+        if (expected.size() == 1 && expected.iterator().next().equals("*") && actual.size() > 0) {
+            logger.info(STR_SUCCESS + ": validating attribute: [" + attrName + "] EXPECTED: [*] ACTUAL: [" + actual.iterator().next() + "]");
+            return;
+        }
+
+        outer:
+        for (String expectedValue : expected) {
+        	for (Iterator<String> i=actual.iterator(); i.hasNext(); ) {
+        		// Trim white space to be backwards compatable with
+        		// previous versions of this connector, this was originally
+        		// added to work around JDBC drivers that don't trim white
+        		// space on values sent to eDir
+        		String actualValue = i.next().trim();
+
+                if (actualValue.equalsIgnoreCase(expectedValue)) {
+                    logger.info(STR_SUCCESS + ": validating attribute: [" + attrName + "] EXPECTED: [" + expectedValue +"] ACTUAL: [" + actualValue + "]");
+                    continue outer;
+                }
+
+				// Allow DirXML-Associations to match
+                if (attrName.equalsIgnoreCase(STR_DXML_ASSOC) && actualValue.startsWith(expectedValue)) {
+                    logger.info(STR_SUCCESS + ": validating attribute: [" + attrName + "] EXPECTED: [" + expectedValue +"] ACTUAL: [" + actualValue + "]");
+                    continue outer;
+                }
+        	}
+
+            failures.add(attrName, expected, actual);
+        	return;
+        }
     }
 }
