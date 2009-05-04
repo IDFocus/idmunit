@@ -64,6 +64,8 @@
 			<zipfileset file="LicensePolicies.txt" prefix="idmunit-${release}"/>
 			<zipfileset dir="dependencies" prefix="idmunit-${release}/dependencies"/>
 			<zipfileset dir="docs" includes="*.pdf" prefix="idmunit-${release}/docs"/>
+			<zipfileset dir="docs" includes="*.html" prefix="idmunit-${release}/docs"/>
+			<zipfileset dir="docs/resources" includes="*.png" prefix="idmunit-${release}/docs/resources"/>
 			<zipfileset dir="build/javadoc" prefix="idmunit-${release}/docs/api"/>
 			<zipfileset file="examples/build.xml" prefix="idmunit-${release}"/>
 			<zipfileset dir="examples" excludes="build.xml" prefix="idmunit-${release}/examples"/>
