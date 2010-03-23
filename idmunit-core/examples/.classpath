@@ -12,9 +12,6 @@
 	<classpathentry kind="lib" path="lib/mail.jar"/>
 	<classpathentry kind="lib" path="lib/poi.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/idmunit_connectors.jar"/>
-	<classpathentry kind="lib" path="lib/oracleJDBC14.zip"/>
-	<classpathentry kind="lib" path="lib/dumbster1.6.jar"/>
 	<classpathentry kind="lib" path="lib/cglib-nodep.jar"/>
 	<classpathentry kind="lib" path="lib/commons-collections.jar"/>
 	<classpathentry kind="lib" path="lib/dbunit.jar"/>
@@ -28,9 +25,6 @@
 	<classpathentry kind="lib" path="lib/junit-addons.jar"/>
 	<classpathentry kind="lib" path="lib/jwebunit.jar"/>
 	<classpathentry kind="lib" path="lib/ldaptemplate-1.0-rc2.jar"/>
-	<classpathentry kind="lib" path="lib/msbase.jar"/>
-	<classpathentry kind="lib" path="lib/mssqlserver.jar"/>
-	<classpathentry kind="lib" path="lib/msutil.jar"/>
 	<classpathentry kind="lib" path="lib/nekohtml.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api.jar"/>
 	<classpathentry kind="lib" path="lib/smtp.jar"/>
