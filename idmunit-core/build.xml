@@ -1,36 +1,30 @@
-<?xml version="1.0"?>
+﻿<?xml version="1.0"?>
 <project name="IdMUnit" basedir="." default="dist">
-	<property name="release" value="2.0" />
+	<property name="release" value="2.1" />
 
-	<!-- Set some basic properties -->
-	<property name="ddsteps.home" value="lib" />
 	<property name="src.dir" value="src"/>
-	<property name="build.dir" value="build/classes" />
+	<property name="build.dir" value="build" />
 	<property name="dist.dir" value="dist" />
 
-	<!-- Path for building test cases. Include all jars from DDSteps. -->
 	<path id="build-classpath">
-		<fileset dir="${ddsteps.home}">
+		<fileset dir="lib">
 			<include name="**/*.jar" />
 			<include name="**/*.zip" />
 		</fileset>
 	</path>
 
-	<!-- Compiles our test case to classes directory. -->
 	<target name="build">
-		<mkdir dir="${build.dir}" />
+		<mkdir dir="${build.dir}/classes" />
 
-		<javac destdir="${build.dir}" failonerror="true">
-			<src path="${src.dir}" />
+		<javac srcdir="${src.dir}" excludes="**/parser/**" destdir="${build.dir}/classes" failonerror="true" source="1.5" target="1.5">
 			<classpath refid="build-classpath" />
 		</javac>
 	</target>
 
 	<target name="javadoc" depends="build">
-		<delete dir="build/javadoc" />
-		<mkdir dir="build/javadoc" />
+		<mkdir dir="${build.dir}/javadoc" />
 		<javadoc
-			   destdir="build/javadoc"
+			   destdir="${build.dir}/javadoc"
 			   classpathref="build-classpath"
 			   author="true"
 			   version="true"
@@ -38,13 +32,13 @@
 			   windowtitle="IdMUnit Source Documentation">
 
 			<fileset dir="${src.dir}" defaultexcludes="yes">
-			  <include name="org/idmunit/**"/>
+				<include name="org/idmunit/**"/>
 			</fileset>
 
 			<doctitle><![CDATA[<h1>IdMUnit</h1>]]></doctitle>
 			<bottom><![CDATA[<i>Copyright &#169; 2005-2008 TriVir, LLC. Licensed under GNU GPL.  Please see www.idmunit.org for more information.</i>]]></bottom>
 			<tag name="todo" scope="all" description="To do:"/>
-			<group title="Group 1 Packages" packages="org.idmunit.*"/>
+			<group title="IdMUnit Packages" packages="org.idmunit.*"/>
 			<link offline="true" href="http://java.sun.com/products/jdk/1.2/docs/api/" packagelistLoc="tmp"/>
 			<link href="http://developer.java.sun.com/developer/products/xml/docs/api/"/>
 		</javadoc>
@@ -53,26 +47,45 @@
 	<target name="jar" depends="build">
 		<mkdir dir="${dist.dir}"/>
 		<jar destfile="${dist.dir}/idmunit.jar" index="true" keepcompression="true">
-			<fileset dir="${build.dir}" excludes="**/*.xml;**/*.properties"/>
+			<fileset dir="${build.dir}/classes" excludes="**/*.xml;**/*.properties"/>
+			<manifest>
+				<attribute name="Implementation-Version" value="${release}"/>
+			</manifest>
 		</jar>
 	</target>
 
 	<target name="dist" depends="jar,javadoc">
+		<zip destfile="${build.dir}/idmunit-src.zip">
+			<zipfileset dir="src" includes="**/*.java" prefix="idmunit-${release}/src"/>
+		</zip>
+		<zip destfile="${build.dir}/idmunit-javadoc.zip">
+			<zipfileset dir="${build.dir}/javadoc" prefix="docs/api"/>
+		</zip>
 		<zip destfile="${dist.dir}/idmunit-${release}.zip">
-			<zipfileset file="${dist.dir}/idmunit.jar" prefix="idmunit-${release}"/>
+			<zipfileset file="${dist.dir}/idmunit.jar" prefix="idmunit-${release}/lib"/>
 			<zipfileset file="License.txt" prefix="idmunit-${release}"/>
 			<zipfileset file="LicensePolicies.txt" prefix="idmunit-${release}"/>
-			<zipfileset dir="dependencies" prefix="idmunit-${release}/dependencies"/>
+			<zipfileset file="ThirdPartyLicenses.txt" prefix="idmunit-${release}"/>
 			<zipfileset dir="docs" includes="*.pdf" prefix="idmunit-${release}/docs"/>
 			<zipfileset dir="docs" includes="*.html" prefix="idmunit-${release}/docs"/>
 			<zipfileset dir="docs/resources" includes="*.png" prefix="idmunit-${release}/docs/resources"/>
-			<zipfileset dir="build/javadoc" prefix="idmunit-${release}/docs/api"/>
+			<zipfileset file="${build.dir}/idmunit-javadoc.zip" prefix="idmunit-${release}/docs"/>
+			<zipfileset file="docs/IdMUnitReference.xls" prefix="idmunit-${release}/docs"/>
+			<zipfileset file="docs/IdMUnit-Reference-idmunit-config.xml" prefix="idmunit-${release}/docs"/>
+			<zipfileset file="examples/profiles/idmunit.dtd" prefix="idmunit-${release}/docs"/>
 			<zipfileset file="examples/build.xml" prefix="idmunit-${release}"/>
-			<zipfileset dir="examples" excludes="build.xml" prefix="idmunit-${release}/examples"/>
-			<zipfileset dir="${ddsteps.home}" prefix="idmunit-${release}/lib">
+			<zipfileset file="examples/.classpath" prefix="idmunit-${release}"/>
+			<zipfileset file="examples/.project" prefix="idmunit-${release}"/>
+			<zipfileset file="examples/profiles/idmunit-config.xml" prefix="idmunit-${release}"/>
+			<zipfileset dir="examples/tests" prefix="idmunit-${release}/tests"/>
+			<zipfileset file="examples/profiles/idmunit-defaults.properties" prefix="idmunit-${release}/tests"/>
+			<zipfileset file="examples/profiles/log4j.properties" prefix="idmunit-${release}/tests"/>
+			<zipfileset file="examples/profiles/log4j.xml" prefix="idmunit-${release}/tests"/>
+			<zipfileset dir="lib" prefix="idmunit-${release}/lib">
 				<include name="**/*.jar" />
 				<include name="**/*.zip" />
 			</zipfileset>
+			<zipfileset file="${build.dir}/idmunit-src.zip" prefix="idmunit-${release}"/>
 		</zip>
 	</target>
 
@@ -82,6 +95,8 @@
 
 	<target name="clean">
 		<delete dir="${build.dir}"/>
-		<delete file="${dist.dir}/idmunit.jar"/>
+		<delete>
+			<fileset dir="${dist.dir}" includes="idmunit.jar,**/idmunit-*.zip"/>
+		</delete>
 	</target>
 </project>

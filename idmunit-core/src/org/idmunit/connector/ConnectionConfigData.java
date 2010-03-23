@@ -1,6 +1,6 @@
 /* 
  * IdMUnit - Automated Testing Framework for Identity Management Solutions
- * Copyright (c) 2005-2008 TriVir, LLC
+ * Copyright (c) 2005-2010 TriVir, LLC
  *
  * This program is licensed under the terms of the GNU General Public License
  * Version 2 (the "License") as published by the Free Software Foundation, and 
@@ -28,12 +28,10 @@ package org.idmunit.connector;
 
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
-import org.ddsteps.junit.behaviour.DdRowBehaviour;
 import org.idmunit.Alert;
 import org.idmunit.ConfigLoader;
-import org.idmunit.EncTool;
-import org.idmunit.IdMUnitException;
 import org.idmunit.injector.InjectionConfigData;
 
 /**
@@ -44,30 +42,84 @@ import org.idmunit.injector.InjectionConfigData;
  * @see DdRowBehaviour
  */
 public class ConnectionConfigData {
+    private final static String XML_KEYSTORE = "keystore-path";
+    private final static String XML_USER = "user";
+    private final static String XML_PASSWORD = "password";
+    private final static String XML_SERVER = "server";
+
+    private Map<String, String> configParams = new HashMap <String, String> ();
+    private String name;
 	private String type;
-	private String serverURL;
-	private String adminCtx;
-	private String adminPwd;
-	private String keystorePath;
-	private Map dataSubstitutions;
+	private Map<String, String> dataSubstitutions;
 	private List<InjectionConfigData> dataInjections;
 	private Map<String, Alert> idmunitAlerts;
 	private int multiplierRetry;
 	private int multiplierWait;
 	
-	public boolean ifMultiplierRetry() {
-		if(multiplierRetry > 1) {
-			return true;
-		}
-		return false;
+	public ConnectionConfigData(String name, String type) {
+		this.name = name;
+		this.type = type;
 	}
 
-	public boolean ifMultiplierWait() {
-		if(multiplierWait > 1) {
-			return true;
-		}
-		return false;
+	public String getName() {
+		return name;
 	}
+
+	public String getType() {
+		return type;
+	}
+
+    public String getParam(String name) {
+        return configParams.get(name);
+    }
+
+    public void setParam(String name, String value) {
+        configParams.put(name, value);
+    }
+
+    public Map<String, String> getParams() {
+        return configParams;
+    }
+
+	public String getAdminCtx() {
+		return configParams.get(XML_USER);
+	}
+	
+	public String getAdminPwd() {
+		return configParams.get(XML_PASSWORD);
+	}
+
+	public String getKeystorePath() {
+		return configParams.get(XML_KEYSTORE);
+	}
+
+	public String getServerURL() {
+		return configParams.get(XML_SERVER);
+	}
+
+	public Map<String, Alert> getIdmunitAlerts() {
+		return idmunitAlerts;
+	}
+
+	public void setIdmunitAlerts(Map<String, Alert> idmunitAlerts) {
+		this.idmunitAlerts = idmunitAlerts;
+	}
+
+	public void setDataInjections(List<InjectionConfigData> dataInjections) {
+		this.dataInjections = dataInjections;
+	}
+
+	public List<InjectionConfigData> getDataInjections() {
+		return dataInjections;
+	}
+	
+	public boolean ifMultiplierRetry() {
+        return multiplierRetry > 1;
+    }
+
+	public boolean ifMultiplierWait() {
+        return multiplierWait > 1;
+    }
 	
 	public int getMultiplierRetry() {
 		return multiplierRetry;
@@ -85,82 +137,11 @@ public class ConnectionConfigData {
 		this.multiplierWait = multiplierWait;
 	}
 
-	public Map getSubstitutions() {
+	public Map<String, String> getSubstitutions() {
 		return dataSubstitutions;
 	}
 
-	public void setSubstitutions(Map substitutions) {
+	public void setSubstitutions(Map<String, String> substitutions) {
 		this.dataSubstitutions = substitutions;
-	}
-
-	public String getKeystorePath() {
-		return keystorePath;
-	}
-
-	public void setKeystorePath(String keystorePath) {
-		this.keystorePath = keystorePath;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
-
-	public String getAdminCtx() {
-		return adminCtx;
-	}
-	
-	public ConnectionConfigData() {
-		this.serverURL = null;
-		this.adminCtx = null;
-		this.adminPwd = null;
-	}
-	
-	public ConnectionConfigData(String server, String user, String password) throws IdMUnitException {
-		setServerURL(server);
-		setAdminCtx(user);
-		setAdminPwd(password);
-	}
-	
-	public void setAdminCtx(String adminCtx) {
-		this.adminCtx = adminCtx;
-	}
-	public String getAdminPwd() {
-		return adminPwd;
-	}
-
-	public void setClearAdminPwd(String clearPwd) throws IdMUnitException {
-		this.adminPwd = clearPwd;
-	}
-	
-	public void setAdminPwd(String adminPwd) throws IdMUnitException {
-		//decrypt the password first
-		EncTool encryptionManager = new EncTool("IDMUNIT1");
-		this.adminPwd = encryptionManager.decryptCredentials(adminPwd);
-	}
-	public String getServerURL() {
-		return serverURL;
-	}
-	void setServerURL(String serverURL) {
-		this.serverURL = serverURL;
-	}
-
-	public Map getIdmunitAlerts() {
-		return idmunitAlerts;
-	}
-
-	public void setIdmunitAlerts(Map<String, Alert> idmunitAlerts) {
-		this.idmunitAlerts = idmunitAlerts;
-	}
-
-	public void setDataInjections(List<InjectionConfigData> dataInjections) {
-		this.dataInjections = dataInjections;
-	}
-
-	public List<InjectionConfigData> getDataInjections() {
-		return dataInjections;
 	}
 }

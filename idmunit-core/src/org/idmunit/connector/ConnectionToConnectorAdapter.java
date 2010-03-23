@@ -1,6 +1,6 @@
 /* 
  * IdMUnit - Automated Testing Framework for Identity Management Solutions
- * Copyright (c) 2005-2008 TriVir, LLC
+ * Copyright (c) 2005-2009 TriVir, LLC
  *
  * This program is licensed under the terms of the GNU General Public License
  * Version 2 (the "License") as published by the Free Software Foundation, and 
@@ -35,17 +35,12 @@ import javax.naming.directory.DirContext;
 
 import org.ddsteps.dataset.bean.DataRowBean;
 import org.ddsteps.dataset.bean.DataValueBean;
-import org.idmunit.EncTool;
 import org.idmunit.IdMUnitException;
 
 public class ConnectionToConnectorAdapter implements Connector {
     public final static int CLEAR_ATTRIBUTE = 4;
     
     private final static String ERROR_UNKNOWN_OP = "Unknown operation - Please check the operation column for this row and try again.";
-    private static final Object CONFIG_KEYSTORE_PATH = "KeystorePath";
-    private static final Object CONFIG_PASSWORD = "Password";
-    private static final Object CONFIG_SERVER = "Server";
-    private static final Object CONFIG_USER = "User";
     private final static String OP_EXEC_SQL = "execSQL";
     private final static String OP_ADD_OBJECT = "addObject";
     private final static String OP_MOD_OBJECT = "modObject";
@@ -114,16 +109,10 @@ public class ConnectionToConnectorAdapter implements Connector {
     }
 
     public void setup(Map<String, String> config) throws IdMUnitException {
-
-        EncTool encryptionManager = new EncTool("IDMUNIT1");
-
-        String keystorePath = config.get(CONFIG_KEYSTORE_PATH);
-        String password = encryptionManager.encryptCredentials(config.get(CONFIG_PASSWORD));
-        String server = config.get(CONFIG_SERVER);
-        String user = config.get(CONFIG_USER);
-
-        ConnectionConfigData configData = new ConnectionConfigData(server, user, password);
-        configData.setKeystorePath(keystorePath);
+        ConnectionConfigData configData = new ConnectionConfigData("", "");
+        for (String key : config.keySet()) {
+        	configData.setParam(key, config.get(key));
+        }
         connection.setupConnection(configData);
     }
 

@@ -1,6 +1,6 @@
 /* 
  * IdMUnit - Automated Testing Framework for Identity Management Solutions
- * Copyright (c) 2008 TriVir, LLC
+ * Copyright (c) 2008-2010 TriVir, LLC
  *
  * This program is licensed under the terms of the GNU General Public License
  * Version 2 (the "License") as published by the Free Software Foundation, and 
@@ -32,14 +32,49 @@ import java.util.Map;
 import org.idmunit.IdMUnitException;
 
 public abstract class BasicConnector extends AbstractConnector {
-    protected static final String CONFIG_KEYSTORE_PATH = "KeystorePath";
-    protected static final String CONFIG_PASSWORD = "Password";
-    protected static final String CONFIG_SERVER = "Server";
-    protected static final String CONFIG_USER = "User";
+    public static final String CONFIG_KEYSTORE_PATH = "keystore-path";
+    public static final String CONFIG_PASSWORD = "password";
+    public static final String CONFIG_SERVER = "server";
+    public static final String CONFIG_USER = "user";
 
-    protected void opAddObject(Map<String, Collection<String>> data) throws IdMUnitException {}
-    protected void opDeleteObject(Map<String, Collection<String>> data) throws IdMUnitException {}
-    protected void opMoveObject(Map<String, Collection<String>> data) throws IdMUnitException {}
-    protected void opRenameObject(Map<String, Collection<String>> data) throws IdMUnitException {}
-    protected void opValidateObject(Map<String, Collection<String>> data) throws IdMUnitException {}
+    /**
+     * @deprecated
+     */
+    protected void opAddObject(Map<String, Collection<String>> data) throws IdMUnitException {opAdd(data);}
+    /**
+     * @deprecated
+     */
+    protected void opDeleteObject(Map<String, Collection<String>> data) throws IdMUnitException {opDelete(data);}
+    /**
+     * @deprecated
+     */
+    protected void opMoveObject(Map<String, Collection<String>> data) throws IdMUnitException {opMove(data);}
+    /**
+     * @deprecated
+     */
+    protected void opRenameObject(Map<String, Collection<String>> data) throws IdMUnitException {opRename(data);}
+    /**
+     * @deprecated
+     */
+    protected void opValidateObject(Map<String, Collection<String>> data) throws IdMUnitException {opValidate(data);}
+
+    protected void opAdd(Map<String, Collection<String>> data) throws IdMUnitException {
+        throw new IdMUnitException("Invalid operation 'Add'");
+    }
+
+    protected void opDelete(Map<String, Collection<String>> data) throws IdMUnitException {
+        throw new IdMUnitException("Invalid operation 'Delete'");
+    }
+
+    protected void opMove(Map<String, Collection<String>> data) throws IdMUnitException {
+        throw new IdMUnitException("Invalid operation 'Move'");
+    }
+
+    protected void opRename(Map<String, Collection<String>> data) throws IdMUnitException {
+        throw new IdMUnitException("Invalid operation 'Rename'");
+    }
+
+    protected void opValidate(Map<String, Collection<String>> data) throws IdMUnitException {
+        throw new IdMUnitException("Invalid operation 'Validate'");
+    }
 }

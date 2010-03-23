@@ -1,6 +1,6 @@
 /* 
  * IdMUnit - Automated Testing Framework for Identity Management Solutions
- * Copyright (c) 2005-2008 TriVir, LLC
+ * Copyright (c) 2005-2009 TriVir, LLC
  *
  * This program is licensed under the terms of the GNU General Public License
  * Version 2 (the "License") as published by the Free Software Foundation, and 
@@ -29,7 +29,6 @@ package org.idmunit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +59,7 @@ import org.idmunit.teststep.TestStepExecute;
  * @see TestCase
  * @see DDStepsTestCase
  */
-public abstract class IdMUnitTestCase extends DDStepsExcelTestCase {
+public class IdMUnitTestCase extends DDStepsExcelTestCase {
     private final static String ERROR_MISSING_TARGET = "Missing target type definition.  Please add a type specifier for all targets defined.";
     private final static String STR_MULTI_ATTR_DELIMITER = "|"; //TODO: Enable override operational column in the spreadsheet to override this value if requested 
     private final static String STR_OPERATION = "Operation";
@@ -90,10 +89,6 @@ public abstract class IdMUnitTestCase extends DDStepsExcelTestCase {
     private Connector connector = null;
 	private ConnectionConfigData configData;
 
-    public void setUpBeforeData() throws Exception {
-		super.setUpBeforeData();
-	}
-	
 	private void cleanupMap(Map targetMap) {
 		if(targetMap!=null) {
 			targetMap.clear();
@@ -106,7 +101,6 @@ public abstract class IdMUnitTestCase extends DDStepsExcelTestCase {
 	 * is generally done by a testDestroyFixture sheet in the test spreadsheet.
 	 */
 	public void tearDownBeforeData() throws Exception {
-		super.tearDownBeforeData();
 		cleanupMap(this.attributeMap);
 		cleanupMap(this.operationalDataMap);
 	}
@@ -150,7 +144,7 @@ public abstract class IdMUnitTestCase extends DDStepsExcelTestCase {
 		}
 	}
 
-	private long getRetryCount() {
+	private long getRetryCount() throws IdMUnitException {
 		long maxRetryCount=0;
 		Object longObject = getOperationData(STR_RETRY_COUNT);
 		if(longObject != null) {
@@ -171,7 +165,7 @@ public abstract class IdMUnitTestCase extends DDStepsExcelTestCase {
 		}
 	}
 	
-	private boolean isRowEnabled() {
+	private boolean isRowEnabled() throws IdMUnitException {
     	String op = getOperation();
 		if(op.equalsIgnoreCase(OP_COMMENT)) {
     		LOG.info(STR_COMMENT + "\n\n---------------------------------"
@@ -197,6 +191,10 @@ public abstract class IdMUnitTestCase extends DDStepsExcelTestCase {
 		if(configData == null) throw new IdMUnitException("Configuration not found. Ensure that idmunit-config.xml is in the location specified by idmunit-defaults.properites.");
     }
     
+    public void runTest() throws IdMUnitException {
+    	executeTest();
+    }
+
     /**
      * Entry point for test step execution. This method is called by a class instance who's name
      * directly corresponds to the spreadsheet being tested.  (i.e. TriVirADDomainDriverTests.java testing TriVirADDomainDriverTests.xls)
@@ -312,7 +310,7 @@ public abstract class IdMUnitTestCase extends DDStepsExcelTestCase {
         }
     }
     
-    private void delay() {
+    private void delay() throws IdMUnitException {
     	long delayInterval = DEFAULT_DELAY;
     	//check for delay interval override
     	Object delayObject = getOperationData(STR_WAIT_INTERVAL);
@@ -339,7 +337,7 @@ public abstract class IdMUnitTestCase extends DDStepsExcelTestCase {
     	}
     }
     
-    private boolean expectedFailure() {
+    private boolean expectedFailure() throws IdMUnitException {
         String s = getOperationData(STR_EXPECT_FAILURE);
         boolean expectedFailure = false;
         if(s!=null && s.length()>0) {
@@ -349,11 +347,14 @@ public abstract class IdMUnitTestCase extends DDStepsExcelTestCase {
         return expectedFailure;
     }
     
-	private String getOperation() {
+	private String getOperation() throws IdMUnitException {
 		return getOperationData(STR_OPERATION);
 	}
 
-	private String getOperationData(String op) {
+	private String getOperationData(String op) throws IdMUnitException {
+		if (this.operationalDataMap == null) {
+			throw new IdMUnitException("No operation data found. This is most likely because the specified sheet does not exist in this workbook.");
+		}
 		String selectedOperation = (String)this.operationalDataMap.get(op);
 		if((selectedOperation == null || selectedOperation.length() < 1) && op.equalsIgnoreCase(STR_OPERATION)) {
 			fail("Missing operation - Please check the operation column for this row and try again.");
@@ -400,7 +401,7 @@ public abstract class IdMUnitTestCase extends DDStepsExcelTestCase {
         }
 
         Connector connector = new ConnectionToConnectorAdapter(configData.getType());
-        connector.setup(configDataToMap(configData));
+        connector.setup(configData.getParams());
         return connector;
     }
 
@@ -413,7 +414,7 @@ public abstract class IdMUnitTestCase extends DDStepsExcelTestCase {
         
         try {
             Connector connector = (Connector)Class.forName(type).newInstance();
-            connector.setup(configDataToMap(configData));
+            connector.setup(configData.getParams());
             return connector;
         } catch (InstantiationException e) {
             throw new IdMUnitException("Failed to instantiate connection class of type: " + type + " " + e.getMessage());
@@ -422,15 +423,6 @@ public abstract class IdMUnitTestCase extends DDStepsExcelTestCase {
         } catch (ClassNotFoundException e) {
             throw new IdMUnitException("Specified target connection module not found: " + type);
         }
-    }
-
-    private static Map<String, String> configDataToMap(ConnectionConfigData configData) {
-        Map<String, String> config = new HashMap<String, String>();
-        config.put("Server", configData.getServerURL());
-        config.put("User", configData.getAdminCtx());
-        config.put("Password", configData.getAdminPwd());
-        config.put("KeystorePath", configData.getKeystorePath());
-        return config;
     }
 
     private Map<String, Collection<String>> convertData() {

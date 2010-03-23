@@ -1,35 +1,30 @@
 <?xml version="1.0"?>
-<project name="IdMUnit" basedir="." default="Execute IdMUnit Tests">
+<project name="IdMUnitTests" basedir="." default="Execute IdMUnit Tests">
 
 	<!-- Set some basic properties -->
-	<property name="ddsteps.home" value="lib" />
-	<property name="test.dir" value="examples/tests"/>
-	<property name="xls.dir" value="examples/tests"/>
-	<property name="props.dir" value="examples/profiles"/>
-	<property name="resources.dir" value="examples/profiles"/>
+	<property name="test.dir" value="tests"/>
+	<property name="xls.dir" value="tests"/>
+	<property name="props.dir" value="tests"/>
 	<property name="lib.dir" value="lib"/>
 	<property name="build.dir" value="build/classes" />
 	<property name="testreports.dir" value="junit-reports" />
 	<property name="testhtml.dir" value="${testreports.dir}/html" />
-	<property name="dist.dir" value="dist" />
 
-	<!-- Path for building test cases. Include all jars from DDSteps. -->
+	<!-- Path for building test cases. -->
 	<path id="build-classpath">
-		<fileset dir="${ddsteps.home}">
+		<fileset dir="${lib.dir}">
 			<include name="**/*.jar" />
 			<include name="**/*.zip" />
 		</fileset>
 		<fileset file="idmunit.jar"/>
 	</path>
 
-	<!-- Path for running test cases. The source directory is needed by -->
-	<!-- DDSteps to find the Excel file containing the test data. -->
+	<!-- Path for running test cases. -->
 	<path id="test-classpath">
 		<path refid="build-classpath"/>
 		<path location="${build.dir}" />
 		<path location="${xls.dir}" />
 		<path location="${props.dir}" />
-		<path location="${resources.dir}" />
 	</path>
 
 	<!-- Compiles our test case to classes directory. -->

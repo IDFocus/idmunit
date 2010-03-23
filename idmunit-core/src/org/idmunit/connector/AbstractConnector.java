@@ -1,6 +1,6 @@
 /* 
  * IdMUnit - Automated Testing Framework for Identity Management Solutions
- * Copyright (c) 2008 TriVir, LLC
+ * Copyright (c) 2008-2010 TriVir, LLC
  *
  * This program is licensed under the terms of the GNU General Public License
  * Version 2 (the "License") as published by the Free Software Foundation, and 
@@ -57,6 +57,9 @@ public abstract class AbstractConnector implements Connector {
             
             methods.put(m.getName(), m);
         }
+    }
+
+    public void tearDown() throws IdMUnitException {
     }
 
     public void execute(String operation, Map<String, Collection<String>> data) throws IdMUnitException {

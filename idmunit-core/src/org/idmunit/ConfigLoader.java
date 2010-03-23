@@ -1,6 +1,6 @@
 /* 
  * IdMUnit - Automated Testing Framework for Identity Management Solutions
- * Copyright (c) 2005-2008 TriVir, LLC
+ * Copyright (c) 2005-2010 TriVir, LLC
  *
  * This program is licensed under the terms of the GNU General Public License
  * Version 2 (the "License") as published by the Free Software Foundation, and 
@@ -37,12 +37,10 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.ddsteps.junit.behaviour.DdRowBehaviour;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import org.idmunit.Alert;
 import org.idmunit.connector.ConnectionConfigData;
 import org.idmunit.injector.Injection;
 import org.idmunit.injector.InjectionConfigData;
@@ -57,8 +55,6 @@ import org.idmunit.injector.InjectionConfigData;
  * @see DdRowBehaviour
  */
 public class ConfigLoader {
-    private final static String STR_DTF_CONNECTOR = "org.idmunit.connector.DTF"; //If the target connector is this, IdMUnit will not enforce the connection to have an admin name/password/etc.
-
     private final static String XML_NAME = "name";
     private final static String XML_PROFILES = "profiles";
     private final static String XML_ALERTS = "alerts";
@@ -120,7 +116,7 @@ public class ConfigLoader {
 	 * @param connection The top level connection node
 	 * @return Collection of substitutions
 	 */
-	private static Map getSubstitutions(Element connection) {
+	private static Map<String, String> getSubstitutions(Element connection) {
 		String replaceVal;
 		String newVal;
 		Iterator substitutionItr = connection.getChild(XML_SUBSTITUTIONS).getChildren().iterator();
@@ -214,7 +210,6 @@ public class ConfigLoader {
 	 * @throws IdMUnitException
 	 */
 	private static Map getProfiles(Document doc, Map<String, ConnectionConfigData> connectionMap, String liveTarget, String enableEmailAlerts, String enableLogAlerts) throws IdMUnitException {
-		ConnectionConfigData configurationData = null;		
 		Iterator profileItr = doc.getRootElement().getChild(XML_PROFILES).getChildren().iterator();
 		while(profileItr.hasNext()) {
 			Element profile = (Element)profileItr.next();
@@ -227,51 +222,78 @@ public class ConfigLoader {
 			while(connectionItr.hasNext()) {
 				Element connection = (Element)connectionItr.next();
 				String name = connection.getChildText(XML_NAME);
-				String description = connection.getChildText(XML_DESCRIPTION);
 				String type = connection.getChildText(XML_TYPE);
-				String server = connection.getChildText(XML_SERVER);
-				String user = connection.getChildText(XML_USER);
-				String password = connection.getChildText(XML_PASSWORD);
-				String keystore = connection.getChildText(XML_KEYSTORE);
-				
+                ConnectionConfigData configurationData = new ConnectionConfigData(name, type);
+
+                for (Iterator i = connection.getChildren().iterator(); i.hasNext(); ) {
+                	Element param = (Element)i.next();
+                	if (param.getName().equals(XML_MULTI) ||
+                    	param.getName().equals(XML_SUBSTITUTIONS) ||
+                    	param.getName().equals(XML_INJECTIONS) ||
+                    	param.getName().equals(XML_ALERTS) ||
+                    	param.getName().equals(XML_NAME) ||
+                		param.getName().equals(XML_TYPE))
+                	{
+                		continue;
+                	}
+                	if (param.getName().equals(XML_PASSWORD)) {
+                		//decrypt the password first
+                		EncTool encryptionManager = new EncTool("IDMUNIT1");
+                    	configurationData.setParam(XML_PASSWORD, encryptionManager.decryptCredentials(param.getText()));
+                	} else {
+                    	configurationData.setParam(param.getName(), param.getText());
+                	}
+//    				log("### \t" + param.getName() + ": " + param.getText());
+                }
+
 				Element multiplier = connection.getChild(XML_MULTI);
 				String retryMultiplier = multiplier.getChildText(XML_RETRY);
 				String waitMultiplier = multiplier.getChildText(XML_WAIT);
 				
 				log("###\t---------------------------------");
-				log("### \tConnection Name: " + name);
-				log("### \tDescription", description);
-				log("### \tType" ,type);
-				log("### \tServer" ,server);
-				log("### \tUser" ,user);
+				log("### \tConnection Name: " + configurationData.getName());
+				log("### \tDescription", configurationData.getParam(XML_DESCRIPTION));
+				log("### \tType", configurationData.getType());
+				log("### \tServer", configurationData.getParam(XML_SERVER));
+				log("### \tUser", configurationData.getParam(XML_USER));
 				log("### \tPassword" ,"***************"); 
-				log("### \tKeystore Path" ,keystore);
+				log("### \tKeystore Path", configurationData.getParam(XML_KEYSTORE));
 				log("### \tMultipliers:");
 				log("###\t\tRetries multiplied by", retryMultiplier);
 				log("###\t\tWaits multiplied by", waitMultiplier);
 				log("### \tData Substitutions:");
-				Map substitutionMap = getSubstitutions(connection);
+				Map<String, String> substitutionMap = getSubstitutions(connection);
 				log("### \tData Injections:");
 				List<InjectionConfigData> injectionList = getDataInjections(connection);
-				configurationData = setupConfigData(server, user, password, keystore, type, substitutionMap);
+                if(type == null || type.length() < 1) {
+                    throw new IdMUnitException("Missing target type- Please check the idmunit.dtd and update the idmunit.xml configuration file.");
+                }
+
+                if(substitutionMap!=null && substitutionMap.size() > 0) {
+                    configurationData.setSubstitutions(substitutionMap);
+                }
+
 				if(retryMultiplier!=null && retryMultiplier.length() > 0) {
 					int retryMulti = Integer.parseInt(retryMultiplier);
 					if(retryMulti > 0) {
 						configurationData.setMultiplierRetry(Integer.parseInt(retryMultiplier));
 					}
 				}
+
 				if(waitMultiplier!=null && waitMultiplier.length() > 0) {
 					int waitMulti = Integer.parseInt(waitMultiplier);
 					if(waitMulti > 0) {
 						configurationData.setMultiplierWait(Integer.parseInt(waitMultiplier));
 					}
 				}
+
 				if(enableEmailAlerts.equalsIgnoreCase("true") || enableLogAlerts.equalsIgnoreCase("true")) {
 					Map<String, Alert> alerts = getAlerts(doc, enableEmailAlerts, enableLogAlerts);
 					if(alerts!=null) {
 						configurationData.setIdmunitAlerts(alerts); //TODO: All alerts are stored here (for every connection) so that in the future we can tie a particular alert to a specific system error, and override alert config from the connector config level at one point
 					}
 				}
+
 				if(injectionList!=null) {
 					configurationData.setDataInjections(injectionList);
 				}
@@ -315,7 +337,6 @@ public class ConfigLoader {
 			logAlerts("### \tAlert Recipient" ,alertRecipient);
 			logAlerts("### \tSubject Prefix" ,alertSubjectPrefix); //TODO: hide
 			logAlerts("### \tLog Path" ,alertLogPath);
-			//org.idmunit.Alert idmunitAlert = new Alert();
 			Alert idmunitAlert = new Alert(alertName, alertDescription, smtpServer, alertSender, alertRecipient, alertSubjectPrefix, alertLogPath);
 			idmunitAlert.setEmailAlertingEnabled(Boolean.valueOf(enableEmailAlerts)); //TODO: extend the idmunit-config.xml DTD to support overriding of enable/disable log/email message at the connector level
 			idmunitAlert.setLogAlertingEnabled(Boolean.valueOf(enableLogAlerts));
@@ -324,6 +345,7 @@ public class ConfigLoader {
 		displayedAlerts = true;
 		return alerts;
 	}
+
 	/**
 	 * Reads and returns a collection of configuration data 
 	 * @see "idmunit-config.xml and idmunit-comfig.dtd"
@@ -331,7 +353,7 @@ public class ConfigLoader {
 	 * @return Map collection of configuration data
 	 * @throws IdMUnitException
 	 */
-	public static Map getConfigData(String configFileLocation) throws IdMUnitException {
+	public static Map<String, ConnectionConfigData> getConfigData(String configFileLocation) throws IdMUnitException {
 		Map<String, ConnectionConfigData> connectionMap = new HashMap<String, ConnectionConfigData>();
 		Document doc = loadXMLFromFS(configFileLocation);
 		String liveTarget = doc.getRootElement().getAttributeValue(XML_LIVE_PROFILE);
@@ -351,47 +373,6 @@ public class ConfigLoader {
 		return connectionMap;
 	}
 
-	/** 
-	 * Builds and returns an object instance to contain connection configuration data after some basic configuration checking. See {@link ConnectionConfigData}.
-	 * @param server Connection server
-	 * @param admin Administrative distinguished name or username
-	 * @param password DES encrypted, base64 encoded password value @see {@link EncTool}
-	 * @param keystorePath Full filesystem path to the keystore where a base64 encoded server certificate has been imported by the Java keytool utility.  If set, a connector should attempt an SSL connection.
-	 * @param type The fully distinguished class name that will be loaded to implement the connector (i.e. org.idmunit.connector.ISeries)
-	 * @param substitutionMap Collection of substitutions.  A substitution is a key/value pair that allows for the replacement of test data while it is executed.
-	 * @return ConnectionConfigurationData Encapsulates configuration information for a single connection
-	 * @throws IdMUnitException
-	 */
-	private static ConnectionConfigData setupConfigData(String server, String admin, String password, String keystorePath, String type, Map substitutionMap) throws IdMUnitException {
-		//Validate target input (and don't require credentials if it's a DTF connection
-		if(server == null || server.length() < 1) {
-			throw new IdMUnitException("Missing server - Please check the idmunit.dtd and update the idmunit.xml configuration file.");
-		}
-		if(type == null || type.length() < 1) {
-			throw new IdMUnitException("Missing target type- Please check the idmunit.dtd and update the idmunit.xml configuration file.");
-		}
-		
-		if(type!=null && !type.equalsIgnoreCase(STR_DTF_CONNECTOR)) {
-			//Only check credentials if it's not a DTF file connection
-			if(admin == null || admin.length() < 1
-					|| password == null || password.length() < 1) {
-				throw new IdMUnitException("Missing administrative credentials. Is the correct IdMUnit live-profile specified?  Please refer to the idmunit-config.dtd for the specification of configuration data.  Note that if the DTF connector used, the connector type should be org.idmunit.connector.DTF.");
-			}
-		}
-			
-		ConnectionConfigData newCreds = new ConnectionConfigData(server, admin,password);
-		newCreds.setType(type);
-
-		//TODO: refactor to instantiate com.idmunit.connection.LDAPSSLConnection, or configured target class
-		if(keystorePath!=null && keystorePath.length()>0) {
-			newCreds.setKeystorePath(keystorePath);
-		}
-
-		if(substitutionMap!=null && substitutionMap.size() > 0) {
-			newCreds.setSubstitutions(substitutionMap);
-		}
-		return newCreds;
-	}
 	/**
 	 * Writes a single string out to the log4j log (if it has not already been written in a group of configuration data)
 	 * @param value
@@ -412,6 +393,7 @@ public class ConfigLoader {
 			log(name, value);
 		}
 	}
+
 	private static void log(String name, String value) {
 		if(!displayedConfig) {
 			if(name !=null && name.length() > 0 && value!=null && value.length() > 0) {
