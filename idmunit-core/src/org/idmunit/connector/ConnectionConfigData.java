@@ -1,6 +1,6 @@
 /* 
  * IdMUnit - Automated Testing Framework for Identity Management Solutions
- * Copyright (c) 2005-2010 TriVir, LLC
+ * Copyright (c) 2005-2009 TriVir, LLC
  *
  * This program is licensed under the terms of the GNU General Public License
  * Version 2 (the "License") as published by the Free Software Foundation, and 
@@ -46,6 +46,7 @@ public class ConnectionConfigData {
     private final static String XML_USER = "user";
     private final static String XML_PASSWORD = "password";
     private final static String XML_SERVER = "server";
+    public static final String DISABLED = "disabled";
 
     private Map<String, String> configParams = new HashMap <String, String> ();
     private String name;

@@ -27,7 +27,6 @@
 package org.idmunit.extension;
 
 import java.util.Date;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.activation.DataHandler;
@@ -61,7 +60,7 @@ public class EmailUtil {
 	 * @param dynamicContent (RESERVED FOR FUTURE USE) This will provide a collection of substitution information for the dynamic keys/variables located throughout the HTML template
 	 * @see IdMUnitTestCase 
 	 */
-	public static void sendEmailNotification(Alert alert, String content, String exceptionMessage, Map dynamicContent) throws IdMUnitException {
+	public static void sendEmailNotification(Alert alert, String content, String exceptionMessage) throws IdMUnitException {
 		if(alert.getAlertReipient()== null || alert.getAlertReipient().length()<1) throw new IdMUnitException("sendEmailNotification(): Bad parameters");
 		try {
 		    Properties connectionProps = System.getProperties();

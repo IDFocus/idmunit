@@ -1,6 +1,6 @@
 /* 
  * IdMUnit - Automated Testing Framework for Identity Management Solutions
- * Copyright (c) 2008-2010 TriVir, LLC
+ * Copyright (c) 2008-2009 TriVir, LLC
  *
  * This program is licensed under the terms of the GNU General Public License
  * Version 2 (the "License") as published by the Free Software Foundation, and 
@@ -30,7 +30,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -85,39 +84,6 @@ public abstract class AbstractConnector implements Connector {
             throw new IdMUnitException(e);
         } catch (IllegalAccessException e) {
             throw new IdMUnitException(e);
-        }
-    }
-
-    protected static String getFirstValue(Map<String, Collection<String>> attrs, String attrName) {
-        Collection<String> values = attrs.get(attrName);
-        if (values == null) {
-            return null;
-        } else {
-            Iterator<String> i = values.iterator();
-
-            if (i.hasNext()) {
-                return i.next();
-            } else {
-                return null;
-            }
-        }
-    }
-
-    protected static String getSingleValue(Map<String, Collection<String>> attrs, String attrName) throws IdMUnitException {
-        Collection<String> values = attrs.get(attrName);
-        if (values == null) {
-            return null;
-        }
-        
-        if (values.size() > 1) {
-            throw new IdMUnitException("Error: '" + attrName + "' is single valued but more than one value was specified.");
-        }
-
-        Iterator<String> i = values.iterator();
-        if (i.hasNext()) {
-            return i.next();
-        } else {
-            return null;
         }
     }
 }

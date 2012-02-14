@@ -29,7 +29,7 @@ package org.idmunit.util;
 public class Version {
 	private Version() {}
 
-	public static String getVersion(Class clazz) {
+    public static String getVersion(Class<?> clazz) {
 		return clazz.getPackage().getImplementationVersion();
 	}
 }

@@ -1,10 +1,13 @@
-﻿<?xml version="1.0"?>
+<?xml version="1.0"?>
 <project name="IdMUnit" basedir="." default="dist">
-	<property name="release" value="2.1.1" />
+	<property name="release" value="2.2.0" />
 
 	<property name="src.dir" value="src"/>
 	<property name="build.dir" value="build" />
 	<property name="dist.dir" value="dist" />
+
+	<property name="ant.docbook.styler.dir" location="./ant-docbook-styler-2004_06_22-21_12" />
+	<property name="ant.docbook.styler" value="ant-build-docbook.xml" />
 
 	<path id="build-classpath">
 		<fileset dir="lib">
@@ -16,7 +19,7 @@
 	<target name="build">
 		<mkdir dir="${build.dir}/classes" />
 
-		<javac srcdir="${src.dir}" excludes="**/parser/**" destdir="${build.dir}/classes" failonerror="true" source="1.5" target="1.5">
+		<javac srcdir="${src.dir}" destdir="${build.dir}/classes" failonerror="true" source="1.5" target="1.5">
 			<classpath refid="build-classpath" />
 		</javac>
 	</target>
@@ -77,10 +80,10 @@
 			<zipfileset file="examples/.classpath" prefix="idmunit-${release}"/>
 			<zipfileset file="examples/.project" prefix="idmunit-${release}"/>
 			<zipfileset file="examples/profiles/idmunit-config.xml" prefix="idmunit-${release}"/>
-			<zipfileset dir="examples/tests" prefix="idmunit-${release}/tests"/>
-			<zipfileset file="examples/profiles/idmunit-defaults.properties" prefix="idmunit-${release}/tests"/>
-			<zipfileset file="examples/profiles/log4j.properties" prefix="idmunit-${release}/tests"/>
-			<zipfileset file="examples/profiles/log4j.xml" prefix="idmunit-${release}/tests"/>
+			<zipfileset dir="examples/test" prefix="idmunit-${release}/test"/>
+			<zipfileset file="examples/profiles/idmunit-defaults.properties" prefix="idmunit-${release}/test"/>
+			<zipfileset file="examples/profiles/log4j.properties" prefix="idmunit-${release}/test"/>
+			<zipfileset file="examples/profiles/log4j.xml" prefix="idmunit-${release}/test"/>
 			<zipfileset dir="lib" prefix="idmunit-${release}/lib">
 				<include name="**/*.jar" />
 				<include name="**/*.zip" />
@@ -95,8 +98,77 @@
 
 	<target name="clean">
 		<delete dir="${build.dir}"/>
-		<delete>
-			<fileset dir="${dist.dir}" includes="idmunit.jar,**/idmunit-*.zip"/>
-		</delete>
+		<delete dir="${dist.dir}"/>
 	</target>
+	
+	<target name="docbook">
+	<!--
+		<ant antfile="${ant.docbook.styler}" inheritall="false" target="html.chunked">
+			<property name="ant.docbook.styler.dir" location="${ant.docbook.styler.dir}" />
+			<property name="docbook.xml.dir" location="xml" />
+			<property name="docbook.resources.dir" location="figures" />
+			<property name="distribution.dir" location="tmp/chunked" />
+			<property name="build.dir" location="tmp/build" />
+		</ant>
+-->
+		<antcall target="clean" />
+		<mkdir dir="tmp/pdf.fop" />
+
+		<available file="${ant.docbook.styler.dir}/module-fop" type="dir"
+			   property="module.fop.present" value="true" /> 
+		
+		<antcall target="pdf.fop.internal" />
+
+		<available property="tmp:pdf.fop.ok" file="tmp/pdf.fop/index.pdf" />
+		<fail message="not good: pdf fop not found." unless="tmp:pdf.fop.ok" />
+
+	</target>
+
+	<target name="pdf.fop.internal" if="module.fop.present">
+		<mkdir dir="build/docbook"/>
+		<ant antfile="${ant.docbook.styler}" dir="${ant.docbook.styler.dir}" inheritall="false" target="pdf.fop">
+			 <property name="docbook.xml.dir" location="docs" />
+			 <property name="docbook.resources.dir" location="docs/resources" />
+			 <property name="distribution.dir" location="build" />
+			 <property name="build.dir" location="build/docbook" />
+			 <property name="manual.name" value="IdMUnit_2.0" />
+		</ant>
+	</target>
+
+<!--	
+	<target name="doc" depends="doc.upToDate" unless="doc.notRequired">
+-->
+		<!-- Create the FO doc -->
+<!--
+		<xslt basedir="doc" includes="MyProject.xml" style="${build.docbook.dir}/docbook-xsl-1.73.2/fo/docbook.xsl"
+				destdir="${build.documentation}" extension="-fo.xml">
+			<factory name="org.apache.xalan.processor.TransformerFactoryImpl">
+				<attribute name="http://xml.apache.org/xalan/features/optimize" value="true"/>
+			</factory>
+			<param name="body.font.size" expression="8pt"/>
+		</xslt>
+-->
+		<!-- Create the PDF -->
+<!--
+		<property name="fop.home" location="bin/docbook/fop-0.94"/>
+		<taskdef name="fop" classname="org.apache.fop.tools.anttasks.Fop">
+			<classpath>
+				<fileset dir="${fop.home}/lib">
+					<include name="*.jar"/>
+				</fileset>
+				<fileset dir="${fop.home}/build">
+					<include name="fop.jar"/>
+					<include name="fop-hyph.jar" />
+				</fileset>
+			</classpath>
+		</taskdef>
+		<fop format="application/pdf"
+				basedir="doc"
+				fofile="${build.documentation}/MyProject-fo.xml"
+				outfile="${build.documentation}/MyProject.pdf" />
+
+		<touch file="${doc.timestamp.file}"/>
+
+		</target>
+		-->
 </project>

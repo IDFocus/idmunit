@@ -26,365 +26,209 @@
  */
 package org.idmunit;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.LinkedHashMap;
-
 
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.ddsteps.DDStepsTestCase;
-import org.ddsteps.testcase.support.DDStepsExcelTestCase;
-
 import org.idmunit.connector.ConnectionConfigData;
-import org.idmunit.connector.ConnectionToConnectorAdapter;
 import org.idmunit.connector.Connector;
 import org.idmunit.extension.BasicLogger;
 import org.idmunit.extension.EmailUtil;
-import org.idmunit.teststep.TestStepExecute;
 
 /**
  * Implements the core functionality of IdMUnit.
  * @author Brent Kynaston, Software Engineer, TriVir LLC
  * @version %I%, %G%
  * @see TestCase
- * @see DDStepsTestCase
  */
-public class IdMUnitTestCase extends DDStepsExcelTestCase {
-    private final static String ERROR_MISSING_TARGET = "Missing target type definition.  Please add a type specifier for all targets defined.";
-    private final static String STR_MULTI_ATTR_DELIMITER = "|"; //TODO: Enable override operational column in the spreadsheet to override this value if requested 
-    private final static String STR_OPERATION = "Operation";
-    private final static String STR_WAIT_INTERVAL = "WaitInterval";
-    private final static String STR_EXPECT_FAILURE = "ExpectFailure";
-    private final static String STR_RETRY_COUNT = "RetryCount";
-    private final static String STR_DISABLE_STEP = "DisableStep";
-    private final static String STR_IS_CRITICAL = "IsCritical";
-
-    private final static String STR_TARGET = "Target";
-
-    private final static String STR_SKIPPING_ROW = "Row disabled... skipping.";
-    private final static String STR_COMMENT = "Comment data: (this row will not be processed)";
-
+public class IdMUnitTestCase extends TestCase {
     private final static String OP_COMMENT = "Comment";
     private final static String OP_WAIT = "Wait";
     private final static String OP_PAUSE = "Pause";
-
-    private final static String XML_CONNECTIONS = "connections";
 
     private final static long DEFAULT_DELAY = 5000; //5 seconds default
     private final static long DEFAULT_MAX_RETRY_COUNT = 10; //if an event fails and retry mode is enabled, the test step will be retried this many times before failing. Overrides in the properites and spreadsheet layers. 
 
     private static Log LOG = LogFactory.getLog(IdMUnitTestCase.class);
-    private Map<String, Object> operationalDataMap;
-	private Map<String, String> attributeMap;
-    private Connector connector = null;
+
 	private ConnectionConfigData configData;
+    private Connector connector = null;
 
-	private void cleanupMap(Map targetMap) {
-		if(targetMap!=null) {
-			targetMap.clear();
-			targetMap = null;
-		}
-	}
-	 
-	/**
-	 * Cleans up configuration and fixture data constructed in memory prior to the test.  Note that this is for operational use. Actual destruction of any test fixtures
-	 * is generally done by a testDestroyFixture sheet in the test spreadsheet.
-	 */
-	public void tearDownBeforeData() throws Exception {
-		cleanupMap(this.attributeMap);
-		cleanupMap(this.operationalDataMap);
-	}
-	
-	/**
-	 * Returns a collection containing the data fields from the spreadsheet (i.e. DN, Surname, Description, Telephone Number/etc.)
-	 * @return Map Collection of test data for this test step
-	 */
-	public Map getAttributeMap() {
-		return attributeMap;
+    private String operation;
+    private String comment;
+    private long retryCount = DEFAULT_MAX_RETRY_COUNT;
+    private long waitInterval = DEFAULT_DELAY;
+    private boolean disabled = false;
+    private boolean failureExpected = false;
+    private boolean critical = false;
+    private String repeatRange = null;
+
+    private Map<String, Collection<String>> attributeMap;
+
+    public IdMUnitTestCase(String name) {
+		super(name);
 	}
 
-	/**
-	 * Stores a collection containing the data fields from the spreadsheet (i.e. DN, Surname, Description, Telephone Number/etc.)
-	 * @param attrMap Collection of test data for this test step
-	 */
-	public void setAttributeMap(Map<String, String> attrMap) {
-		if(this.attributeMap!=null && this.attributeMap.size() > 0) {
-			this.attributeMap.putAll(attrMap);
-		} else {
-			this.attributeMap = attrMap;
-		}
-	}
-
-	/**
-	 * Returns a collection of operational data for this test step (i.e. the connection target name, test step description, number of retries/waits/etc.)
-	 * @return Collection of operation data for this test step
-	 */
-	public Map getOperationalDataMap() {
-		return operationalDataMap;
-	}
-
-	/**
-	 * Stores a collection of operational data for this test step (i.e. the connection target name, test step description, number of retries/waits/etc.)
-	 */
-	public void setOperationalDataMap(Map<String, Object> dataMap) {
-		if(this.operationalDataMap != null && this.operationalDataMap.size() > 0) {
-			this.operationalDataMap.putAll(dataMap);
-		} else {
-			this.operationalDataMap = dataMap;
-		}
-	}
-
-	private long getRetryCount() throws IdMUnitException {
-		long maxRetryCount=0;
-		Object longObject = getOperationData(STR_RETRY_COUNT);
-		if(longObject != null) {
-    		try {
-    			String longVal = (String)longObject;
-    			//Strip whitespace
-    			longVal = longVal.trim();
-    			maxRetryCount = Long.parseLong(longVal);
-			} catch (NumberFormatException e) {
-		    	maxRetryCount = DEFAULT_MAX_RETRY_COUNT;
-				LOG.error("Failed to parse " + STR_RETRY_COUNT + " into a value of type long.");
-			}
-		}
-		if(this.configData!=null && this.configData.ifMultiplierRetry()) {
-			return (maxRetryCount * this.configData.getMultiplierRetry());
-		} else {
-			return maxRetryCount;
-		}
-	}
-	
-	private boolean isRowEnabled() throws IdMUnitException {
-    	String op = getOperation();
-		if(op.equalsIgnoreCase(OP_COMMENT)) {
-    		LOG.info(STR_COMMENT + "\n\n---------------------------------"
-    				+ "\nTest Case: " + this.getName()
-    				+ "\nDescription:\n" 
-    				+ getOperationData(OP_COMMENT)
-    				+ "\n---------------------------------\n");
-    		return false;
-    	} 
-    	String disableOp = getOperationData(STR_DISABLE_STEP);
-		if (disableOp != null && disableOp.equalsIgnoreCase("true")) {
-    		LOG.info(this.getName() + " " + STR_SKIPPING_ROW);
-			return false;
-    	} 
-   		return true;
-	}
-
-    private void initializeConfigData() throws IdMUnitException {
-		String target = getOperationData(STR_TARGET);
-		//Obtain the collection of connections
-		Map connectionMap = (Map)this.operationalDataMap.get(XML_CONNECTIONS);
-		configData = (ConnectionConfigData)connectionMap.get(target); 
-		if(configData == null) throw new IdMUnitException("Configuration not found. Ensure that idmunit-config.xml is in the location specified by idmunit-defaults.properites.");
-    }
-    
     public void runTest() throws IdMUnitException {
-    	executeTest();
-    }
-
-    /**
-     * Entry point for test step execution. This method is called by a class instance who's name
-     * directly corresponds to the spreadsheet being tested.  (i.e. TriVirADDomainDriverTests.java testing TriVirADDomainDriverTests.xls)
-     * @throws IdMUnitException
-     */
-    public void executeTest() throws IdMUnitException {
-    	if(!isRowEnabled()) {
+    	if (disabled) {
+    		LOG.info(this.getName() + " Row disabled... skipping.");
     		return;
     	}
 
-    	initializeConfigData();
-
-        if(getOperation().equalsIgnoreCase(OP_COMMENT)) {
+        if (operation.equalsIgnoreCase(OP_COMMENT)) {
+    		LOG.info("Comment data: (this row will not be processed)" +
+    				"\n\n---------------------------------" +
+    				"\nTest Case: " + this.getName() +
+    				"\nDescription:\n" + comment +
+    				"\n---------------------------------\n");
             return;
-        } else if(getOperation().equalsIgnoreCase(OP_WAIT) || getOperation().equalsIgnoreCase(OP_PAUSE)) {
+        } else if(operation.equalsIgnoreCase(OP_WAIT) || operation.equalsIgnoreCase(OP_PAUSE)) {
             delay();
             return;
         }
 
-        if (isNewConnection()) {
-            connector = setupTargetConnector();
-        } else {
-            connector = setupTargetConnection();
+//        if (connector == null) {
+//			throw new IdMUnitException("No target specified for this step");
+//        }
+
+        String disabled = configData.getParam(ConnectionConfigData.DISABLED); 
+        if (disabled != null && Boolean.parseBoolean(disabled)) {
+    		LOG.info(this.getName() + " Connector '" + configData.getName() + "' is disabled... skipping.");
+    		return;
         }
 
-        try {
-        	for (long retriesRemaining = getRetryCount() - 1;; --retriesRemaining) {
-                try {
-                    try {
-                    	LOG.info(this.getName() + ": " + getOperationData(OP_COMMENT));
+        int retryMultiplier;
+		if(this.configData!=null && this.configData.ifMultiplierRetry()) {
+			retryMultiplier = configData.getMultiplierRetry();
+		} else {
+			retryMultiplier = 1;
+		}
 
-                    	new TestStepExecute(operationalDataMap, connector, getOperation(), convertData()).runStep();
-                    } finally {
-                        //Wait to allow for standard latency (interval override in spread sheet)
-                        delay();
-                    }
+    	for (long retriesRemaining = (retryCount * retryMultiplier) - 1;; --retriesRemaining) {
+            boolean succeeded = false;
+    		try {
+            	LOG.info(this.getName() + ": " + comment);
 
-                    if (expectedFailure() == false) {
-                    	return;
-                    }
-                } catch (AssertionFailedError e) {
-                	LOG.warn("The connector you are using incorrectly threw an AssertionFailedError. It needs to be updated to use an IdMUnitFailureException.");
-                    if (expectedFailure()) {
-                    	return;
-                    }
-
-                    if (retriesRemaining > 0) {
-                        //If retries are enabled, retry the test after the defined wait interval
-                        delay();
-                        LOG.info("RETRY (" + retriesRemaining + ") " + e.getMessage() + " " + this.getName());
-                        continue;
-                    } else {
-                        LOG.info("...FAILURE: " + e.getMessage());
-                        logCriticalErrors(e.getMessage());
-                        throw e;
-                    }
-                } catch (IdMUnitFailureException e) {
-                    if (expectedFailure()) {
-                    	return;
-                    }
-
-                    if (retriesRemaining > 0) {
-                        //If retries are enabled, retry the test after the defined wait interval
-                        delay();
-                        LOG.info("RETRY (" + retriesRemaining + ") " + e.getMessage() + " " + this.getName());
-                        continue;
-                    } else {
-                        LOG.info("...FAILURE: " + e.getMessage());
-                        logCriticalErrors(e.getMessage());
-                        throw new AssertionFailedError(e.getMessage());
-                    }
-                } catch (IdMUnitException e) {
-                    if (expectedFailure()) {
-                    	return;
-                    }
-
-                    String msg = "";
-                    if (e.getMessage() != null && e.getCause() != null && e.getCause().getMessage() != null) {
-                    	msg = e.getMessage() + " " + e.getCause().getMessage();
-                    } else if (e.getMessage() != null) {
-                    	msg = e.getMessage();
-                    } else if (e.getCause() != null && e.getCause().getMessage() != null) {
-                    	msg = e.getCause().getMessage();
-                    }
-
-                    if (retriesRemaining > 0) {
-                        //If retries are enabled, retry the test after the defined wait interval
-                        delay();
-                        LOG.info("RETRY (" + retriesRemaining + ") " + msg + " " + this.getName());
-                        continue;
-                    } else {
-                        LOG.info("...FAILURE: " + msg);
-                        logCriticalErrors(msg);
-                        throw e;
+                if (repeatRange == null || repeatRange.length() == 0) {
+                    //Process a single non-repeated transaction
+                    connector.execute(operation, attributeMap);
+                } else {
+                    //Repeat operation range was detected, for each iteration perform the following:
+                    //  1. Replace range counter for each data field
+                    //  2. Execute the test step
+                    //  3. If an error occurs add it to a list
+                    //  4. If there are any errors in the list after completion, fail the test with a report of broken iterations
+                    final String STR_RANGE_DELIMITER = "-";
+                    int rangeStart = Integer.parseInt(StringUtils.substringBefore(repeatRange, STR_RANGE_DELIMITER));
+                    int rangeEnd = Integer.parseInt(StringUtils.substringAfter(repeatRange, STR_RANGE_DELIMITER));
+                    LOG.info("### Repeat Operation Range detected: Start:" + rangeStart + " End: " + rangeEnd);
+                    for(int ctr=rangeStart; ctr<=rangeEnd; ++ctr) {
+                        LOG.info("### Execute repeated operation iteration: " + ctr);
+                        //  1. Replace range counter for each data field //TODO: Leverage Data Injectors for this purpose if possible
+                        //CommonUtil.interpolateCounter(m_data, ctr); //TODO: must refactor  TestStepAdd... to leverage Attributes rather than DataRowBeans, who's members are immutable
+                        //Process the current repeated transaction
+                        connector.execute(operation, attributeMap);
+                        succeeded = true;
                     }
                 }
 
-                String msg = "Test failed: would have succeeded, but ExpectFailure was set to TRUE";
+                if (failureExpected == false) {
+                	return;
+                }
+            } catch (IdMUnitFailureException e) {
+                if (failureExpected) {
+                	return;
+                }
+
+                if (retriesRemaining > 0) {
+                    //If retries are enabled, retry the test.
+                    LOG.info("RETRY (" + retriesRemaining + ") " + e.getMessage() + " " + this.getName());
+                    continue;
+                } else {
+                    LOG.info("...FAILURE: " + e.getMessage());
+                    logCriticalErrors(e.getMessage());
+                    throw new AssertionFailedError(e.getMessage());
+                }
+            } catch (IdMUnitException e) {
+                if (failureExpected) {
+                	return;
+                }
+
+                String msg = "";
+                if (e.getMessage() != null && e.getCause() != null && e.getCause().getMessage() != null) {
+                	msg = e.getMessage() + " " + e.getCause().getMessage();
+                } else if (e.getMessage() != null) {
+                	msg = e.getMessage();
+                } else if (e.getCause() != null && e.getCause().getMessage() != null) {
+                	msg = e.getCause().getMessage();
+                }
+
                 if (retriesRemaining > 0) {
                     //If retries are enabled, retry the test after the defined wait interval
-                    delay();
                     LOG.info("RETRY (" + retriesRemaining + ") " + msg + " " + this.getName());
                     continue;
                 } else {
                     LOG.info("...FAILURE: " + msg);
                     logCriticalErrors(msg);
-                    fail(msg);
+                    throw e;
                 }
-        	}
-        } finally {
-            connector.tearDown();
-            connector = null;
-        }
+            } catch (AssertionFailedError e) {
+            	LOG.warn("The connector you are using incorrectly threw an AssertionFailedError. It needs to be updated to use an IdMUnitFailureException.");
+            	throw e;
+            } finally {
+                //Wait to allow for standard latency (interval override in spread sheet)
+                if (retriesRemaining > 0) {
+				    if(!succeeded && !failureExpected) {
+            		    delay();
+					} else if (succeeded && failureExpected) {
+					    delay();
+					}
+                }
+            }
+
+            String msg = "Test failed: would have succeeded, but ExpectFailure was set to TRUE";
+            if (retriesRemaining > 0) {
+                //If retries are enabled, retry the test after the defined wait interval
+                delay();
+                LOG.info("RETRY (" + retriesRemaining + ") " + msg + " " + this.getName());
+                continue;
+            } else {
+                LOG.info("...FAILURE: " + msg);
+                logCriticalErrors(msg);
+                fail(msg);
+            }
+    	}
     }
     
     private void delay() throws IdMUnitException {
-    	long delayInterval = DEFAULT_DELAY;
-    	//check for delay interval override
-    	Object delayObject = getOperationData(STR_WAIT_INTERVAL);
-    	if(delayObject != null) {
-    		String delayVal = null;
-    		try {
-    			delayVal = (String)delayObject;
-    			//Trim whitespace
-    			delayVal = delayVal.trim();
-	    		delayInterval = Long.parseLong(delayVal);
-			} catch (NumberFormatException e) {
-				LOG.error("Failed to parse " + STR_WAIT_INTERVAL + " into a value of type long: " + e.getMessage() + ": delayVal: [" + delayVal + "]");
-			}
-    	}
-
     	try {
         	if(configData.ifMultiplierWait()) {
-        		Thread.sleep((delayInterval * configData.getMultiplierWait()));
+        		LOG.info("...delaying  " + (waitInterval * configData.getMultiplierWait()) / 1000 + " secs");
+        		Thread.sleep((waitInterval * configData.getMultiplierWait()));
         	} else {
-        		Thread.sleep(delayInterval);
+        		LOG.info("...delaying " + waitInterval / 1000 +  " secs");
+        		Thread.sleep(waitInterval);
         	}
     	} catch (InterruptedException ie) {
 			LOG.info("delay interrupted");
     	}
     }
     
-    private boolean expectedFailure() throws IdMUnitException {
-        String s = getOperationData(STR_EXPECT_FAILURE);
-        boolean expectedFailure = false;
-        if(s!=null && s.length()>0) {
-        	expectedFailure = Boolean.parseBoolean(s);
-        }
-    	
-        return expectedFailure;
-    }
-    
-	private String getOperation() throws IdMUnitException {
-		return getOperationData(STR_OPERATION);
-	}
-
-	private String getOperationData(String op) throws IdMUnitException {
-		if (this.operationalDataMap == null) {
-			throw new IdMUnitException("No operation data found. This is most likely because the specified sheet does not exist in this workbook.");
-		}
-		String selectedOperation = (String)this.operationalDataMap.get(op);
-		if((selectedOperation == null || selectedOperation.length() < 1) && op.equalsIgnoreCase(STR_OPERATION)) {
-			fail("Missing operation - Please check the operation column for this row and try again.");
-		}
-		return selectedOperation;
-	}
-
-    private boolean isNewConnection() throws IdMUnitException {
-        String type = configData.getType();
-        
-        if(type==null || type.length() < 1) {
-            throw new IdMUnitException(ERROR_MISSING_TARGET);
-        }
-
-        try {
-            return Connector.class.isAssignableFrom(Class.forName(type));
-        } catch (ClassNotFoundException e1) {
-            throw new IdMUnitException("Specified target connection module not found: " + type);
-        }
-    }
-
     private void logCriticalErrors(String msg) throws IdMUnitException {
         //Generate email/log alerts if this row was marked as "critical" and if alerts are enabled.
-        Boolean isCritical = Boolean.valueOf(getOperationData(STR_IS_CRITICAL));
         boolean isAlertingEnabled = (this.configData.getIdmunitAlerts()!=null) ? true : false;
          
-        if(isCritical && isAlertingEnabled) {
+        if(critical && isAlertingEnabled) {
             //Iterate through each configured alert for this connection configuration (may contain globally-defined alerts as well) and fire off each enabled alert
-            Map alerts = configData.getIdmunitAlerts();
-            Iterator alertItr = alerts.keySet().iterator();
+            Map<String, Alert> alerts = configData.getIdmunitAlerts();
+            Iterator<String> alertItr = alerts.keySet().iterator();
             while(alertItr.hasNext()){
                 String alertName = (String)alertItr.next();
                 Alert idmunitAlert = (Alert)alerts.get(alertName);
@@ -393,66 +237,12 @@ public class IdMUnitTestCase extends DDStepsExcelTestCase {
         }
     }
 
-    private Connector setupTargetConnection() throws IdMUnitException {
-        String type = configData.getType();
-        
-        if(type==null || type.length() < 1) {
-            throw new IdMUnitException(ERROR_MISSING_TARGET);
-        }
-
-        Connector connector = new ConnectionToConnectorAdapter(configData.getType());
-        connector.setup(configData.getParams());
-        return connector;
-    }
-
-    private Connector setupTargetConnector() throws IdMUnitException {
-        String type = configData.getType();
-        
-        if(type==null || type.length() < 1) {
-            throw new IdMUnitException(ERROR_MISSING_TARGET);
-        }
-        
-        try {
-            Connector connector = (Connector)Class.forName(type).newInstance();
-            connector.setup(configData.getParams());
-            return connector;
-        } catch (InstantiationException e) {
-            throw new IdMUnitException("Failed to instantiate connection class of type: " + type + " " + e.getMessage());
-        } catch (IllegalAccessException e) {
-            throw new IdMUnitException("Illegal access error when attempting to instantiate connection of type: " + type);
-        } catch (ClassNotFoundException e) {
-            throw new IdMUnitException("Specified target connection module not found: " + type);
-        }
-    }
-
-    private Map<String, Collection<String>> convertData() {
-        Map<String, Collection<String>> data = new LinkedHashMap<String, Collection<String>>();
-        Iterator itr = attributeMap.keySet().iterator();
-        while(itr.hasNext()) {
-            String attrName = (String)itr.next();
-            String attrVal = (String)attributeMap.get(attrName);
-
-            if (attrVal.indexOf(STR_MULTI_ATTR_DELIMITER) == -1) {
-                data.put(attrName, Arrays.asList(new String[] {attrVal}));
-            } else {
-                List<String> valueList = new ArrayList<String>();
-                StringTokenizer tokenizer = new StringTokenizer(attrVal, STR_MULTI_ATTR_DELIMITER);
-                while(tokenizer.hasMoreTokens()) {
-                    valueList.add(tokenizer.nextToken().trim());
-                }
-                
-                data.put(attrName, valueList);
-            }
-        }
-        return data;
-    }
-    
     private void sendAlerts(Alert idmunitAlert, String exceptionMessage) throws IdMUnitException {
     	try {
         	String alertMessage = this.getName()+" failed.";
     		if(idmunitAlert.isEmailAlertingEnabled()) {
     			LOG.info("### Sending email alert...");
-    	    	EmailUtil.sendEmailNotification(idmunitAlert, alertMessage, exceptionMessage, null);
+    	    	EmailUtil.sendEmailNotification(idmunitAlert, alertMessage, exceptionMessage);
     		}
     		if(idmunitAlert.isLogAlertingEnabled()) {
     	    	LOG.info("### Writing log alert...");
@@ -462,4 +252,89 @@ public class IdMUnitTestCase extends DDStepsExcelTestCase {
 			throw new IdMUnitException(e.getMessage()+" "+"### Email alert failed!!");
 		}
     }
+
+    
+	public Map<String, Collection<String>> getAttributeMap() {
+		return attributeMap;
+	}
+
+	public void setAttributeMap(Map<String, Collection<String>> attrMap) {
+		this.attributeMap = attrMap;
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
+	public ConnectionConfigData getConfig() {
+		return configData;
+	}
+
+	public void setConfig(ConnectionConfigData configData) {
+		this.configData = configData;
+	}
+
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
+	}
+
+	public boolean isFailureExpected() {
+		return failureExpected;
+	}
+
+	public void setFailureExpected(boolean expectFailure) {
+		this.failureExpected = expectFailure;
+	}
+
+	public boolean isCritical() {
+		return critical;
+	}
+
+	public void setCritical(boolean isCritical) {
+		this.critical = isCritical;
+	}
+
+	public String getOperation() {
+		return operation;
+	}
+
+	public void setOperation(String operation) {
+		this.operation = operation;
+	}
+
+	public long getWaitInterval() {
+		return waitInterval;
+	}
+
+	public void setWaitInterval(long waitInterval) {
+		this.waitInterval = waitInterval;
+	}
+
+	public long getRetryCount() {
+		return retryCount;
+	}
+
+	public void setRetryCount(long retryCount) {
+		this.retryCount = retryCount;
+	}
+
+	public void setConnector(Connector connector) {
+		this.connector = connector;
+	}
+
+	public String getRepeatRange() {
+		return repeatRange;
+	}
+
+	public void setRepeatRange(String repeatRange) {
+		this.repeatRange = repeatRange;
+	}
 }

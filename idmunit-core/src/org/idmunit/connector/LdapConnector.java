@@ -1,6 +1,6 @@
 /* 
  * IdMUnit - Automated Testing Framework for Identity Management Solutions
- * Copyright (c) 2005-2010 TriVir, LLC
+ * Copyright (c) 2005-2009 TriVir, LLC
  *
  * This program is licensed under the terms of the GNU General Public License
  * Version 2 (the "License") as published by the Free Software Foundation, and 
@@ -29,7 +29,8 @@ package org.idmunit.connector;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Hashtable;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,7 +39,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
-import javax.naming.Context;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -57,30 +57,37 @@ import org.apache.commons.logging.LogFactory;
 import org.idmunit.Failures;
 import org.idmunit.IdMUnitException;
 import org.idmunit.IdMUnitFailureException;
+import org.idmunit.util.LdapConnectionHelper;
+
+import sun.misc.BASE64Encoder;
 
 public class LdapConnector extends BasicConnector {
     private final static String STR_DN = "dn";
     private final static String STR_NEW_DN = "newdn";
     private final static String STR_USER_PASSWORD = "userPassword";
+    private final static String STR_BASE_DN_DELIMITER = ",base=";
     protected final static String STR_SUCCESS = "...SUCCESS";
-    
+
     private final static String STR_UNICODE_PASSWORD = "unicodePwd";
     protected final static String STR_DXML_ASSOC = "DirXML-Associations";
-
+    
     private static Log logger = LogFactory.getLog(LdapConnector.class);
 
     private TreeSet<String> operationalAttributes = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
 
-    protected Map<String, String> config;
 	private boolean insensitive = false;
+    protected String server;
 
     private DirContext m_context;
+    private Map<String,String> config; //Storing config for use in opValidatePassword.
 
     public LdapConnector() {
         operationalAttributes.add("nsaccountlock");
         operationalAttributes.add("DirXML-State");
+        operationalAttributes.add("pwdaccountlockedtime");
+        operationalAttributes.add("members");
     }
-    
+
     public void opAddAttr(Map<String, Collection<String>> dataRow) throws IdMUnitException {
         modifyObject(dataRow, DirContext.ADD_ATTRIBUTE);
     }
@@ -98,6 +105,7 @@ public class LdapConnector extends BasicConnector {
 
             if (name.equalsIgnoreCase(STR_DN)){
                 dn = dataValue.iterator().next();
+				logger.info("...performing LDAP creation for: [" + dn + "]");
             } else if (name.equalsIgnoreCase(STR_UNICODE_PASSWORD)) {
                 byte[] unicodePwdVal = getUnicodeBytes(dataValue.iterator().next());
                 createAttrs.put(name, unicodePwdVal);
@@ -114,13 +122,14 @@ public class LdapConnector extends BasicConnector {
             throw new IdMUnitException("A Distinguished Name must be supplied in column '" + STR_DN + "'");
         }
 
-        logger.debug("Binding DN " + dn);
+		// logger.debug("Binding DN " + dn);
         try {
             DirContext tmpCtx = this.m_context.createSubcontext(dn, createAttrs);
             if(tmpCtx!=null) { 
                 tmpCtx.close();//this is necessary in order to keep the parent connection ctx clean enough to be pooled/managed as week references inside of the parent DirContext will prevent proper pooling
             }
-            logger.debug(">>>" + dn + " created");
+		//	logger.debug(">>>" + dn + " created");
+			logger.info(STR_SUCCESS);
         } catch (NamingException  e) {                   
             throw new IdMUnitException("Failed to create object: " + dn + " with error: " + e.getMessage(), e);
         }            
@@ -190,12 +199,12 @@ public class LdapConnector extends BasicConnector {
     }
 
     public void opMoveObject(Map<String, Collection<String>> data) throws IdMUnitException {
-        String dn = getSingleValue(data, STR_DN);
+        String dn = ConnectorUtil.getSingleValue(data, STR_DN);
         if (dn == null) {
             throw new IdMUnitException("A Distinguished Name must be supplied in column '" + STR_DN + "'");
         }
 
-        String newDn = getSingleValue(data, STR_NEW_DN);
+        String newDn = ConnectorUtil.getSingleValue(data, STR_NEW_DN);
         if (newDn == null) {
             throw new IdMUnitException("A Distinguished Name must be supplied in column '" + STR_NEW_DN + "'");
         }
@@ -211,7 +220,7 @@ public class LdapConnector extends BasicConnector {
 
     public void opRemoveAttr(Map<String, Collection<String>> data) throws IdMUnitException {
         String dn = getTargetDn(data);
-        logger.info("...performing LDAP modification for: [" + dn + "]");
+		logger.info("...performing LDAP remove attribute for: [" + dn + "]");
 
         TreeMap<String, Collection<String>> curAttrs;
 		try {
@@ -226,7 +235,7 @@ public class LdapConnector extends BasicConnector {
             if (attrName.equalsIgnoreCase(STR_DN)) {
                 continue;
             } else if(attrName.equals(STR_UNICODE_PASSWORD)) {
-                byte[] unicodePwdVal = getUnicodeBytes(getSingleValue(data, STR_UNICODE_PASSWORD));
+                byte[] unicodePwdVal = getUnicodeBytes(ConnectorUtil.getSingleValue(data, STR_UNICODE_PASSWORD));
                 mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(attrName, unicodePwdVal)));
             } else if (attrName.equals(STR_DXML_ASSOC)) {
                 Collection<String> values = data.get(attrName);
@@ -299,11 +308,51 @@ public class LdapConnector extends BasicConnector {
 
     public void opValidateObject(Map<String, Collection<String>> expectedAttrs) throws IdMUnitException {
     	doValidate(expectedAttrs, false);
-    }
+		String passwordVal = ConnectorUtil.getSingleValue(expectedAttrs, STR_USER_PASSWORD);
 
+		if (passwordVal != null) {
+			opValidatePassword(expectedAttrs);
+		}
+	}
+
+    public void opValidateObjectDoesNotExist(Map<String, Collection<String>> expectedAttrs) throws IdMUnitException {
+    	String entryIdentifier = ConnectorUtil.getSingleValue(expectedAttrs, STR_DN);
+    	
+    	String dn = null;
+
+    	if (entryIdentifier.startsWith("(")) {
+    		// we have an ldap filter - see if we have any objects:
+    		String[] filterAndBase = entryIdentifier.split(STR_BASE_DN_DELIMITER);
+    		if (filterAndBase.length != 2 ) {
+    			throw new IdMUnitException("Error: value provied for DN appears to be an invalid ldap filter - it must be in the format of [LDAP FILTER]" + STR_BASE_DN_DELIMITER + "[LDAP BASE DN TO SEARCH]");
+    		}
+    		String filter = filterAndBase[0];
+    		String base = filterAndBase[1];
+    		if ( (dn = findObject(base, filter)) != null) {
+    			throw new IdMUnitFailureException("An object was found when it was not expected. Object found: [" + dn + "]");
+    		}    		
+    	} else {
+    		// we appear to have a dn, see if it exists: 
+    		dn = entryIdentifier;
+    		try {
+				if (m_context.lookup(dn) != null) {
+					throw new IdMUnitFailureException("An object was found when it was not expected. Object found: ["+ dn + "]");
+				}
+			}
+    		catch (NameNotFoundException e) {
+    			return;
+    		}
+    		catch (NamingException e) {
+				throw new IdMUnitException("Failed while looking for dn: [" + dn + "]", e);
+			}
+    	}
+    	
+    }    
+    
     public void doValidate(Map<String, Collection<String>> expectedAttrs, boolean bIsAttrDoesNotExistTest) throws IdMUnitException {
         String dn = getTargetDn(expectedAttrs);
 
+		logger.info("...performing LDAP attribute validation for: [" + dn + "]");
         Map<String, Collection<String>> appAttrs = getAttributes(dn);
 
         Failures failures = new Failures();
@@ -311,6 +360,9 @@ public class LdapConnector extends BasicConnector {
             if (attrName.equalsIgnoreCase(STR_DN)) {
                 continue;
             }
+			if(attrName.equalsIgnoreCase(STR_USER_PASSWORD)) {
+				continue;
+			}
 
             Collection<String> expectedValues = expectedAttrs.get(attrName);
             Collection<String> actualValues;
@@ -319,7 +371,6 @@ public class LdapConnector extends BasicConnector {
                 // all attributes are requested so we need to read them
                 // explicitly.
                 actualValues = getAttributes(dn, new String[]{attrName}).get(attrName);
-                continue;
             } else {
                 actualValues = appAttrs.get(attrName);
             }
@@ -343,9 +394,15 @@ public class LdapConnector extends BasicConnector {
         InitialDirContext tempConn = null;
         try {
             String dn = getTargetDn(expectedAttrs);
-            String passwordVal = getSingleValue(expectedAttrs, STR_USER_PASSWORD);
+            String passwordVal = ConnectorUtil.getSingleValue(expectedAttrs, STR_USER_PASSWORD);
+			if (passwordVal == null || passwordVal.length() == 0) {
+				throw new IdMUnitFailureException("Missing " + STR_USER_PASSWORD + " attribute");
+			}
             logger.info("...performing LDAP password validation for: [" + dn + "]");
-            tempConn = createLDAPConnection(dn, passwordVal);
+            Map<String,String> config = new HashMap<String,String>(this.config);
+            config.put(CONFIG_USER, dn);
+            config.put(CONFIG_PASSWORD, passwordVal);
+            tempConn = LdapConnectionHelper.createLdapConnection(config);
             logger.info(STR_SUCCESS);
         } catch (IdMUnitException e) {
             throw new IdMUnitFailureException("Password validation failure: Error: " + e.getMessage());
@@ -359,66 +416,65 @@ public class LdapConnector extends BasicConnector {
             }
         }
     }
+    
+	public void opChangeUserPassword(
+			Map<String, Collection<String>> expectedAttrs)
+			throws IdMUnitException {
+
+		try {
+			String dn = getTargetDn(expectedAttrs);
+
+			String oldPassword = ConnectorUtil.getSingleValue(expectedAttrs, STR_USER_PASSWORD);
+			if (oldPassword == null || oldPassword.length() == 0) {
+				throw new IdMUnitException("Missing " + STR_USER_PASSWORD + " attribute");
+			}
+			String newPassword = ConnectorUtil.getSingleValue(expectedAttrs, STR_UNICODE_PASSWORD);
+			if (newPassword == null || newPassword.length() == 0) {
+				throw new IdMUnitException("Missing " + STR_UNICODE_PASSWORD + " attribute");
+			}
+			// change password is a single ldap modify operation
+			// that deletes the old password and adds the new password
+			ModificationItem[] mods = new ModificationItem[2];
+
+			// Firstly delete the "unicdodePwd" attribute, using the old
+			// password
+			// Then add the new password,Passwords must be both Unicode and a
+			// quoted string
+			String oldQuotedPassword = "\"" + oldPassword + "\"";
+			byte[] oldUnicodePassword = oldQuotedPassword.getBytes("UTF-16LE");
+			String newQuotedPassword = "\"" + newPassword + "\"";
+			byte[] newUnicodePassword = newQuotedPassword.getBytes("UTF-16LE");
+
+			mods[0] = new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
+					new BasicAttribute("unicodePwd", oldUnicodePassword));
+			mods[1] = new ModificationItem(DirContext.ADD_ATTRIBUTE,
+					new BasicAttribute("unicodePwd", newUnicodePassword));
+
+			// Perform the password change
+			m_context.modifyAttributes(dn, mods);
+
+		} catch (IdMUnitException e) {
+			throw new IdMUnitFailureException("Password validation failure: Error: " + e.getMessage());
+		} catch (NamingException e) {
+			throw new IdMUnitException("Failed changing password: "	+ e.getMessage());
+		} catch (UnsupportedEncodingException e) {
+			throw new IdMUnitException("Failed encoding password: "	+ e.getMessage());
+		}
+	}
 
     public void setup(Map<String, String> config) throws IdMUnitException {
-        this.config = config;
-        this.m_context = createLDAPConnection();
+        server = config.get(CONFIG_SERVER);
+
+        // create a defensive copy of the config.
+        this.config = Collections.unmodifiableMap(config); // Config is stored for use in opValidatePassword.
+        this.m_context = LdapConnectionHelper.createLdapConnection(new HashMap<String,String>(config));
     }
 
     public void tearDown() throws IdMUnitException {
-        try {
-            if(m_context!=null) {
-                this.m_context.close();
-                this.m_context = null;
-            }
-        } catch (NamingException e) {
-            throw new IdMUnitException("Failed to close ldap connection: " + e.getMessage());
-        }
+    	LdapConnectionHelper.destroyLdapConnection(m_context);
     }
 
-    private InitialDirContext createLDAPConnection() throws IdMUnitException {
-        String userDN = config.get(CONFIG_USER);
-        String password = config.get(CONFIG_PASSWORD);
-
-        return createLDAPConnection(userDN, password);
-    }
-
-    private InitialDirContext createLDAPConnection(String userDN, String password) throws IdMUnitException {
-        String server = config.get(CONFIG_SERVER);
-        String keystorePath = config.get(CONFIG_KEYSTORE_PATH);
-
-        Hashtable<String, String> env = new Hashtable<String, String>();
-        if (keystorePath != null && keystorePath.length() > 0) {
-            System.setProperty("javax.net.ssl.trustStore", keystorePath);
-            env.put(Context.SECURITY_PROTOCOL, "ssl");
-        }
-        env.put(Context.INITIAL_CONTEXT_FACTORY,"com.sun.jndi.ldap.LdapCtxFactory");
-        env.put("com.sun.jndi.ldap.connect.pool", "true");
-        env.put("com.sun.jndi.ldap.connect.pool.protocol", "plain ssl");
-        env.put("com.sun.jndi.ldap.connect.pool.timeout", "1000");
-        env.put("com.sun.jndi.ldap.connect.pool.maxsize", "3");
-        env.put("com.sun.jndi.ldap.connect.pool.prefsize", "1");
-        env.put(Context.SECURITY_AUTHENTICATION, "simple");
-        env.put(Context.PROVIDER_URL, "ldap://" + server);
-        env.put(Context.SECURITY_PRINCIPAL, userDN);
-        env.put(Context.SECURITY_CREDENTIALS, password);
-        env.put("com.sun.jndi.ldap.connect.timeout", "5000");
-        env.put(Context.REFERRAL, "follow");
-
-        try {
-            return new InitialDirContext(env);
-        }catch (Exception e) {
-            if (keystorePath != null && keystorePath.length() > 0) {
-                logger.debug("### Failed to obtain an SSL LDAP server connection to: [" + server + "].");
-                throw new IdMUnitException("Failed to obtain an SSL LDAP Connection: " + e.getMessage(), e);
-            } else {
-                logger.debug("### Failed to obtain an LDAP server connection to: [" + server + "].");
-                throw new IdMUnitException("Failed to obtain an LDAP Connection: " + e.getMessage());
-            }
-        }
-    }
-
-    private String findUser(String base, String filter) throws IdMUnitException {
+    private String findObject(String base, String filter) throws IdMUnitException {
         String resolvedDn = null;
 
         SearchControls ctls = new SearchControls();
@@ -435,7 +491,7 @@ public class LdapConnector extends BasicConnector {
                 if(resultCtr == 1) {
                 	if(sr.getName()!= null && sr.getName().length() > 0) {
                 		resolvedDn = sr.getName() + "," + base;
-	        		} else {
+	        		} else { 
 	        			resolvedDn = base;
 	        		}
             		logger.debug("---> Target DN for validation: [" + resolvedDn + "]");
@@ -444,7 +500,7 @@ public class LdapConnector extends BasicConnector {
                 }
             }
         } catch (NamingException ne) {
-            throw new IdMUnitException("Object Lookup for filter [" + filter +"], base ["+base+"] Failed: " + ne.getMessage());
+            throw new IdMUnitException("Object Lookup for filter [" + filter +"], base ["+base+"] Failed: " + ne.getMessage(), ne);
         }
         return resolvedDn;
     }
@@ -473,21 +529,20 @@ public class LdapConnector extends BasicConnector {
             Attributes operationalAttrs = m_context.getAttributes(dn, attrs);
             return attributesToMap(operationalAttrs);
         } catch (NamingException e) {
-            throw new IdMUnitException("Error reading attributes for '" + dn + "'.");
+            throw new IdMUnitException("Error reading attributes for '" + dn + "'.", e);
         }
     }
 
     protected String getTargetDn(Map<String, Collection<String>> data) throws IdMUnitException {
-        String STR_BASE_DN_DELIMITER = ",base=";
 
-        String dn = getSingleValue(data, STR_DN);
-
-        if (!dn.trim().equalsIgnoreCase(dn)) {
-        	throw new IdMUnitException("WARNING: your DN specified: [" + dn + "] is either prefixed or postfixed with whitespace!  Please correct, then retest.");
-        }
+        String dn = ConnectorUtil.getSingleValue(data, STR_DN);
 
         if (dn == null) {
             throw new IdMUnitException("A Distinguished Name must be supplied in column '" + STR_DN + "'");
+        }
+
+        if (!dn.trim().equalsIgnoreCase(dn)) {
+        	throw new IdMUnitException("WARNING: your DN specified: [" + dn + "] is either prefixed or postfixed with whitespace!  Please correct, then retest.");
         }
 
         //Detect LDAP filter in the DN
@@ -498,11 +553,11 @@ public class LdapConnector extends BasicConnector {
             if (startOfBase == -1) {
                 throw new IdMUnitException("Check the dn or LDAP filter specified in the spreadsheet. Should be listed in the form (LDAPFilter),base=LDAPSearchBase.  Example: (&(objectClass=inetOrgPerson)(cn=testuser1)),base=o=users.");
             }
-            
+
             String filter = dn.substring(0, startOfBase);
             String base = dn.substring(startOfBase + STR_BASE_DN_DELIMITER.length());
-            
-            dn = findUser(base, filter);
+
+            dn = findObject(base, filter);
         } else {
             //Detect standard wildcard token * in the ID
             String[] nameComponents = dn.split("(?<!\\\\),");
@@ -514,8 +569,8 @@ public class LdapConnector extends BasicConnector {
             String base = dn.substring(dn.indexOf(nameComponents[1]));
             String filter = "("+idVal+")";
             logger.debug("---> Synthesized filter: " + filter + " from the base: " + base);
-                
-            dn = findUser(base, filter);
+
+            dn = findObject(base, filter);
         }
 
         if (dn==null || dn.length()<1) {
@@ -537,7 +592,7 @@ public class LdapConnector extends BasicConnector {
             if (attrName.equalsIgnoreCase(STR_DN)) {
                 continue;
             } else if(attrName.equals(STR_UNICODE_PASSWORD)) {
-                byte[] unicodePwdVal = getUnicodeBytes(getSingleValue(dataRow, STR_UNICODE_PASSWORD));
+                byte[] unicodePwdVal = getUnicodeBytes(ConnectorUtil.getSingleValue(dataRow, STR_UNICODE_PASSWORD));
                 mods.add(new ModificationItem(operationType, new BasicAttribute(attrName, unicodePwdVal)));
             } else if (attrName.equals(STR_DXML_ASSOC) && operationType == DirContext.REPLACE_ATTRIBUTE) {
                 Collection<String> curAssociations = getAttributes(dn, new String[]{STR_DXML_ASSOC}).get(STR_DXML_ASSOC);
@@ -567,7 +622,7 @@ public class LdapConnector extends BasicConnector {
                 }
             } else {
                 Collection<String> values = dataRow.get(attrName);
-                Attribute modValues = new BasicAttribute(attrName);                       
+                Attribute modValues = new BasicAttribute(attrName);
                 for (Iterator<String> j=values.iterator(); j.hasNext(); ) {
                     modValues.add(j.next());
                 }
@@ -593,18 +648,19 @@ public class LdapConnector extends BasicConnector {
         logger.info(STR_SUCCESS);
     }
 
-    @SuppressWarnings("unchecked")
     private static TreeMap<String, Collection<String>> attributesToMap(Attributes attributes) throws NamingException {
         TreeMap<String, Collection<String>> attrs = new TreeMap<String, Collection<String>>(String.CASE_INSENSITIVE_ORDER);
-        NamingEnumeration<Attribute> i = null;
+        NamingEnumeration<? extends Attribute> i = null;
         try {
-            for (i=(NamingEnumeration<Attribute>) attributes.getAll(); i.hasMore(); ) {
-                Attribute attr = (Attribute)i.next();
+            for (i=attributes.getAll(); i.hasMore(); ) {
+                Attribute attr = i.next();
                 String attrName = attr.getID();
                 List<String> attrValues = new LinkedList<String>();
-                for (NamingEnumeration<Object> j=(NamingEnumeration<Object>) attr.getAll(); j.hasMore(); ) {
+                for (NamingEnumeration<?> j=attr.getAll(); j.hasMore(); ) {
                     Object value = j.next();
-                    if (value instanceof String) {
+                    if (attrName.equals("msExchUMPinChecksum")) {
+                    	attrValues.add(new BASE64Encoder().encode(((String)value).getBytes()));                    	
+                    } else if (value instanceof String) {
                         attrValues.add((String)value);
                     } else {
                         logger.info("Not adding value for '" + attrName + "' because it is not a String.");
@@ -630,7 +686,7 @@ public class LdapConnector extends BasicConnector {
         Collection<String> unmatched = new LinkedList<String>(actual);
         outer:
         for (String expectedValue : expected) {
-        	Pattern p = Pattern.compile(expectedValue, insensitive ? Pattern.CASE_INSENSITIVE : 0);
+        	Pattern p = Pattern.compile(expectedValue, insensitive ? Pattern.CASE_INSENSITIVE : Pattern.DOTALL);
         	for (Iterator<String> i=unmatched.iterator(); i.hasNext(); ) {
         		String actualValue = i.next();
 

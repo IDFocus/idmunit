@@ -1,6 +1,6 @@
 /* 
  * IdMUnit - Automated Testing Framework for Identity Management Solutions
- * Copyright (c) 2005-2010 TriVir, LLC
+ * Copyright (c) 2005-2009 TriVir, LLC
  *
  * This program is licensed under the terms of the GNU General Public License
  * Version 2 (the "License") as published by the Free Software Foundation, and 
@@ -26,21 +26,21 @@
  */
 package org.idmunit;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import nu.xom.Builder;
+import nu.xom.Document;
+import nu.xom.Element;
+import nu.xom.Elements;
+import nu.xom.ParsingException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 import org.idmunit.connector.ConnectionConfigData;
 import org.idmunit.injector.Injection;
 import org.idmunit.injector.InjectionConfigData;
@@ -99,32 +99,33 @@ public class ConfigLoader {
  * @throws IdMUnitException
  */
 	private static Document loadXMLFromFS(String fullPath) throws IdMUnitException {
-        SAXBuilder fileSystemDoc = new SAXBuilder();
-        Document inputDoc = null;
-	    try {
-	        inputDoc = fileSystemDoc.build(new FileReader(fullPath));
-	    } catch (JDOMException jde) {
-		    throw new IdMUnitException("Configuration file is invalid. Ensure that the target profile has connections defined according to the idmunit.dtd) - " + jde.getMessage());
-		} catch (FileNotFoundException fnfe) {
-		    throw new IdMUnitException("Configuration not found. Ensure that idmunit-config.xml is in the location specified by idmunit-defaults.properites.");
-		}
-		return inputDoc;
+        Document doc;
+        try {
+            Builder parser = new Builder();
+            doc = parser.build(fullPath);
+        } catch (ParsingException e) {
+            throw new IdMUnitException("Error parsing configuration.", e);
+        } catch (IOException e) {
+            throw new IdMUnitException("Error reading configuration.", e);
+        }
+
+        return doc;
     }
-	
+
 	/**
 	 * Retrieves configured connection information 
 	 * @param connection The top level connection node
 	 * @return Collection of substitutions
 	 */
-	private static Map<String, String> getSubstitutions(Element connection) {
+    private static Map<String, String> getSubstitutions(Element connection) {
 		String replaceVal;
 		String newVal;
-		Iterator substitutionItr = connection.getChild(XML_SUBSTITUTIONS).getChildren().iterator();
+        Elements substitutions = connection.getFirstChildElement(XML_SUBSTITUTIONS).getChildElements();
 		Map<String, String> substitutionMap = new LinkedHashMap<String, String>();
-		while(substitutionItr.hasNext()) {
-			Element substitution = (Element)substitutionItr.next();
-			replaceVal = substitution.getChildText(XML_REPLACE);
-			newVal = substitution.getChildText(XML_NEW);
+        for (int i=0; i<substitutions.size(); ++i) {
+            Element substitution = substitutions.get(i);
+            replaceVal = getChildText(substitution, XML_REPLACE);
+            newVal = getChildText(substitution, XML_NEW);
 			if(replaceVal != null && replaceVal.length() > 0 
 					&& newVal != null && newVal.length() > 0) {
 				log("###\t\tValue to replace", replaceVal);
@@ -169,22 +170,19 @@ public class ConfigLoader {
 	 * @return Collection of data injections
 	 * @throws IdMUnitException
 	 */
-	private static List<InjectionConfigData> getDataInjections(Element connection) throws IdMUnitException {
-		String className;
-		String keyName;
-		String format;
-		String mutator;
-		Element dataInjections = connection.getChild(XML_INJECTIONS);
+    private static List<InjectionConfigData> getDataInjections(Element connection) throws IdMUnitException {
+		Element dataInjections = connection.getFirstChildElement(XML_INJECTIONS);
 		//Data injections are optional (not required in the DTD) so if null, return
 		if(dataInjections==null) return null;
-		Iterator injectionItr = dataInjections.getChildren().iterator();
+		Elements injections = dataInjections.getChildElements();
 		List<InjectionConfigData> injectionList = new ArrayList<InjectionConfigData>();
-		while(injectionItr.hasNext()) {
-			Element injection = (Element)injectionItr.next();
-			className = injection.getChildText(XML_TYPE);
-			keyName = injection.getChildText(XML_KEY);
-			format = injection.getChildText(XML_FORMAT);
-			mutator = injection.getChildText(XML_MUTATOR);
+		for (int i=0; i<injections.size(); ++i) {
+			Element injection = injections.get(i);
+            String className = getChildText(injection, XML_TYPE);
+            String keyName = getChildText(injection, XML_KEY);
+            String format = getChildText(injection, XML_FORMAT);
+            String mutator = getChildText(injection, XML_MUTATOR);
+
 			if(className != null && className.length() > 0 
 					&& keyName != null && keyName.length() > 0) {
 				log("###\t\tClass used to inject data", className);
@@ -209,47 +207,63 @@ public class ConfigLoader {
 	 * @return Map collection of profile configurations
 	 * @throws IdMUnitException
 	 */
-	private static Map getProfiles(Document doc, Map<String, ConnectionConfigData> connectionMap, String liveTarget, String enableEmailAlerts, String enableLogAlerts) throws IdMUnitException {
-		Iterator profileItr = doc.getRootElement().getChild(XML_PROFILES).getChildren().iterator();
-		while(profileItr.hasNext()) {
-			Element profile = (Element)profileItr.next();
+    private static Map<String, ConnectionConfigData> getProfiles(Document doc, Map<String, ConnectionConfigData> connectionMap, String liveTarget, String enableEmailAlerts, String enableLogAlerts, String encryptionKey) throws IdMUnitException {
+        Elements profiles = doc.getRootElement().getFirstChildElement(XML_PROFILES).getChildElements();
+        for (int i=0; i<profiles.size(); ++i) {
+            Element profile = profiles.get(i);
 			String profileName = profile.getAttributeValue(XML_NAME);
 			if(!liveTarget.equalsIgnoreCase(profileName)) {
 				continue;
 			}
 			log("### Selected profile: = [" + profileName + "]");
-			Iterator connectionItr = profile.getChildren().iterator();
-			while(connectionItr.hasNext()) {
-				Element connection = (Element)connectionItr.next();
-				String name = connection.getChildText(XML_NAME);
-				String type = connection.getChildText(XML_TYPE);
+            Elements connections = profile.getChildElements();
+            for (int j=0; j<connections.size(); ++j) {
+                Element connection = connections.get(j);
+                String name = getChildText(connection, XML_NAME);
+                if (name == null) {
+                    throw new IdMUnitException("A connection is missing the '" + XML_NAME + "' element.");
+                }
+                String type = getChildText(connection, XML_TYPE);
+                if (name == null) {
+                    throw new IdMUnitException("The connection '" + name + "' is missing the '" + XML_TYPE + "' element.");
+                }
                 ConnectionConfigData configurationData = new ConnectionConfigData(name, type);
 
-                for (Iterator i = connection.getChildren().iterator(); i.hasNext(); ) {
-                	Element param = (Element)i.next();
-                	if (param.getName().equals(XML_MULTI) ||
-                    	param.getName().equals(XML_SUBSTITUTIONS) ||
-                    	param.getName().equals(XML_INJECTIONS) ||
-                    	param.getName().equals(XML_ALERTS) ||
-                    	param.getName().equals(XML_NAME) ||
-                		param.getName().equals(XML_TYPE))
-                	{
-                		continue;
-                	}
-                	if (param.getName().equals(XML_PASSWORD)) {
-                		//decrypt the password first
-                		EncTool encryptionManager = new EncTool("IDMUNIT1");
-                    	configurationData.setParam(XML_PASSWORD, encryptionManager.decryptCredentials(param.getText()));
-                	} else {
-                    	configurationData.setParam(param.getName(), param.getText());
-                	}
-//    				log("### \t" + param.getName() + ": " + param.getText());
+                Elements params = connection.getChildElements();
+                for (int k=0; k<params.size(); ++k) {
+                    Element param = params.get(k);
+                    if (param.getQualifiedName().equals(XML_MULTI) ||
+                        param.getQualifiedName().equals(XML_SUBSTITUTIONS) ||
+                        param.getQualifiedName().equals(XML_INJECTIONS) ||
+                        param.getQualifiedName().equals(XML_ALERTS) ||
+                        param.getQualifiedName().equals(XML_NAME) ||
+                        param.getQualifiedName().equals(XML_TYPE))
+                    {
+                        continue;
+                    }
+                    
+                    // TODO: Add the ability to specify which fields need decrypting so it's not a static element.
+                    if (param.getQualifiedName().equals(XML_PASSWORD)) {
+                        String password = param.getValue();
+                        if (encryptionKey != null) {
+                            //decrypt the password first
+                            EncTool encryptionManager = new EncTool(encryptionKey);
+                            password = encryptionManager.decryptCredentials(param.getValue());
+                        }
+                        configurationData.setParam(XML_PASSWORD, password);
+                    } else {
+                        configurationData.setParam(param.getQualifiedName(), param.getValue());
+                    }
                 }
 
-				Element multiplier = connection.getChild(XML_MULTI);
-				String retryMultiplier = multiplier.getChildText(XML_RETRY);
-				String waitMultiplier = multiplier.getChildText(XML_WAIT);
-				
+                Element multiplier = connection.getFirstChildElement(XML_MULTI);
+                String retryMultiplier = null;
+                String waitMultiplier = null;
+                if (multiplier != null) {
+                    retryMultiplier = getChildText(multiplier, XML_RETRY);
+                    waitMultiplier = getChildText(multiplier, XML_WAIT);
+                }
+
 				log("###\t---------------------------------");
 				log("### \tConnection Name: " + configurationData.getName());
 				log("### \tDescription", configurationData.getParam(XML_DESCRIPTION));
@@ -258,9 +272,11 @@ public class ConfigLoader {
 				log("### \tUser", configurationData.getParam(XML_USER));
 				log("### \tPassword" ,"***************"); 
 				log("### \tKeystore Path", configurationData.getParam(XML_KEYSTORE));
-				log("### \tMultipliers:");
-				log("###\t\tRetries multiplied by", retryMultiplier);
-				log("###\t\tWaits multiplied by", waitMultiplier);
+                if (multiplier != null) {
+                    log("### \tMultipliers:");
+                    log("###\t\tRetries multiplied by", retryMultiplier);
+                    log("###\t\tWaits multiplied by", waitMultiplier);
+                }
 				log("### \tData Substitutions:");
 				Map<String, String> substitutionMap = getSubstitutions(connection);
 				log("### \tData Injections:");
@@ -313,22 +329,40 @@ public class ConfigLoader {
 	 * @return Map collection of alerts
 	 * @throws IdMUnitException
 	 */
-	private static Map<String, Alert> getAlerts(Document doc, String enableEmailAlerts, String enableLogAlerts) throws IdMUnitException {
+    private static Map<String, Alert> getAlerts(Document doc, String enableEmailAlerts, String enableLogAlerts) throws IdMUnitException {
 		if((enableEmailAlerts==null || enableEmailAlerts.equalsIgnoreCase("false")) 
 				&& (enableLogAlerts ==null || enableLogAlerts.equalsIgnoreCase("false"))) {
 			return null; //Do not process alert config information if alerts are disabled
 		}
 		Map<String, Alert> alerts = new HashMap<String, Alert>();
-		Iterator alertItr = doc.getRootElement().getChild(XML_ALERTS).getChildren().iterator();
-		while(alertItr.hasNext()) {
-			Element alert = (Element)alertItr.next();
+        Elements alertElements = doc.getRootElement().getFirstChildElement(XML_ALERTS).getChildElements();
+        for (int i=0; i<alertElements.size(); ++i) {
+            Element alert = alertElements.get(i);
 			String alertName = alert.getAttributeValue(XML_NAME);
-			String alertDescription = alert.getChildText(XML_DESCRIPTION);
-			String smtpServer = alert.getChildText(XML_ALERT_SMTP_SERVER);
-			String alertSender = alert.getChildText(XML_ALERT_SENDER);
-			String alertRecipient = alert.getChildText(XML_ALERT_RECIPIENT);
-			String alertSubjectPrefix = alert.getChildText(XML_ALERT_SUBJECT_PREFIX);
-			String alertLogPath = alert.getChildText(XML_ALERT_LOG_PATH);
+            String alertDescription = getChildText(alert, XML_DESCRIPTION);
+            if (alertDescription == null) {
+                throw new IdMUnitException("No '"+ XML_DESCRIPTION + "' provided for alert '" + alertName + "'.");
+            }
+            String smtpServer = getChildText(alert, XML_ALERT_SMTP_SERVER);
+            if (smtpServer == null) {
+                throw new IdMUnitException("No '"+ XML_ALERT_SMTP_SERVER + "' provided for alert '" + alertName + "'.");
+            }
+            String alertSender = getChildText(alert, XML_ALERT_SENDER);
+            if (alertSender == null) {
+                throw new IdMUnitException("No '"+ XML_ALERT_SENDER + "' provided for alert '" + alertName + "'.");
+            }
+            String alertRecipient = getChildText(alert, XML_ALERT_RECIPIENT);
+            if (alertRecipient == null) {
+                throw new IdMUnitException("No '"+ XML_ALERT_RECIPIENT + "' provided for alert '" + alertName + "'.");
+            }
+            String alertSubjectPrefix = getChildText(alert, XML_ALERT_SUBJECT_PREFIX);
+            if (alertSubjectPrefix == null) {
+                throw new IdMUnitException("No '"+ XML_ALERT_SUBJECT_PREFIX + "' provided for alert '" + alertName + "'.");
+            }
+            String alertLogPath = getChildText(alert, XML_ALERT_LOG_PATH);
+            if (alertLogPath == null) {
+                throw new IdMUnitException("No '"+ XML_ALERT_LOG_PATH + "' provided for alert '" + alertName + "'.");
+            }
 			log("###\t---------------------------------");
 			logAlerts("### \tAlert Name: ", alertName);
 			logAlerts("### \tDescription", alertDescription);
@@ -353,8 +387,7 @@ public class ConfigLoader {
 	 * @return Map collection of configuration data
 	 * @throws IdMUnitException
 	 */
-	public static Map<String, ConnectionConfigData> getConfigData(String configFileLocation) throws IdMUnitException {
-		Map<String, ConnectionConfigData> connectionMap = new HashMap<String, ConnectionConfigData>();
+	public static Map<String, ConnectionConfigData> getConfigData(String configFileLocation, String encryptionKey) throws IdMUnitException {
 		Document doc = loadXMLFromFS(configFileLocation);
 		String liveTarget = doc.getRootElement().getAttributeValue(XML_LIVE_PROFILE);
 		String enableEmailAlerts = doc.getRootElement().getAttributeValue(XML_ENABLE_EMAIL_ALERTS);
@@ -366,9 +399,10 @@ public class ConfigLoader {
 		log("### Enable email alerts: = [" + enableEmailAlerts + "]");
 		log("### Enable log alerts: = [" + enableLogAlerts + "]");
 		log("### Attempting to select live target: [" + liveTarget + "]");
-//      public final static String ERROR_NO_TARGET = 
 		if(liveTarget == null || liveTarget.length() < 1) throw new IdMUnitException("Live target profile not specified. Ensure that the idmunit root node in idmunit-config.xml contains a live-profile specification. The target must be defined in the same xml file along with its corresponding connections.");
-		 getProfiles(doc, connectionMap, liveTarget, enableEmailAlerts, enableLogAlerts);
+
+		Map<String, ConnectionConfigData> connectionMap = new HashMap<String, ConnectionConfigData>();
+		getProfiles(doc, connectionMap, liveTarget, enableEmailAlerts, enableLogAlerts, encryptionKey);
 		displayedConfig = true;
 		return connectionMap;
 	}
@@ -403,4 +437,9 @@ public class ConfigLoader {
 			}
 		}
 	}
+
+    private static String getChildText(Element elem, String name) {
+        Element child = elem.getFirstChildElement(name);
+        return child == null ? null : child.getValue();
+    }
 }

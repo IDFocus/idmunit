@@ -38,7 +38,7 @@ public class Failures {
         failures.add(message);
     }
 
-    public void add(String message, Collection expected, Collection actual) {
+    public void add(String message, Collection<String> expected, Collection<String> actual) {
         String formatted = "";
         if (message != null)
             formatted = message + " ";
@@ -51,7 +51,7 @@ public class Failures {
 
     public String toString() {
         StringBuffer s = new StringBuffer();
-        for (Iterator i=failures.iterator(); i.hasNext(); ) {
+        for (Iterator<String> i=failures.iterator(); i.hasNext(); ) {
             if (s.length() > 0) {
                 s.append(System.getProperty("line.separator"));
             }
