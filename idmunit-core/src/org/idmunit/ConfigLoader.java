@@ -33,6 +33,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import nu.xom.Attribute;
 import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.Element;
@@ -84,6 +85,7 @@ public class ConfigLoader {
     private final static String XML_LIVE_PROFILE = "live-profile";
     private final static String XML_ENABLE_EMAIL_ALERTS = "enable-email-alerts";
     private final static String XML_ENABLE_LOG_ALERTS = "enable-log-alerts";
+    private final static String XML_ATTRIBUTE_ENCRYPTED = "encrypted";
 
     private final static String STR_ALERT_PREFIX = "idmunitAlert_";
     
@@ -243,14 +245,24 @@ public class ConfigLoader {
                     }
                     
                     // TODO: Add the ability to specify which fields need decrypting so it's not a static element.
+                    Attribute encryptedAttribute = param.getAttribute(XML_ATTRIBUTE_ENCRYPTED);
+                    boolean isEncrypted = Boolean.parseBoolean(encryptedAttribute == null ? null : encryptedAttribute.getValue());
                     if (param.getQualifiedName().equals(XML_PASSWORD)) {
                         String password = param.getValue();
                         if (encryptionKey != null) {
                             //decrypt the password first
                             EncTool encryptionManager = new EncTool(encryptionKey);
-                            password = encryptionManager.decryptCredentials(param.getValue());
+                            password = encryptionManager.decryptCredentials(password);
                         }
                         configurationData.setParam(XML_PASSWORD, password);
+                    } else if (isEncrypted) {
+                        String decryptedValue = param.getValue();
+                        if (encryptionKey != null) {
+                            //decrypt the value first
+                            EncTool encryptionManager = new EncTool(encryptionKey);
+                            decryptedValue = encryptionManager.decryptCredentials(decryptedValue);
+                        }
+                        configurationData.setParam(param.getQualifiedName(), decryptedValue);
                     } else {
                         configurationData.setParam(param.getQualifiedName(), param.getValue());
                     }

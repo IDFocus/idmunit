@@ -76,9 +76,9 @@ public class ExcelParser {
     private static final String STR_APPLY_SUBST_TO_DATA = "ApplySubstitutionsToData";
     private static final String STR_TARGET = "Target";
 	private static final String MULTI_VALUE_DELIMITER = "MultiValueDelimiter";
-	public static final String ENCRYPTION_KEY = "EncryptionKey";
-	public static final String DECRYPT_PASSWORDS = "DecryptPasswords";
-	public static final String DEFAULT_ENCRYPTION_KEY = "IDMUNIT1";
+	private static final String ENCRYPTION_KEY = "EncryptionKey";
+	private static final String DECRYPT_PASSWORDS = "DecryptPasswords";
+	private static final String DEFAULT_ENCRYPTION_KEY = "IDMUNIT1";
 
     private static Log LOG = LogFactory.getLog(ExcelParser.class);
 
@@ -609,7 +609,7 @@ public class ExcelParser {
 	}
 
 	//TODO: This should be separated from the excel parser eventually.
-	public static Properties loadProperties() throws IOException {
+	private static Properties loadProperties() throws IOException {
 		Properties properties = System.getProperties();
         InputStream propertiesFile = ExcelParser.class.getClassLoader().getResourceAsStream("idmunit-defaults.properties");
         if (propertiesFile == null) {

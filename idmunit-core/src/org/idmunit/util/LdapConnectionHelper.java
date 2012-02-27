@@ -115,29 +115,8 @@ public class LdapConnectionHelper
             useTLS = true;
         }
 
-        Properties properties;
-		try {
-			properties = ExcelParser.loadProperties();
-		} catch (IOException e) {
-			throw new IdMUnitException("Unable to load IdMUnit properties.", e);
-		}
         String userDN = config.get(configPrefix + BasicConnector.CONFIG_USER);
         String password = config.get(configPrefix + BasicConnector.CONFIG_PASSWORD);
-    	String encryptionKey = null;
-        String decryptPasswords = properties.getProperty(ExcelParser.DECRYPT_PASSWORDS);
-       if (decryptPasswords == null || Boolean.parseBoolean(decryptPasswords)) {
-        	encryptionKey = properties.getProperty(ExcelParser.ENCRYPTION_KEY);
-        	if (encryptionKey == null) {
-        		encryptionKey = ExcelParser.DEFAULT_ENCRYPTION_KEY;
-        	}
-
-            if (encryptionKey != null && password != null) {
-                //decrypt the password first
-                EncTool encryptionManager = new EncTool(encryptionKey);
-                password = encryptionManager.decryptCredentials(password);
-            }
-       }
-
         
         Map<String,String> envOverride = Collections.emptyMap();
         return createLdapConnection(server, userDN, password, keystorePath, trustedCertFile, useTLS, trustAll, envOverride);
