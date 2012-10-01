@@ -53,7 +53,6 @@ import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Properties;
 import java.util.StringTokenizer;
 
 import javax.naming.Context;
@@ -71,10 +70,8 @@ import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.idmunit.EncTool;
 import org.idmunit.IdMUnitException;
 import org.idmunit.connector.BasicConnector;
-import org.idmunit.parser.ExcelParser;
 
 import sun.security.provider.X509Factory;
 
@@ -249,6 +246,11 @@ public class LdapConnectionHelper
                     wr.flush();
                 } catch (IOException e) {
                     throw new IdMUnitException("Error writing certificate to file '" + certFilePath + "'");
+                } finally {
+                    try {
+                        wr.close();
+                    } catch (IOException e) {
+                    }
                 }
             }
         } finally {

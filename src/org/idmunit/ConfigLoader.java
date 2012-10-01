@@ -226,7 +226,7 @@ public class ConfigLoader {
                     throw new IdMUnitException("A connection is missing the '" + XML_NAME + "' element.");
                 }
                 String type = getChildText(connection, XML_TYPE);
-                if (name == null) {
+                if (type == null) {
                     throw new IdMUnitException("The connection '" + name + "' is missing the '" + XML_TYPE + "' element.");
                 }
                 ConnectionConfigData configurationData = new ConnectionConfigData(name, type);
