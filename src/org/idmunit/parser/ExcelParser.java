@@ -67,7 +67,7 @@ import org.idmunit.connector.ConnectionConfigData;
 import org.idmunit.injector.Injection;
 import org.idmunit.injector.InjectionConfigData;
 
-public class ExcelParser {
+public class ExcelParser extends AbstractParser {
     private static final String XML_CONNECTIONS = "connections";
     private static final String OPERATION_HEADERS = "[Operation]";
     private static final String DEFAULT_HEADERS = "[Default]";
@@ -82,7 +82,8 @@ public class ExcelParser {
 
     private static Log LOG = LogFactory.getLog(ExcelParser.class);
 
-    public static Test createSuite(Class<?> testClass) {
+    @Override
+    public Test createSuite(Class<?> testClass) {
         Properties properties;
 		try {
 			properties = loadProperties();
@@ -606,25 +607,6 @@ public class ExcelParser {
 			}
 			dataAttrs.put(attrName, newValues);
 		}
-	}
-
-	//TODO: This should be separated from the excel parser eventually.
-	private static Properties loadProperties() throws IOException {
-		Properties properties = System.getProperties();
-        InputStream propertiesFile = ExcelParser.class.getClassLoader().getResourceAsStream("idmunit-defaults.properties");
-        if (propertiesFile == null) {
-        	LOG.warn("Unable to find idmunit-defaults.properties");
-        } else {
-            Properties defaultProperties = new Properties();
-            defaultProperties.load(propertiesFile);
-            for (Enumeration<?> en = defaultProperties.propertyNames(); en.hasMoreElements();) {
-                String key = (String) en.nextElement();
-                if (properties.containsKey(key) == false) {
-                    properties.put(key, defaultProperties.getProperty(key));
-                }
-            }
-        }
-		return properties;
 	}
 
     private static class Header {
