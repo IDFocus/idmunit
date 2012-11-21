@@ -71,7 +71,7 @@
 			<zipfileset file="ThirdPartyLicenses.txt" prefix="idmunit-${release}"/>
 			<zipfileset dir="docs" includes="*.pdf" prefix="idmunit-${release}/docs"/>
 			<zipfileset dir="docs" includes="*.html" prefix="idmunit-${release}/docs"/>
-			<zipfileset dir="docs/resources" includes="*.png" prefix="idmunit-${release}/docs/resources"/>
+			<zipfileset dir="docs/images" prefix="idmunit-${release}/docs/resources"/>
 			<zipfileset file="${build.dir}/idmunit-javadoc.zip" prefix="idmunit-${release}/docs"/>
 			<zipfileset file="docs/IdMUnitReference.xls" prefix="idmunit-${release}/docs"/>
 			<zipfileset file="docs/IdMUnit-Reference-idmunit-config.xml" prefix="idmunit-${release}/docs"/>
