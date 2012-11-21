@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <project name="IdMUnit" basedir="." default="dist">
-	<property name="release" value="2.1.5" />
+	<property name="release" value="2.1.6" />
 
 	<property name="src.dir" value="src"/>
 	<property name="build.dir" value="build" />
