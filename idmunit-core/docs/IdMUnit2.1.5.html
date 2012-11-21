@@ -1,0 +1,789 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
+    <title>IdMUnit Usage Guide</title><meta name="generator" content="DocBook XSL-NS Stylesheets V1.76.1"/>
+    <meta name="description" content="This document contains installation and usage instructions for IdMUnit, an automated test framework for Identity Management (IdM) systems. IdM is a Novell product. Additional training and documentation is available through IdMUnit training and consulting. Request more information at info@trivir.com This document contains instructions for the installation and basic use of IdMUnit. More information can be obtained by emailing info@trivir.com or going to www.IdMUnit.org. License information: IdMUnit - Automated Testing Framework for Identity Management Solutions Copyright &copy; 2005-2009 TriVir, LLC This program is licensed under the terms of the GNU General Public License Version 2 (the &#34;License&#34;) as published by the Free Software Foundation, and the TriVir Licensing Policies (the &#34;License Policies&#34;). A copy of the License and the Policies were distributed with this program. Designer and Identity Manager are registered trademarks of Novell, Inc. Microsoft and Excel are registered trademarks of Microsoft Corporation. OpenOffice.org is a trademark of Team OpenOffice.org. IdMUnit is a registered trademark of TriVir, LLC. Information about IdMUnit or the open source project may be found at www.idmunit.org and http://sourceforge.net/projects/idmunit/ "/>
+	<style type="text/css">
+		img {
+			max-width: 100%;
+			border-style: none;
+		}
+		img.bordered {
+			border-style: none;
+		}
+		a:link {color:#000000;text-decoration: none}      /* unvisited link */
+		a:visited {color:#000000;text-decoration: none}  /* visited link */
+		a:hover {color:#000000;text-decoration: underline}  /* mouse over link */
+		a:active {color:#000000;text-decoration: none}  /* selected link */
+		body {
+			font-size: 14pt;
+			line-height: 1.25;
+		}
+	</style>
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div style="width:850px;margin:auto;" >
+	<div class="book" title="IdMUnit Usage Guide">
+		<div class="titlepage">
+			<div>
+				<div>
+					<h1 class="title">
+						<a name="d5e1"></a>
+						IdMUnit Usage Guide
+					</h1>
+				</div>
+				<div>
+					<div class="abstract" title="Abstract">
+						<p class="title">
+							<strong>Abstract</strong>
+						</p>
+
+						<p>
+							This document contains installation and usage instructions for IdMUnit, an automated
+							test framework for Identity Management (IdM) systems. IdM is a Novell product. Additional
+							training and documentation is available by emailing
+							<a href="mailto:info@trivir.com">info@trivir.com</a> or going to <a class="ulink" href="http://www.IdMUnit.org" target="_top">www.IdMUnit.org</a>.
+						</p>
+						
+						<p style="font-size:11pt; padding-bottom:0em;margin-bottom:0em;">
+							<strong>License information:</strong>
+						</p>
+						<div style="font-size:11pt; padding-top:0em margin-top:0em;">
+							<p>
+								IdMUnit - Automated Testing Framework for Identity Management
+								Solutions Copyright &copy; 2005-2012 TriVir, LLC
+							</p>
+
+							<p>
+								This program is licensed under the terms of the GNU General Public
+								License Version 2 (the "License") as published by the Free Software
+								Foundation, and the TriVir Licensing Policies (the "License Policies").
+								A copy of the License and the Policies were distributed with this
+								program. Designer and Identity Manager are registered trademarks of
+								Novell, Inc. Microsoft and Excel are registered trademarks of Microsoft
+								Corporation. OpenOffice.org is a trademark of Team OpenOffice.org.
+								IdMUnit is a registered trademark of TriVir, LLC.
+							</p>
+
+							<p>
+								Information about IdMUnit or the open source project may be found
+								at <a class="ulink" href="http://www.IdMUnit.org" target="_top">www.idmunit.org</a> and <a class="ulink" href="http://sourceforge.net/projects/idmunit/" target="_top">http://sourceforge.net/projects/idmunit/</a>
+							</p>
+						</div>
+						
+						<img src="./images/IDMUNIT_LOGOmed.bmp" align="middle" alt="IdMUnit Logo"/>
+					</div>
+				</div>
+			</div>
+			<hr/>
+		</div>
+	</div>
+	<div class="toc" style="padding-top:1em; margin-top:1em; padding-bottom:1em; margin-bottom:1em;">
+		<p>
+			<b>Table of Contents</b>
+		</p>
+		<dl>
+			<dt><span class="chapter"><a href="#d5e25">1. Introduction</a></span></dt>
+			<dt><span class="chapter"><a href="#install">2. Installation</a></span></dt>
+			<dd>
+				<dl>
+					<dt><span class="section"><a href="#installing_xxe">Installing IdMUnit</a></span></dt>
+					<dd>
+						<dl>
+							<dt><span class="section"><a href="#d5e35">Requirements</a></span></dt>
+							<dt><span class="section"><a href="#d5e58">Installing IdMUnit Components</a></span></dt>
+						</dl>
+					</dd>
+					<dt>
+						<span class="section"><a href="#content_of_install_dir">IdMUnit Spreadsheet Content: Identity Management-related Nouns
+						and Verbs</a></span>
+					</dt>
+					<dd>
+						<dl>
+							<dt><span class="section"><a href="#d5e124">Spreadsheet Usage Vocabulary</a></span></dt>
+						</dl>
+					</dd>
+				</dl>
+			</dd>
+			<dt><span class="chapter"><a href="#idmunitinstall">3. Configuration</a></span></dt>
+			<dd>
+				<dl>
+					<dt><span class="section"><a href="#idmunitinstall_xxe">Configuring IdMUnit</a></span></dt>
+					<dd>
+						<dl>
+							<dt><span class="section"><a href="#d5e135">Profile Configuration</a></span></dt>
+							<dt><span class="section"><a href="#d5e145">Profile Selection</a></span></dt>
+							<dt>
+								<span class="section"><a href="#d5e159">Password Encryption for Use in the IdMUnit Profile
+								Configuration</a></span>
+							</dt>
+							<dt>
+								<span class="section"><a href="#d5e188">Import a Certificate into IdMUnit for SSL Communication via the
+								LDAP Connector</a></span>
+							</dt>
+						</dl>
+					</dd>
+				</dl>
+			</dd>
+			<dt><span class="chapter"><a href="#d5e206">4. SpreadsheetSetup</a></span></dt>
+			<dd>
+				<dl>
+					<dt><span class="section"><a href="#d5e215">Setup Section</a></span></dt>
+					<dt><span class="section"><a href="#d5e224">Test Section</a></span></dt>
+					<dt><span class="section"><a href="#d5e236">Miscellaneous Spreadsheet Information</a></span></dt>
+				</dl>
+			</dd>
+		</dl>
+	</div>
+	<hr/>
+	<div class="chapter" title="Chapter&nbsp;1.&nbsp;Introduction">
+		<div class="titlepage">
+			<h2 class="title"><a name="d5e25"></a>Chapter&nbsp;1.&nbsp;Introduction</h2>
+		</div>
+		<p>
+			IdMUnit is a must-have automated testing tool that integrates with
+			Designer for Identity Manager. This suite, based on xUnit
+			architecture, will automatically transform documented test cases
+			into actual automated tests, execute them, and record the results
+			(pass/fail/warning) in text and/or HTML output. This suite provides
+			integrated policy, driver and system testing to accelerate the project
+			release time-frame, ease development risk, control scope, and ensure
+			logical compliance with functional requirements from design until
+			deployment and beyond. Complete functional testing can now be completed
+			for the entire identity management solution in seconds rather than
+			weeks.
+		</p>
+		<p>
+			IdMUnit provides a quality-control compliment to Identity Manager as
+			it quickly certifies that installed drivers are functioning according to
+			business rules and solution specifications. It also works with TriVir's
+			Data Comparator, which validates the state of every synchronized object
+			and attribute to ensure that synchronization is working as expected
+			throughout connected production systems.
+		</p>
+		<p>
+			This software is developed and maintained by TriVir. TriVir
+			maintains two versions of IdMUnit, a customer and an open source
+			version. New features and updates are made regularly to the customer
+			version of the code. When enough changes are accumulated in the
+			customer version of the code then the Open Source version is updated
+			with the changes from the customer version.
+		</p>
+	</div>
+	<div class="chapter" title="Chapter&nbsp;2.&nbsp;Installation">
+		<div class="titlepage">
+			<h2 class="title"><a name="install"></a>Chapter&nbsp;2.&nbsp;Installation</h2>
+		</div>	
+		<p>
+			These installation instructions cover installing IdMUnit into
+			Designer for Novell Identity Manager. IdMUnit can also be executed using a
+			command line interface, but that is not covered as part of this
+			document.
+		</p>
+		<div class="section" title="Installing IdMUnit">
+			<div class="titlepage">
+				<h2 class="title" style="clear: both"><a name="installing_xxe"></a>Installing IdMUnit</h2>
+			</div>
+			<div class="section" title="Requirements">
+				<div class="titlepage">
+					<div>
+						<div><h3 class="title"><a name="d5e35"></a>Requirements</h3></div>
+					</div>
+				</div>
+				<div class="itemizedlist">
+					<ul class="itemizedlist" type="disc">
+						<li class="listitem">
+							<p>
+								Any operating system supported by Designer for Novell
+								Identity Manager
+							</p>
+						</li>
+						<li class="listitem">
+							<p>At least a 1GHz CPU</p>
+						</li>
+						<li class="listitem">
+							<p>At least 1024Mb of RAM</p>
+						</li>
+						<li class="listitem">
+							<p>40Mb of free disk space</p>
+						</li>
+					</ul>
+				</div>
+				<p>IdMUnit has been tested with:</p>
+				<div class="itemizedlist">
+					<ul class="itemizedlist" type="disc">
+						<li class="listitem">
+							<p>
+								<a class="ulink" href="http://java.sun.com/j2se/" target="_top">Sun <span class="trademark">Java</span>&#8482;</a>
+								runtime 1.5+ (up to 1.6.0_07) under Windows 2000, XP, Vista, openSUSE Linux 10.2, SUSE
+								Linux Enterprise Desktop 10.x and SUSE Linux Enterprise Server.
+							</p>
+						</li>
+						<li class="listitem">
+							<p>
+								Command line version tested on multiple revisions of Solaris
+								and NetWare in addition to the platforms listed above.
+							</p>
+						</li>
+						<li class="listitem">
+							<p>
+								Designer versions 3.5.1, 4.0, and 4.0.1 or Eclipse for Java Developers (<a class="ulink" href="http://download.novell.com" target="_top">http://download.novell.com</a> or <a class="ulink" href="http://www.eclipse.org" target="_top">http://www.eclipse.org</a>)
+							</p>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<div class="section" title="Installing IdMUnit Components">
+				<div class="titlepage">
+					<h3 class="title"><a name="d5e58"></a>Installing IdMUnit Components</h3>
+				</div>
+				<div class="procedure">
+					<ol class="procedure" type="1">
+						<li class="step" title="Step 1">
+							<p>
+								Download the release of IdMUnit from <a class="ulink" href="http://www.idmunit.org/web/guest/downloads" target="_top">http://www.idmunit.org</a>.
+							</p>
+						</li>
+						<li class="step" title="Step 2">
+							<p>
+								Open Designer
+							</p>
+						</li>
+						<li class="step" title="Step 3">
+							<p>Set up the Java Perspective in Designer</p>
+							<p>In Designer go to Window-&gt;Open Perspective and select Java.</p>
+							<p>
+								<a href="./images/designer9.bmp" target="_blank">
+									<img class="bordered" src="./images/designer9.bmp" alt="Picture of Designer"/>
+								</a>
+							</p>
+							<p>
+								The Java perspective should now be selectable at the top right of the Designer
+								window as seen here:
+							</p>
+							<p>
+								<a href="./images/designer7.bmp" target="_blank"/>
+									<img src="./images/designer7.bmp" alt="Picture of Designer"/>
+								</a>
+							</p>
+							<p>
+								Enable the Java perspective.
+							</p>
+						</li>
+						<li class="step" title="Step 4">
+							<p>Import IdMUnit project from the release into Designer. (Downloaded in Step 1.)</p>
+							<div class="orderedlist">
+								<ol class="orderedlist" type="i">
+									<li class="listitem">
+										<p>
+											From the Java perspective, Select Project-&gt; Import Project-&gt; File
+											System...
+										</p>
+									</li>
+									<li class="listitem">
+										<p>Select "Existing Projects into Workspace" for the import source and click Next.</p>
+									</li>
+									<li class="listitem">
+										<p>
+											Select archive file, specify the IdMUnit release zip and click Finish.
+										</p>
+									</li>
+									<li class="listitem">
+										<p>Select "IdMUnitTests" from the list of "Projects" and click Finish.</p>
+									</li>
+								</ol>
+								<p>Note: Go to Window->Show View->Package Explorer if it didn't automatically show up.</p>
+							</div>
+						</li>
+						<li class="step" title="Step 5">
+							<p>Creating a New Test Spreadsheet and Runner</p>
+							<div class="orderedlist">
+								<p>
+									You are now ready to create the Excel workbook and the
+									corresponding Java class for your project.
+								</p>
+								<p>
+									The Excel workbook name must consist of only
+									alpa-numeric characters and must not start with a
+									number.
+								</p>
+								<p>
+									The name of the Java class must match the name of the
+									workbook.
+								</p>
+								<p>
+									The Java class must extend the
+									<span class="type">org.idmunit.IdMUnitTestCase</span> class.
+								</p>
+								<p>
+									Any sheets you want to execute from the workbook need a
+									corresponding method in the Java class. The sheet and class names must start with "test".
+								</p>
+								<p>
+									The method should consist of only a call to the
+									executeTest method.
+								</p>
+<pre><code class="programlisting">public void testMetaToADUserAdd() throws IdMUnitException {
+executeTest()
+}</code></pre>
+								<p>
+									The Java class must include a suite method with a call
+									to DDStepsSuiteFactory.createSuite.
+								</p>
+<pre><code class="programlisting">public static Test suite() {
+return DDStepsSuiteFactory.createSuite(YourClass.class)
+}</code></pre>
+							</div>
+						</li>
+						<li class="step" title="Step 6">
+							<p>Basic Test Execution</p>
+							<p>Test configurations may be executed as follows:</p>
+							<div class="orderedlist">
+								<ol class="orderedlist" type="i">
+									<li class="listitem">
+										<p>Expand the test project in the Package Explorer view of Designer.</p>
+									</li>
+									<li class="listitem">
+										<p>
+											Open the desired test runner in Designer (this file will
+											be named with the same name as the target test spreadsheet but
+											with a .Java file extension) by double-clicking the file
+											name.
+										</p>
+									</li>
+									<li class="listitem">
+										<p>
+											Enable or disable the desired test sheets that should be
+											executed from the spreadsheet/workbook. To disable tests simply comment them out with a double forward slash "//".
+										</p>
+									</li>
+									<li class="listitem">
+										<p>
+											Execute the spreadsheet tests by right clicking the
+											window (or the file name in the Package Explorer) and run as
+											JUnit test.
+										</p>
+									</li>
+									<li class="listitem">
+										<p>
+											Monitor progress in the JUnit plug-in of
+											Designer.
+										</p>
+										<p>
+											<span class="bold"><strong>Important:</strong></span> After updating a test
+											in a particular spreadsheet it <span class="bold"><strong>MUST BE</strong></span> must be
+											saved and then refreshed in Designer to pull the latest test configuration into
+											the project. A spreadsheet can be refreshed in Designer by right-clicking and
+											selecting refresh or by hitting F5 while the containing folder is selected.
+										</p>
+									</li>
+								</ol>
+							</div>
+						</li>
+					</ol>
+				</div>
+			</div>
+		</div>
+		<div class="section" title="IdMUnit Spreadsheet Content: Identity Management-related Nouns and Verbs">
+			<div class="titlepage">
+				<div>
+					<div>
+						<h2 class="title" style="clear: both">
+							<a name="content_of_install_dir"></a>IdMUnit Spreadsheet Content: Identity Management-related Nouns
+							and Verbs
+						</h2>
+					</div>
+				</div>
+			</div>
+			<div class="section" title="Spreadsheet Usage Vocabulary">
+				<div class="titlepage"><div><div><h3 class="title">
+					<a name="d5e124"></a>Spreadsheet Usage Vocabulary</h3>
+				</div>
+				</div>
+				</div>
+				<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+					<li class="listitem">
+						<p>
+							IdMUnit talks directly to each Identity Manager-connected
+							system to generate and validate transactions and data. The
+							transactions generated by IdMUnit include all those possible and
+							common in identity management integrations such as object add,
+							modify, delete, rename, move, enable, disable, password
+							initialization, password sync, locked by intruder, etc.
+						</p>
+					</li>
+					<li class="listitem">
+						<p>
+							Refer to the IdMUnit 2.0 Reference Spreadsheet for examples
+							on all officially supported transactions and validations (found in
+							idmunit-core/docs/IdMUnitReference.xls)
+						</p>
+					</li>
+				</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="chapter" title="Chapter&nbsp;3.&nbsp;Configuration">
+		<div class="titlepage">
+			<div>
+				<div>
+					<h2 class="title"><a name="idmunitinstall"></a>Chapter&nbsp;3.&nbsp;Configuration</h2>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="section" title="Configuring IdMUnit">
+		<div class="titlepage">
+			<div>
+				<div>
+					<h2 class="title" style="clear: both"><a name="idmunitinstall_xxe"></a>Configuring IdMUnit</h2>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="section" title="Profile Configuration">
+		<div class="titlepage">
+			<div>
+				<div>
+					<h3 class="title"><a name="d5e135"></a>Profile Configuration</h3>
+				</div>
+			</div>
+		</div>
+		<div class="itemizedlist">
+			<ul class="itemizedlist" type="disc">
+				<li class="listitem">
+					<p>
+						Profiles contain a collection of connection information
+						required for target systems. A single profile represents all of
+						the necessary information required to talk to Identity
+						Manager-connected systems within a single environment, like the
+						development lab, test lab, or production environment. For
+						additional details on the layout of a profile, see
+						IdMUnit.dtd.
+					</p>
+					<p>Sample profile excerpt:</p>
+					<p>
+						<a href="./images/profileExcerpt.bmp" target="_blank">
+							<img src="./images/profileExcerpt.bmp" alt="Profile Picture"/>
+						</a>
+					</p>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div class="section" title="Profile Selection">
+		<div class="titlepage">
+			<div>
+				<div>
+					<h3 class="title"><a name="d5e145"></a>Profile Selection</h3>
+				</div>
+			</div>
+		</div>
+		<div class="itemizedlist">
+			<ul class="itemizedlist" type="disc">
+				<li>
+					Profiles can be used to test against multiple environments. For example, one could have a Dev, Test, and Prod profile to test your IDM solution in multiple environments.
+				</li>
+				<li class="listitem">
+					<p>
+						The &#8221;live-profile&#8221; specified at the top of the
+						IdMUnit-config.xml file will be the profile used by IdMUnit for
+						test execution.
+					</p>
+					<p>For example:</p>
+					<p>
+						<a href="./images/profileHeader.bmp" target="_blank">
+							<img src="./images/profileHeader.bmp" alt="Profile Header Image"/>
+						</a>
+					</p>
+					<p>
+						This configuration would execute tests against the
+						connections specified in the &#8221;trivirLab&#8221; profile. It
+						would also write a log and send email alerts if any tests fail
+						that have been marked as "IsCritical" in the spreadsheet.
+					</p>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="section" title="Password Encryption for Use in the IdMUnit Profile Configuration">
+		<div class="titlepage">
+			<div>
+				<div>
+					<h3 class="title"><a name="d5e159"></a>Password Encryption for Use in the IdMUnit Profile Configuration</h3>
+				</div>
+			</div>
+		</div>
+		<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+			<li class="listitem">
+				<p>
+					Passwords need to be encrypted using DES and base-64 encoded
+					in order to be used in idmunit-profile.xml. The following steps
+					will encrypte and encode a password:
+				</p>
+			</li>
+		</ul>
+		</div>
+		<div class="orderedlist"><ol class="orderedlist" type="1">
+			<li class="listitem">
+				<p>Open the EncTool class in the Package Explorer</p>
+			</li>
+			<li class="listitem">
+				<p>
+					Expand the IdMUnit-core folder in the Package Explorer
+					--&gt; expand the org.IdMUnit package --&gt; right-click EncTool
+					and select Run-AS --&gt; then select the green Run button
+				</p>
+			</li>
+			<li class="listitem">
+				<p>
+					Select Java application in the left pane of the new pop-up
+					window
+				</p>
+			</li>
+			<li class="listitem">
+				<p>
+					Click the &#8221;new&#8221; icon in the top left-hand
+					corner and a configuration layout will appear to the right
+				</p>
+			</li>
+			<li class="listitem">
+				<p>Select the arguments tab</p>
+			</li>
+			<li class="listitem">
+				<p>
+					In the Program Arguments field, type the following where
+					mypassword is the actual password of the system like so:
+				</p>
+			</li>
+			<li class="listitem">
+				<code class="programlisting">
+					IDMUNIT1 mypassword
+				</code>
+			</li>
+			<li class="listitem">
+				<p>
+					Click Run at the bottom and the password will be encrypted
+					with DES and base-64 encoded.
+				</p>
+			</li>
+			<li class="listitem">
+				<p>
+					Copy the generated password to the IdMUnit-profiles.xml for
+					the target system
+				</p>
+			</li>
+			<li class="listitem">
+				<p>
+					Note that the key IDMUNIT1 may be changed, as long as the
+					bytes for the key are specified in the top of the EncTool source
+					in the &#8221;iv&#8221; class member variable:
+				</p>
+				<code class="programlisting">private final byte[] iv = { 0x0a, 0x01, 0x02, 0x03, 0x04, 0x0b, 0x0c, 0x0d };</code>
+			</li>
+		</ol>
+		</div>
+	</div>
+	<div class="section" title="Import a Certificate into IdMUnit for SSL Communication via the LDAP Connector">
+		<div class="titlepage">
+			<div>
+				<div>
+					<h3 class="title">
+						<a name="d5e188"></a>Import a Certificate into IdMUnit for SSL Communication via the
+						LDAP Connector
+					</h3>
+				</div>
+			</div>
+		</div>
+		<div class="itemizedlist"><ul class="itemizedlist" type="disc">
+			<li class="listitem">
+				<p>
+					This procedure follows the steps used to configure a
+					standard Java Keystore:
+				</p>
+				<div class="orderedlist">
+					<ol class="orderedlist" type="1">
+						<li class="listitem">
+							<p>
+								Export a DER encoded trusted-root certificate (from the
+								target AD DC, eDirectory or other LDAP server)
+							</p>
+						</li>
+						<li class="listitem">
+							<p>
+								Copy the DER encoded certificate onto the machine where
+								IdMUnit is running. It may be copied into
+								IdMUnit/util/security where a batch file resides that will
+								help with importing the certificate into a Java certificate
+								store
+							</p>
+						</li>
+						<li class="listitem">
+							<p>
+								Edit the IdMUnit/util/security/importCert.bat file to
+								import the certificate into a known keystore as follows where
+								MYCERT.cer is the name of the exported certificate file and
+								the MYSSLKEY is the alias name of this certificate in the
+								keystore:
+							</p>
+						</li>
+						<li class="listitem">
+							<p>SAMPLE importCert.bat:</p>
+							<code class="programlisting">java sun.security.tools.KeyTool -import -file MYCERT.cer -keystore keystore -alias "type=r.name=MYSSLKEY"</code>
+						</li>
+						<li class="listitem">
+	<p>When executed, the keytool will ask for a password. Any password may be
+	assigned to the keystore (remember this password in order to add additional
+	certificates later on). The certificate file name and alias name may be
+	parameterized with %1 and %2.</p>
+	</li>
+					</ol>
+				</div>
+			</li>
+		</ul>
+		</div>
+	</div>
+
+	<div class="chapter" title="Chapter&nbsp;4.&nbsp;SpreadsheetSetup">
+		<div class="titlepage">
+			<div>
+				<div>
+					<h2 class="title"><a name="d5e206"></a>Chapter&nbsp;4.&nbsp;SpreadsheetSetup</h2>
+				</div>
+			</div>
+		</div>		
+		<p>Here is an example of what a test looks like.</p>
+		<div>
+			<a href="./images/_WholeTest.bmp" target="_blank">
+				<img class="bordered" src="images/_WholeTest.bmp" alt="Image of Entire Test"/>
+			</a>
+			<div style="padding:0; margin:0; margin-bottom:3em; font-size:11pt; text-align:center; width:100%;">Click image to expand.</div>
+		</div>
+		<p>
+			IdMUnit parses an Excel spreadsheet for test instructions. Each section is separated by
+			"---". There should be three instances of this string in the first column.
+		</p>
+		
+		Here is an example of what the first column looks like containing the "---" string.		
+		<div>
+			<div style="float:left;padding:20px;">
+				<a href="./images/_Sections.bmp" target="_blank">
+					<img src="./images/_Sections.bmp" alt="Image of Sections"/>
+				</a>
+				<div style="padding:0; margin:0; margin-bottom:3em; font-size:11pt; text-align:center; width:100%;">Comment Column</div>
+			</div>
+			<div style="float:left;width:40%;line-height:1.5;padding:20px;">
+				<ul>
+					<li>Instances of "---":
+						<ol>			
+							<li>
+								Start of test. Above first "---", put titles and other information specific to the current test.
+							</li>
+							<li>
+								Start of test operations. After everything is defined in previous section, test operations will be placed here.
+							</li>
+							<li>
+								End of test.
+							</li>
+						</ol>
+					</li>
+				</ul>
+			</div>			
+		</div>
+		
+		
+		<div class="section" title="Setup Section" style="clear:both;">
+			<div class="titlepage">
+				<div>
+					<div>
+						<h2 class="title"><a name="d5e215"></a>Setup Section</h2>
+					</div>
+				</div>
+			</div>
+			<p>
+				The top section of your test is split into two parts. The first part will specify which
+				connection you want to target and the second part will specify the names of the attributes
+				you want to test in the connection specified on that line. There must be a corresponding connection in the idmunit-config.xml file.
+			</p>
+			<p>Below is an example of the connector part. Note that it is green.</p>
+			<div>
+				<a href="./images/_ConnectionSection.bmp" target="_blank">
+					<img class="bordered" src="./images/_ConnectionSection.bmp" alt="Image of Connection Section"/>
+				</a>
+				<div style="padding:0; margin:0; margin-bottom:3em; font-size:11pt; text-align:center; width:100%;">Connection Section: Left side of test.</div>
+			</div>
+			<p>Below is an example of the attribute part. Note that it is yellow.</p>
+			<div>
+				<a href="./images/_AttributeSection.bmp" target="_blank">
+					<img class="bordered" src="./images/_AttributeSection.bmp" alt="Image of Attribute Section"/>
+				</a>
+				<div style="padding:0; margin:0; margin-bottom:3em; font-size:11pt; text-align:center; width:100%;">Attribute Section: Right side of test.</div>
+			</div>
+		</div>
+		<div class="section" title="Test Section"></div>
+		<div class="titlepage">
+			<div>
+				<div>
+					<h2 class="title" style="clear: both"><a name="d5e224"></a>Test Section</h2>
+				</div>
+			</div>
+		</div>
+		<p>
+			The lower section is where all the test operations are placed. It is divided into two
+			parts as well. The first part will define the function and the parameters for the function.
+			The second part contains the attributes as well as the target object DN or target SQL statement.
+		</p>
+		<p>The first part, where the functions actually reside, looks like this:</p>
+		<div>
+			<a href="./images/_OperationsSection.bmp" target="_blank">
+				<img class="bordered" src="./images/_OperationsSection.bmp" alt="Image of Operations Section"/>
+			</a>
+			<div style="padding:0; margin:0; font-size:11pt; text-align:center; width:100%;">Left side of spreadsheet</div>
+		</div>
+		<p>
+			You'll notice that the word "comment" shows up in the second column quite a bit. That is
+			just telling the parser that this entire line is a comment. This allows for an organized
+			test structure that is readable. We've set up this test to have a PreTest or SETUP section,
+			a TEST section, and a CLEANUP section. The section names are not required, but they help with logging.
+		</p>
+		<p>
+			The second part, where the attributes and target of each operation reside, looks like
+			this:
+		</p>
+		<div>
+			<a href="./images/_AttributeValuesSection.bmp" target="_blank">
+				<img class="bordered" src="./images/_AttributeValuesSection.bmp" alt="Image of Attributes Section"/>
+			</a>
+			<div style="padding:0; margin:0; font-size:11pt; text-align:center; width:100%;">Right side of spreadsheet</div>
+		</div>
+		<p>
+			The first column of this section is the DN of the target for the operation: Note the column is defined in the Setup Section. When testing with a database, the value would be an SQL statement. The DN or SQL statements are required for the test to run.
+		</p>
+		<p>
+			For a better look at all of these sections, look at the example test spreadsheet(an
+			Excel .xls file) provided with this open source build.
+		</p>
+		<p>
+			Matching similar attributes across different target services like AD and eDirectory
+			makes it easy to see changes between attributes making their way to different
+			services.
+		</p>
+		<div>
+			<a href="./images/_TargetSpecificAttributesHighlighted.bmp" target="_blank">
+				<img class="bordered" src="./images/_TargetSpecificAttributesHighlighted.bmp" alt="Image of Attributes Section"/>
+				
+			</a>
+			<div style="padding:0; margin:0; font-size:11pt; text-align:center; width:100%;">Differing attribute values according to their matching connector</div>
+		</div>
+		<p>
+			As can be seen in the image above, the attributes will match the target connection. The attribute name "dn" can also 
+			vary depending on the connection. It is easy to manage multiple connections on one test because of this.
+		</p>	
+	</div>
+</div>	
+</body>
+</html>
