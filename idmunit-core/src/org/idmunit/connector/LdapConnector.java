@@ -493,6 +493,17 @@ public class LdapConnector extends BasicConnector {
         // create a defensive copy of the config.
         this.config = Collections.unmodifiableMap(config); // Config is stored for use in opValidatePassword.
         this.m_context = LdapConnectionHelper.createLdapConnection(new HashMap<String,String>(config));
+        addDnAttributes(config.get("dn-attributes"));
+    }
+
+    private void addDnAttributes(String param) {
+        if (param != null && !param.isEmpty())
+        {
+            for (String value : param.split(","))
+            {
+                dnAttributes.add(value);
+            }
+        }
     }
 
     public void tearDown() throws IdMUnitException {
