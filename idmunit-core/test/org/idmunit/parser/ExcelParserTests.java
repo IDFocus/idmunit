@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.idmunit.ConnectorManager;
+import org.idmunit.ExampleTest;
 import org.idmunit.IdMUnitTestCase;
 //import org.idmunit.TrivirADDomainDriverTests;
 
@@ -24,7 +25,7 @@ public class ExcelParserTests extends TestCase {
         System.setProperty("ConfigLocation", "./docs/IdMUnit-Reference-idmunit-config.xml");
         System.setProperty("ApplySubstitutionsToOperations", "false");
         System.setProperty("ApplySubstitutionsToData", "true");
-//		ExcelParser.createSuite(TrivirADDomainDriverTests.class);
+		ExcelParser.createSuite(ExampleTest.class);
 	}
 
     @SuppressWarnings("unchecked")
