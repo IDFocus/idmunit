@@ -1,6 +1,7 @@
 /* 
  * IdMUnit - Automated Testing Framework for Identity Management Solutions
- * Copyright (c) 2005-2009 TriVir, LLC
+ * Copyright (c) 2005-2012 TriVir, LLC
+ * Copyright (c) 2017 IDFocus B.V.
  *
  * This program is licensed under the terms of the GNU General Public License
  * Version 2 (the "License") as published by the Free Software Foundation, and 
@@ -28,6 +29,7 @@ package org.idmunit.connector;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -59,9 +61,10 @@ import org.idmunit.IdMUnitException;
 import org.idmunit.IdMUnitFailureException;
 import org.idmunit.util.LdapConnectionHelper;
 
-import sun.misc.BASE64Encoder;
+import com.novell.ldap.util.Base64;
 
 public class LdapConnector extends BasicConnector {
+    
     private final static String STR_DN = "dn";
     private final static String STR_NEW_DN = "newdn";
     private final static String STR_USER_PASSWORD = "userPassword";
@@ -73,19 +76,24 @@ public class LdapConnector extends BasicConnector {
     
     private static Log logger = LogFactory.getLog(LdapConnector.class);
 
-    private TreeSet<String> operationalAttributes = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+    private TreeSet<String> operationalAttributes = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+    private TreeSet<String> dnAttributes = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
 	private boolean insensitive = false;
     protected String server;
 
     private DirContext m_context;
-    private Map<String,String> config; //Storing config for use in opValidatePassword.
+    protected Map<String,String> config; //Storing config for use in opValidatePassword.
 
     public LdapConnector() {
         operationalAttributes.add("nsaccountlock");
         operationalAttributes.add("DirXML-State");
         operationalAttributes.add("pwdaccountlockedtime");
         operationalAttributes.add("members");
+        // FIXME Should come from config in setup() 
+        dnAttributes.add("manager");
+        dnAttributes.add("directReports");
+        dnAttributes.add("secretary");
     }
 
     public void opAddAttr(Map<String, Collection<String>> dataRow) throws IdMUnitException {
@@ -99,7 +107,7 @@ public class LdapConnector extends BasicConnector {
         for (String name : dataRow.keySet()) {
             Collection<String> dataValue = dataRow.get(name);
 
-            if (dataValue.size() == 0) {
+            if (dataValue.isEmpty()) {
                 continue;
             }
 
@@ -109,6 +117,8 @@ public class LdapConnector extends BasicConnector {
             } else if (name.equalsIgnoreCase(STR_UNICODE_PASSWORD)) {
                 byte[] unicodePwdVal = getUnicodeBytes(dataValue.iterator().next());
                 createAttrs.put(name, unicodePwdVal);
+            } else if (dnAttributes.contains(name)) {
+                createAttrs.put(name, getTargetDn( dataRow, name ));
             } else {
                 BasicAttribute multiValuedAttr = new BasicAttribute(name);
                 for (Iterator<String> i=dataValue.iterator(); i.hasNext(); ) {
@@ -139,21 +149,21 @@ public class LdapConnector extends BasicConnector {
         String dn = getTargetDn(data);
         logger.debug("...performing LDAP modification for: [" + dn + "]");
 
-        List<ModificationItem> mods = new ArrayList<ModificationItem>();
+        List<ModificationItem> mods = new ArrayList<>();
         for (String attrName : data.keySet() ) {
             if (attrName.equalsIgnoreCase(STR_DN)) {
                 continue;
             }
 
             for (String attrVal : data.get(attrName)) {
-                if (attrVal.equals("*") == false) {
+                if (!"*".equals(attrVal)) {
                     throw new IdMUnitException("You must specify '*' as the attribute value for the clearAttr operation.");
                 }
             }
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(attrName)));
         }
 
-        if (mods.size() > 0) {
+        if (!mods.isEmpty()) {
             try {
                 m_context.modifyAttributes(dn, (ModificationItem[])mods.toArray(new ModificationItem[mods.size()]));
             } catch (NameNotFoundException e) {
@@ -230,7 +240,7 @@ public class LdapConnector extends BasicConnector {
 			return;
 		}
 
-        List<ModificationItem> mods = new ArrayList<ModificationItem>();
+        List<ModificationItem> mods = new ArrayList<>();
         for (String attrName : data.keySet()) {
             if (attrName.equalsIgnoreCase(STR_DN)) {
                 continue;
@@ -252,7 +262,14 @@ public class LdapConnector extends BasicConnector {
                     mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE, new BasicAttribute(attrName, oldAttrVal)));
                 }
             } else {
-                Collection<String> values = data.get(attrName);
+                Collection<String> values;
+                // Resolve dn attributes if needed
+                if (dnAttributes.contains(attrName))
+                { 
+                    values = Arrays.asList( getTargetDn(data, attrName) );
+                } else {
+                    values = data.get(attrName);
+                }
                 Attribute modValues = new BasicAttribute(attrName);
 
                 Collection<String> curValues = curAttrs.get(attrName);
@@ -277,7 +294,7 @@ public class LdapConnector extends BasicConnector {
             }
         }
 
-        if (mods.size() > 0) {
+        if (!mods.isEmpty()) {
             try {
                 m_context.modifyAttributes(dn, (ModificationItem[])mods.toArray(new ModificationItem[mods.size()]));
             } catch (NamingException e) {
@@ -363,8 +380,16 @@ public class LdapConnector extends BasicConnector {
 			if(attrName.equalsIgnoreCase(STR_USER_PASSWORD)) {
 				continue;
 			}
-
-            Collection<String> expectedValues = expectedAttrs.get(attrName);
+            // Get expected values, resolve dn attributes if needed
+            Collection<String> expectedValues;
+            if (dnAttributes.contains(attrName))
+            {
+                expectedValues = Arrays.asList( getTargetDn( expectedAttrs, attrName) );
+            }
+            else
+            {
+                expectedValues = expectedAttrs.get(attrName);               
+            }
             Collection<String> actualValues;
             if (operationalAttributes.contains(attrName)) {
                 // Operational attributes are not returned from the server when
@@ -375,7 +400,7 @@ public class LdapConnector extends BasicConnector {
                 actualValues = appAttrs.get(attrName);
             }
 
-            if (actualValues == null || actualValues.size() == 0) {
+            if (actualValues == null || actualValues.isEmpty()) {
             	if (bIsAttrDoesNotExistTest) {
             		return;
             	}
@@ -399,7 +424,7 @@ public class LdapConnector extends BasicConnector {
 				throw new IdMUnitFailureException("Missing " + STR_USER_PASSWORD + " attribute");
 			}
             logger.info("...performing LDAP password validation for: [" + dn + "]");
-            Map<String,String> config = new HashMap<String,String>(this.config);
+            Map<String,String> config = new HashMap<>(this.config);
             config.put(CONFIG_USER, dn);
             config.put(CONFIG_PASSWORD, passwordVal);
             tempConn = LdapConnectionHelper.createLdapConnection(config);
@@ -446,9 +471,9 @@ public class LdapConnector extends BasicConnector {
 			byte[] newUnicodePassword = newQuotedPassword.getBytes("UTF-16LE");
 
 			mods[0] = new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
-					new BasicAttribute("unicodePwd", oldUnicodePassword));
+					new BasicAttribute(STR_UNICODE_PASSWORD, oldUnicodePassword));
 			mods[1] = new ModificationItem(DirContext.ADD_ATTRIBUTE,
-					new BasicAttribute("unicodePwd", newUnicodePassword));
+					new BasicAttribute(STR_UNICODE_PASSWORD, newUnicodePassword));
 
 			// Perform the password change
 			m_context.modifyAttributes(dn, mods);
@@ -487,7 +512,7 @@ public class LdapConnector extends BasicConnector {
             int resultCtr = 0;
             while (results.hasMoreElements()) {
                 ++resultCtr;
-                sr = (SearchResult) results.next();
+                sr = results.next();
                 if(resultCtr == 1) {
                 	if(sr.getName()!= null && sr.getName().length() > 0) {
                 		resolvedDn = sr.getName() + "," + base;
@@ -534,8 +559,11 @@ public class LdapConnector extends BasicConnector {
     }
 
     protected String getTargetDn(Map<String, Collection<String>> data) throws IdMUnitException {
+        return getTargetDn(data, STR_DN);
+    }
 
-        String dn = ConnectorUtil.getSingleValue(data, STR_DN);
+    protected String getTargetDn(Map<String, Collection<String>> data, String attrname) throws IdMUnitException {
+        String dn = ConnectorUtil.getSingleValue(data, attrname);
 
         if (dn == null) {
             throw new IdMUnitException("A Distinguished Name must be supplied in column '" + STR_DN + "'");
@@ -562,7 +590,7 @@ public class LdapConnector extends BasicConnector {
             //Detect standard wildcard token * in the ID
             String[] nameComponents = dn.split("(?<!\\\\),");
             String idVal = nameComponents[0];
-            if (idVal.indexOf("*")==-1) return dn;
+            if (idVal.indexOf('*')==-1) return dn;
             // cn=TIDMTST*1,ou=users,o=myorg
             logger.debug("---> ID to search: " + idVal);
 
@@ -587,7 +615,7 @@ public class LdapConnector extends BasicConnector {
         String dn = getTargetDn(dataRow);
         logger.debug("...performing LDAP modification for: [" + dn + "]");
 
-        List<ModificationItem> mods = new ArrayList<ModificationItem>();
+        List<ModificationItem> mods = new ArrayList<>();
         for (String attrName : dataRow.keySet()) {
             if (attrName.equalsIgnoreCase(STR_DN)) {
                 continue;
@@ -621,7 +649,14 @@ public class LdapConnector extends BasicConnector {
                     continue;
                 }
             } else {
-                Collection<String> values = dataRow.get(attrName);
+                Collection<String> values;
+                // Resolve dn attributes if needed
+                if (dnAttributes.contains(attrName))
+                {
+                    values = Arrays.asList( getTargetDn(dataRow, attrName) );
+                } else {
+                    values = dataRow.get(attrName);
+                }
                 Attribute modValues = new BasicAttribute(attrName);
                 for (Iterator<String> j=values.iterator(); j.hasNext(); ) {
                     modValues.add(j.next());
@@ -631,7 +666,7 @@ public class LdapConnector extends BasicConnector {
             }
         }
 
-        if (mods.size() > 0) {
+        if (!mods.isEmpty()) {
             try {
                 m_context.modifyAttributes(dn, (ModificationItem[])mods.toArray(new ModificationItem[mods.size()]));
             } catch (NamingException e) {
@@ -649,17 +684,17 @@ public class LdapConnector extends BasicConnector {
     }
 
     private static TreeMap<String, Collection<String>> attributesToMap(Attributes attributes) throws NamingException {
-        TreeMap<String, Collection<String>> attrs = new TreeMap<String, Collection<String>>(String.CASE_INSENSITIVE_ORDER);
+        TreeMap<String, Collection<String>> attrs = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         NamingEnumeration<? extends Attribute> i = null;
         try {
             for (i=attributes.getAll(); i.hasMore(); ) {
                 Attribute attr = i.next();
                 String attrName = attr.getID();
-                List<String> attrValues = new LinkedList<String>();
+                List<String> attrValues = new LinkedList<>();
                 for (NamingEnumeration<?> j=attr.getAll(); j.hasMore(); ) {
                     Object value = j.next();
                     if (attrName.equals("msExchUMPinChecksum")) {
-                    	attrValues.add(new BASE64Encoder().encode(((String)value).getBytes()));                    	
+                    	attrValues.add(Base64.encode(((String)value).getBytes()));                    	
                     } else if (value instanceof String) {
                         attrValues.add((String)value);
                     } else {
@@ -683,7 +718,7 @@ public class LdapConnector extends BasicConnector {
     }
 
     protected void compareAttributeValues(String attrName, Collection<String> expected, Collection<String> actual, Failures failures) throws IdMUnitException {
-        Collection<String> unmatched = new LinkedList<String>(actual);
+        Collection<String> unmatched = new LinkedList<>(actual);
         outer:
         for (String expectedValue : expected) {
         	Pattern p = Pattern.compile(expectedValue, insensitive ? Pattern.CASE_INSENSITIVE : Pattern.DOTALL);
