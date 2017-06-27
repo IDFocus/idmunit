@@ -1,5 +1,7 @@
 /bin/
 /target/
+bin/
+target/
 
 # Apple Finder
 .DS_Store
