@@ -249,6 +249,11 @@ public class LdapConnectionHelper
                     wr.flush();
                 } catch (IOException e) {
                     throw new IdMUnitException("Error writing certificate to file '" + certFilePath + "'");
+                } finally {
+                    try {
+                        wr.close();
+                    } catch (IOException e) {
+                    }
                 }
             }
         } finally {

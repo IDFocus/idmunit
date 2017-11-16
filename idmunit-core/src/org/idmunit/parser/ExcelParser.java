@@ -67,7 +67,7 @@ import org.idmunit.connector.ConnectionConfigData;
 import org.idmunit.injector.Injection;
 import org.idmunit.injector.InjectionConfigData;
 
-public class ExcelParser {
+public class ExcelParser extends AbstractParser {
     private static final String XML_CONNECTIONS = "connections";
     private static final String OPERATION_HEADERS = "[Operation]";
     private static final String DEFAULT_HEADERS = "[Default]";
@@ -82,7 +82,8 @@ public class ExcelParser {
 
     private static Log LOG = LogFactory.getLog(ExcelParser.class);
 
-    public static Test createSuite(Class<?> testClass) {
+    @Override
+    public Test createSuite(Class<?> testClass) {
         Properties properties;
 		try {
 			properties = loadProperties();
